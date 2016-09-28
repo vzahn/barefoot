@@ -12,7 +12,7 @@
 # language governing permissions and limitations under the License.
 #
 
-if [ "$#" -eq "3" ]
+if [ "$#" -eq "3" ])
 then
 	database=$2
 	user=$3
@@ -45,16 +45,17 @@ fi
 echo "Done."
 
 
+echo "Start creation of table bfmap_wayd ..."
+sudo -u postgres psql -d ${database} -c "CREATE TABLE bfmap_ways ( \
+        gid bigserial,osm_id bigint NOT NULL, \
+        class_id integer NOT NULL, \
+        source bigint NOT NULL, \
+        target bigint NOT NULL, \
+        length double precision NOT NULL, \
+        reverse double precision NOT NULL, \
+        maxspeed_forward integer, \
+        maxspeed_backward integer, \
+        priority double precision NOT NULL);"
 
-sudo -u postgres psql -c "CREATE TABLE bfmap_ways (" \
-	"gid bigserial,osm_id bigint NOT NULL," \
-    "class_id integer NOT NULL," \
-    "source bigint NOT NULL," \
-    "target bigint NOT NULL," \
-    "length double precision NOT NULL," \
-    "reverse double precision NOT NULL," \
-    "maxspeed_forward integer," \
-    "maxspeed_backward integer," \
-    "priority double precision NOT NULL);"
-    				
-sudo -u postgres psql -c "SELECT AddGeometryColumn('bfmap_ways','geom',4326,'LINESTRING',2);"
+sudo -u postgres psql -d ${database} -c "SELECT AddGeometryColumn('bfmap_ways','geom',4326,'LINESTRING',2);"
+echo "Done."
