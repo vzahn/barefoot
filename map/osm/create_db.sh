@@ -58,4 +58,5 @@ sudo -u postgres psql -d ${database} -c "CREATE TABLE bfmap_ways ( \
         priority double precision NOT NULL);"
 
 sudo -u postgres psql -d ${database} -c "SELECT AddGeometryColumn('bfmap_ways','geom',4326,'LINESTRING',2);"
+sudo -u postgres psql -d bonn -c "ALTER TABLE bfmap_ways OWNER TO \"${user}\";"
 echo "Done."
