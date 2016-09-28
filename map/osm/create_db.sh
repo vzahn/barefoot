@@ -12,11 +12,11 @@
 # language governing permissions and limitations under the License.
 #
 
-if [ "$#" -eq "3" ])
+if [ "$#" -eq "3" ]
 then
-	database=$2
-	user=$3
-	password=$4
+	database=$1
+	user=$2
+	password=$3
 elif [ "$#" -eq "0" ]
 then
 	database=bonn
@@ -44,8 +44,7 @@ then
 fi
 echo "Done."
 
-
-echo "Start creation of table bfmap_wayd ..."
+echo "Start creation of table bfmap_ways ..."
 sudo -u postgres psql -d ${database} -c "CREATE TABLE bfmap_ways ( \
         gid bigserial,osm_id bigint NOT NULL, \
         class_id integer NOT NULL, \
@@ -58,5 +57,5 @@ sudo -u postgres psql -d ${database} -c "CREATE TABLE bfmap_ways ( \
         priority double precision NOT NULL);"
 
 sudo -u postgres psql -d ${database} -c "SELECT AddGeometryColumn('bfmap_ways','geom',4326,'LINESTRING',2);"
-sudo -u postgres psql -d bonn -c "ALTER TABLE bfmap_ways OWNER TO \"${user}\";"
+sudo -u postgres psql -d ${database} -c "ALTER TABLE bfmap_ways OWNER TO \"${user}\";"
 echo "Done."
