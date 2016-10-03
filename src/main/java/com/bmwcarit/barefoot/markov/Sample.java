@@ -31,7 +31,7 @@ public class Sample {
      * @param time Timestamp of position measurement in milliseconds epoch time.
      */
     public Sample(long time) {
-        this.time = time;
+        this.setTime(time);
     }
 
     /**
@@ -41,13 +41,13 @@ public class Sample {
      * @throws JSONException thrown on JSON extraction or parsing error.
      */
     public Sample(JSONObject json) throws JSONException {
-        time = json.optLong("time", Long.MIN_VALUE);
-        if (time == Long.MIN_VALUE) {
+        setTime(json.optLong("time", Long.MIN_VALUE));
+        if (getTime() == Long.MIN_VALUE) {
             String string = json.optString("time", "");
             if (!string.isEmpty()) {
                 try {
-                    time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX")
-                            .parse(json.getString("time")).getTime();
+                    setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX")
+                            .parse(json.getString("time")).getTime());
                 } catch (ParseException e) {
                     throw new JSONException(e);
                 }
@@ -63,10 +63,18 @@ public class Sample {
      * @return Timestamp of the measurement in milliseconds epoch time.
      */
     public long time() {
-        return time;
+        return getTime();
     }
 
-    /**
+    public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	/**
      * Gets a JSON representation of the {@link Sample} object.
      *
      * @return JSON representation of the {@link Sample} object.
@@ -74,7 +82,7 @@ public class Sample {
      */
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("time", time);
+        json.put("time", getTime());
         return json;
     }
 }
