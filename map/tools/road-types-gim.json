@@ -1,29 +1,3 @@
-# formOfWay * 100 + functionalClass;
-
-# Form of way
-# 0 undefined
-# 1 SUPERHIGHWAY
-# 2 HIGHWAY
-# 3 CONNECTOR
-# 4 NEIGHBOURHOOD
-# 5 LOCAL
-# 6 FERRY
-
-# Functional class
-#  0 undefined
-#  1 CONTROLLED ACCESS
-#  2 MULTI CARRIAGEWAY
-#  3 SINGLE CARRIAGEWAY
-#  4 ROUNDABOUT
-#  5 SPECIAL TRAFFIC FIGURE
-#  6 UNSTRUCTURED TRAFFIC AREA (e,g, Pl¿tze)
-#  7 FRONTAGE ROAD
-#  8 PARKING ACCESS
-#  9 POI ACCESS
-# 10 PEDESTRIAN ZONE
-# 11 WALKWAY
-# 12 FERRY
-
 {
   "tags":
     [
@@ -31,130 +5,124 @@
         "tag":"highway","id":1,"values":
           [
             {
-              "name":"controlled_access",
+              "name":"super highway - controlled_access",
               "id":101,
               "priority":0.9,
               "maxspeed":130
             },
             {
-              "name":"controlled_access",
+              "name":"super highway - multi carriageway",
               "id":102,
               "priority":0.9,
               "maxspeed":130
             },
             {
-              "name":"controlled_access",
+              "name":"super highway - single carriageway",
               "id":103,
               "priority":0.9,
               "maxspeed":130
             },
             {
-              "name":"controlled_access",
+              "name":"super highway - roundabout",
               "id":104,
               "priority":0.9,
               "maxspeed":130
             },
             {
-              "name":"multi_carriageway",
+              "name":"highway - multi carriageway",
               "id":202,
               "priority":1.1,
               "maxspeed":110
             },
             {
-              "name":"multi_carriageway",
+              "name":"highway - single carriageway",
               "id":203,
               "priority":1.1,
               "maxspeed":110
             },
             {
-              "name":"multi_carriageway",
+              "name":"highway - roundabout",
               "id":204,
               "priority":1.1,
               "maxspeed":110
             },
             {
-              "name":"multi_carriageway",
+              "name":"highway - special",
               "id":205,
               "priority":1.1,
               "maxspeed":110
             },
             {
-              "name":"single_carriageway",
+              "name":"connector - multi carriageway",
               "id":302,
               "priority":1.1,
               "maxspeed":80
             },
             {
-              "name":"single_carriageway",
+              "name":"connector - single carriageway",
               "id":303,
               "priority":1.1,
               "maxspeed":80
             },
             {
-              "name":"single_carriageway",
+              "name":"connector - roundabout",
               "id":304,
               "priority":1.1,
               "maxspeed":80
             },
             {
-              "name":"single_carriageway",
+              "name":"connector - special",
               "id":305,
               "priority":1.1,
               "maxspeed":80
             },
             {
-              "name":"roundabout",
+              "name":"neighbourhood - multi carriageway",
               "id":402,
               "priority":1.1,
               "maxspeed":50
             },
             {
-              "name":"roundabout",
+              "name":"neighbourhood - single carriageway",
               "id":403,
               "priority":1.1,
               "maxspeed":50
             },
             {
-              "name":"roundabout",
+              "name":"neighbourhood - roundabout",
               "id":404,
               "priority":1.1,
               "maxspeed":50
             },
             {
-              "name":"roundabout",
+              "name":"neighbourhood - special",
               "id":405,
               "priority":1.1,
               "maxspeed":50
             },
             {
-              "name":"special",
-              "id":5,
-              "priority":1.2,
+              "name":"local - multi carriageway",
+              "id":502,
+              "priority":1.1,
               "maxspeed":50
             },
             {
-              "name":"unstructured",
-              "id":6,
-              "priority":2.0,
-              "maxspeed":20
-            },
-            {
-              "name":"frontage_road",
-              "id":7,
-              "priority":2.0,
+              "name":"local - single carriageway",
+              "id":503,
+              "priority":1.1,
               "maxspeed":50
             },
             {
-              "name":"parking_access",
-              "id":8,
-              "priority":1.5,
-              "maxspeed":30
+              "name":"local - roundabout",
+              "id":504,
+              "priority":1.1,
+              "maxspeed":50
             },
             {
-              "name":"poi_access",
-              "id":905,
-              "priority":1.5,
-              "maxspeed":30
+              "name":"local - special",
+              "id":505,
+              "priority":1.1,
+              "maxspeed":50
             },
             {
               "name":"pedestrian",
@@ -163,19 +131,13 @@
               "maxspeed":5
             },
             {
-              "name":"walkway",
-              "id":11,
-              "priority":5.0,
-              "maxspeed":5
-            },
-            {
-              "name":"ferry",
+              "name":"ferry - roundabout",
               "id":1204,
               "priority":2.5,
               "maxspeed":5
             },
             {
-              "name":"ferry",
+              "name":"ferry - special",
               "id":1205,
               "priority":2.5,
               "maxspeed":5
