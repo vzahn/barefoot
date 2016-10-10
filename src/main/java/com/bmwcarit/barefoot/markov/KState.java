@@ -338,4 +338,21 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 
         return json;
     }
+    
+    /**
+     * Returns the candidate list and the samples.
+     * @return the sequence.
+     */
+    public LinkedList<Tuple<Set<C>, S>> getSequence() {
+    	return sequence;
+    }
+
+    /**
+     * Returns the candidate data.
+     * @return the counters.
+     */
+    public Map<C, Integer> getCounters() {
+    	return counters;
+    }
+
 }
