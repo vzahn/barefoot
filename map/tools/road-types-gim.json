@@ -3,7 +3,43 @@
     [
       {
         "tag":"highway","id":1,"values":
-          [
+          [   
+            {
+              "name":"unknown - unknown",
+              "id":0,
+              "priority":0.9,
+              "maxspeed":130
+            },
+            {
+              "name":"unknown - controlled_access",
+              "id":1,
+              "priority":0.9,
+              "maxspeed":130
+            },
+            {
+              "name":"unknown - multi carriageway",
+              "id":2,
+              "priority":0.9,
+              "maxspeed":130
+            },
+            {
+              "name":"unknown - single carriageway",
+              "id":3,
+              "priority":0.9,
+              "maxspeed":130
+            },
+            {
+              "name":"unknown - roundabout",
+              "id":4,
+              "priority":0.9,
+              "maxspeed":130
+            },
+            {
+              "name":"unknown - roundabout",
+              "id":5,
+              "priority":0.9,
+              "maxspeed":130
+            },
             {
               "name":"super highway - controlled_access",
               "id":101,
@@ -27,6 +63,18 @@
               "id":104,
               "priority":0.9,
               "maxspeed":130
+            },
+            {
+              "name":"super highway - special",
+              "id":105,
+              "priority":0.9,
+              "maxspeed":130
+            },
+            {
+              "name":"highway - controlled_access",
+              "id":201,
+              "priority":1.1,
+              "maxspeed":110
             },
             {
               "name":"highway - multi carriageway",
@@ -53,6 +101,12 @@
               "maxspeed":110
             },
             {
+              "name":"connector - controlled access",
+              "id":301,
+              "priority":1.1,
+              "maxspeed":80
+            },
+            {
               "name":"connector - multi carriageway",
               "id":302,
               "priority":1.1,
@@ -75,6 +129,12 @@
               "id":305,
               "priority":1.1,
               "maxspeed":80
+            },
+            {
+              "name":"neighbourhood - controlled access",
+              "id":401,
+              "priority":1.1,
+              "maxspeed":50
             },
             {
               "name":"neighbourhood - multi carriageway",
@@ -125,9 +185,21 @@
               "maxspeed":50
             },
             {
+              "name":"local - special",
+              "id":905,
+              "priority":1.1,
+              "maxspeed":50
+            },
+            {
               "name":"pedestrian",
               "id":1005,
               "priority":5.0,
+              "maxspeed":5
+            },
+            {
+              "name":"ferry - controlled access",
+              "id":1201,
+              "priority":2.5,
               "maxspeed":5
             },
             {
