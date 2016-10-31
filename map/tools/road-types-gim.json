@@ -5,212 +5,191 @@
         "tag":"highway","id":1,"values":
           [   
             {
-              "name":"unknown - unknown",
-              "id":0,
-              "priority":0.9,
-              "maxspeed":130
-            },
-            {
-              "name":"unknown - controlled_access",
-              "id":1,
-              "priority":0.9,
-              "maxspeed":130
-            },
-            {
-              "name":"unknown - multi carriageway",
-              "id":2,
-              "priority":0.9,
-              "maxspeed":130
-            },
-            {
-              "name":"unknown - single carriageway",
-              "id":3,
-              "priority":0.9,
-              "maxspeed":130
-            },
-            {
-              "name":"unknown - roundabout",
-              "id":4,
-              "priority":0.9,
-              "maxspeed":130
-            },
-            {
-              "name":"unknown - roundabout",
-              "id":5,
-              "priority":0.9,
-              "maxspeed":130
-            },
-            {
               "name":"super highway - controlled_access",
               "id":101,
               "priority":0.9,
-              "maxspeed":130
+              "maxspeed":120
             },
             {
               "name":"super highway - multi carriageway",
               "id":102,
               "priority":0.9,
-              "maxspeed":130
+              "maxspeed":120
             },
             {
               "name":"super highway - single carriageway",
               "id":103,
               "priority":0.9,
-              "maxspeed":130
+              "maxspeed":120
             },
             {
               "name":"super highway - roundabout",
               "id":104,
               "priority":0.9,
-              "maxspeed":130
+              "maxspeed":120
             },
             {
               "name":"super highway - special",
               "id":105,
               "priority":0.9,
-              "maxspeed":130
+              "maxspeed":120
             },
+            {
+              "name":"super highway - ferry",
+              "id":112,
+              "priority":2.5,
+              "maxspeed":5
+            },
+
             {
               "name":"highway - controlled_access",
               "id":201,
               "priority":1.1,
-              "maxspeed":110
+              "maxspeed":100
             },
             {
               "name":"highway - multi carriageway",
               "id":202,
               "priority":1.1,
-              "maxspeed":110
+              "maxspeed":100
             },
             {
               "name":"highway - single carriageway",
               "id":203,
               "priority":1.1,
-              "maxspeed":110
+              "maxspeed":100
             },
             {
               "name":"highway - roundabout",
               "id":204,
               "priority":1.1,
-              "maxspeed":110
+              "maxspeed":100
             },
             {
               "name":"highway - special",
               "id":205,
               "priority":1.1,
-              "maxspeed":110
+              "maxspeed":100
             },
+            
             {
               "name":"connector - controlled access",
               "id":301,
-              "priority":1.1,
-              "maxspeed":80
+              "priority":1.2,
+              "maxspeed":50
             },
             {
               "name":"connector - multi carriageway",
               "id":302,
-              "priority":1.1,
-              "maxspeed":80
+              "priority":1.2,
+              "maxspeed":50
             },
             {
               "name":"connector - single carriageway",
               "id":303,
-              "priority":1.1,
-              "maxspeed":80
+              "priority":1.2,
+              "maxspeed":50
             },
             {
               "name":"connector - roundabout",
               "id":304,
-              "priority":1.1,
-              "maxspeed":80
+              "priority":1.2,
+              "maxspeed":50
             },
             {
               "name":"connector - special",
               "id":305,
-              "priority":1.1,
-              "maxspeed":80
+              "priority":1.2,
+              "maxspeed":50
             },
+            
             {
               "name":"neighbourhood - controlled access",
               "id":401,
-              "priority":1.1,
-              "maxspeed":50
+              "priority":1.4,
+              "maxspeed":30
             },
             {
               "name":"neighbourhood - multi carriageway",
               "id":402,
-              "priority":1.1,
-              "maxspeed":50
+              "priority":1.4,
+              "maxspeed":30
             },
             {
               "name":"neighbourhood - single carriageway",
               "id":403,
-              "priority":1.1,
-              "maxspeed":50
+              "priority":1.4,
+              "maxspeed":30
             },
             {
               "name":"neighbourhood - roundabout",
               "id":404,
-              "priority":1.1,
-              "maxspeed":50
+              "priority":1.4,
+              "maxspeed":30
             },
             {
               "name":"neighbourhood - special",
               "id":405,
-              "priority":1.1,
-              "maxspeed":50
+              "priority":1.4,
+              "maxspeed":30
             },
             {
+              "name":"neighbourhood - ferry",
+              "id":412,
+              "priority":2.5,
+              "maxspeed":5
+            },
+            
+            {
+              "name":"local - controlled_access",
+              "id":501,
+              "priority":1.5,
+              "maxspeed":80
+            },            {
               "name":"local - multi carriageway",
               "id":502,
-              "priority":1.1,
+              "priority":1.5,
               "maxspeed":50
             },
             {
               "name":"local - single carriageway",
               "id":503,
-              "priority":1.1,
+              "priority":1.5,
               "maxspeed":50
             },
             {
               "name":"local - roundabout",
               "id":504,
-              "priority":1.1,
-              "maxspeed":50
+              "priority":1.5,
+              "maxspeed":30
             },
             {
               "name":"local - special",
               "id":505,
-              "priority":1.1,
+              "priority":1.5,
               "maxspeed":50
             },
             {
-              "name":"local - special",
-              "id":905,
-              "priority":1.1,
+              "name":"local - parking access",
+              "id":508,
+              "priority":2.5,
+              "maxspeed":15
+            },
+            {
+              "name":"local - parking areas inlcuding highway rest places",
+              "id":509,
+              "priority":1.5,
               "maxspeed":50
             },
             {
-              "name":"pedestrian",
-              "id":1005,
+              "name":"local - pedestrian",
+              "id":510,
               "priority":5.0,
               "maxspeed":5
             },
             {
-              "name":"ferry - controlled access",
-              "id":1201,
-              "priority":2.5,
-              "maxspeed":5
-            },
-            {
-              "name":"ferry - roundabout",
-              "id":1204,
-              "priority":2.5,
-              "maxspeed":5
-            },
-            {
-              "name":"ferry - special",
-              "id":1205,
+              "name":"local - ferry",
+              "id":512,
               "priority":2.5,
               "maxspeed":5
             }
