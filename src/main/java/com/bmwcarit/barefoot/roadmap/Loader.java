@@ -172,6 +172,7 @@ public class Loader {
         String user = properties.getProperty("database.user");
         String password = properties.getProperty("database.password");
         String path = properties.getProperty("database.road-types");
+        String lsource = properties.getProperty("database.length-source", "calc");
 
         if (host == null || port == 0 || database == null || table == null || user == null
                 || password == null || path == null) {
@@ -186,6 +187,7 @@ public class Loader {
         logger.info("database.table={}", table);
         logger.info("database.user={}", user);
         logger.info("database.road-types={}", path);
+        logger.info("database.length-source={}", lsource);
 
         Map<Short, Tuple<Double, Integer>> config = null;
         try {
@@ -194,6 +196,6 @@ public class Loader {
             throw new SourceException("could not read road types from file " + path);
         }
 
-        return new PostGISReader(host, port, database, table, user, password, config);
+        return new PostGISReader(host, port, database, table, user, password, config, lsource);
     }
 }

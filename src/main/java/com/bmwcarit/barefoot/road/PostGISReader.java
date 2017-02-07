@@ -42,11 +42,17 @@ public class PostGISReader extends PostgresSource implements RoadReader {
     private static Logger logger = LoggerFactory.getLogger(PostGISReader.class);
     private final static SpatialOperator spatial = new Geography();
     private final String table;
+    private final String lsource;
     private final Map<Short, Tuple<Double, Integer>> config;
     private HashSet<Short> exclusions = null;
     private Polygon polygon = null;
     private ResultSet result_set = null;
-
+    
+    private static float lengthTotal = 0.0f;
+    private static float lengthDifference = 0.0f;
+    private static float lengthDifferenceAbsolute = 0.0f;
+    private static int count = 0;
+ 
     /**
      * Constructs {@link PostGISReader} object.
      *
@@ -59,10 +65,12 @@ public class PostGISReader extends PostgresSource implements RoadReader {
      * @param config Road type configuration.
      */
     public PostGISReader(String host, int port, String database, String table, String user,
-            String password, Map<Short, Tuple<Double, Integer>> config) {
+            String password, Map<Short, Tuple<Double, Integer>> config, String lsource) {
         super(host, port, database, user, password);
         this.table = table;
         this.config = config;
+        this.lsource = lsource;
+        logger.info("Using length source {}", lsource);
     }
 
     @Override
@@ -161,10 +169,17 @@ public class PostGISReader extends PostgresSource implements RoadReader {
                         null);
                 
                 float length;
-                if (result_set.getString(6).equals("1"))
-                	length = (float) spatial.length(geometry);
-                else
+
+                if (lsource.equals("map")) {
                 	length = Float.parseFloat(result_set.getString(6));
+                	lengthTotal += length;
+                	lengthDifference +=  (float) spatial.length(geometry) - Float.parseFloat(result_set.getString(6));
+                	lengthDifferenceAbsolute +=  Math.abs((float) spatial.length(geometry) - Float.parseFloat(result_set.getString(6)));
+                	if (++count % 100000 == 0)
+                		logger.info("Total length: {}, Diff: {} {}", lengthTotal, lengthDifference, lengthDifferenceAbsolute);
+                }
+                else
+                	length = (float) spatial.length(geometry);
 
                 road = new BaseRoad(gid, source, target, osmId, reverse >= 0 ? false : true,
                         classId, priority, maxspeedForward, maxspeedBackward, length, wkb);
