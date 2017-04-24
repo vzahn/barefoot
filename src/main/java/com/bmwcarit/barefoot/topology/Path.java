@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.bmwcarit.barefoot.roadmap.Road;
+
 /**
  * Path of edges in a graph.
  *
@@ -128,11 +130,17 @@ public class Path<E extends AbstractEdge<E>> {
         double value = cost.cost(source.edge(), 1 - source.fraction());
 
         for (int i = 1; i < edges.size(); ++i) {
-            value += cost.cost(edges.get(i));
+
+        	if(!((Road)edges.get(i)).getTunnel() && i != edges.size() -1){
+        		
+        		value += cost.cost(edges.get(i)) *100;
+        	}else{
+        		value += cost.cost(edges.get(i));
+        	}
         }
 
         value -= cost.cost(target.edge(), 1 - target.fraction());
-
+//        System.out.println(((Road)source.edge()).base().refid() + " -> " + ((Road)edges.getLast()).base().refid() + ". Cost = " + value);
         return value;
     }
 
