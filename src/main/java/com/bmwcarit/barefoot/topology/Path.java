@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.bmwcarit.barefoot.road.BaseRoad;
 import com.bmwcarit.barefoot.roadmap.Road;
 
 /**
@@ -131,7 +132,7 @@ public class Path<E extends AbstractEdge<E>> {
 
         for (int i = 1; i < edges.size(); ++i) {
 
-        	if(!((Road)edges.get(i)).getTunnel() && i != edges.size() -1){
+        	if(!((Road)edges.get(i)).base().getTunnel() && i != edges.size() -1){
         		
         		value += cost.cost(edges.get(i)) *100;
         	}else{
@@ -140,7 +141,6 @@ public class Path<E extends AbstractEdge<E>> {
         }
 
         value -= cost.cost(target.edge(), 1 - target.fraction());
-//        System.out.println(((Road)source.edge()).base().refid() + " -> " + ((Road)edges.getLast()).base().refid() + ". Cost = " + value);
         return value;
     }
 
