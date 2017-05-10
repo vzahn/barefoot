@@ -131,13 +131,7 @@ public class Path<E extends AbstractEdge<E>> {
         double value = cost.cost(source.edge(), 1 - source.fraction());
 
         for (int i = 1; i < edges.size(); ++i) {
-
-        	if(!((Road)edges.get(i)).base().getTunnel() && i != edges.size() -1){
-        		
-        		value += cost.cost(edges.get(i)) *100;
-        	}else{
-        		value += cost.cost(edges.get(i));
-        	}
+        	value += cost.cost(edges.get(i));
         }
 
         value -= cost.cost(target.edge(), 1 - target.fraction());
