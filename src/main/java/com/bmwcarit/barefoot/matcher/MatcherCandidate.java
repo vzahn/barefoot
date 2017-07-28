@@ -67,4 +67,10 @@ public class MatcherCandidate
         json.put("point", point.toJSON());
         return json;
     }
+    @Override
+    public String toString() {
+    	String s = "Edge-RefId: " + this.point().edge().base().refid() + ", fraction:" + this.point.fraction();
+        return s;
+    }
+
 }

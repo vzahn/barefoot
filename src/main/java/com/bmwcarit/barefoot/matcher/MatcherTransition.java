@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bmwcarit.barefoot.markov.StateTransition;
+import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.Route;
 
@@ -63,4 +64,13 @@ public class MatcherTransition extends StateTransition {
         json.put("route", route.toJSON());
         return json;
     }
+    @Override
+    public String toString()  {
+    	StringBuffer s = new StringBuffer();
+    	for (Road e : route().path()) {
+    		s.append(e.base().refid() + "->");
+    	}
+        return s.toString();
+    }
+
 }

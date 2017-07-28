@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bmwcarit.barefoot.matcher.MatcherCandidate;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
@@ -142,6 +143,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                 C candidate_ = candidate.one();
                 candidate_.seqprob(Double.NEGATIVE_INFINITY);
 
+                
                 if (logger.isTraceEnabled()) {
                     try {
                         logger.trace("state candidate {} ({}) {}", candidate_.id(), candidate.two(),
@@ -185,6 +187,10 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                 }
 
                 if (candidate_.predecessor() != null) {
+                    logger.info("state candidate {} -> {} ({}, {}, route: {})", ((MatcherCandidate)candidate_.predecessor()).point().edge().base().refid(),
+    	            		((MatcherCandidate)candidate_).point().edge().base().refid(), candidate_.filtprob(), candidate_.seqprob(), 
+    	            		((MatcherCandidate)candidate_).transition().toString());
+
                     logger.trace("state candidate {} -> {} ({}, {})", candidate_.predecessor().id(),
                             candidate_.id(), candidate_.filtprob(), candidate_.seqprob());
                 } else {

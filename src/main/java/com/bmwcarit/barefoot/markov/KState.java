@@ -26,7 +26,10 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.bmwcarit.barefoot.matcher.MatcherCandidate;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
@@ -38,6 +41,7 @@ import com.bmwcarit.barefoot.util.Tuple;
  */
 public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample>
         extends StateMemory<C, T, S> {
+	private final static Logger logger = LoggerFactory.getLogger(Filter.class);
     private final int k;
     private final long t;
     private final LinkedList<Tuple<Set<C>, S>> sequence;
@@ -213,6 +217,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
                     estimate = candidate;
                 }
                 if (counters.get(candidate) == 0) {
+                	 logger.info("remove Candidate:" +candidate.toString());
                     deletes.add(candidate);
                 }
             }
@@ -225,7 +230,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
                 }
             }
         }
-
+       
         sequence.add(new Tuple<>(vector, sample));
 
         // move stable candidate to the candidate storage, if the storage is set
@@ -245,6 +250,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 				Set<C> deletes = sequence.removeFirst().one();
 				for (C candidate : deletes) {
 					candidateStorage.add(candidate);
+					logger.info("stable candidate" +candidate.toString());
 					counters.remove(candidate);
 				}
 
@@ -258,7 +264,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 			while ((t > 0 && sample.time() - sequence.peekFirst().two().time() > t)
 					|| (k >= 0 && sequence.size() > k + 1)) {
 				Set<C> deletes = sequence.removeFirst().one();
-				for (C candidate : deletes) {
+				for (C candidate : deletes) {	
 					counters.remove(candidate);
 				}
 

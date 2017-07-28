@@ -248,4 +248,12 @@ public class Route extends Path<Road> {
 
         return json;
     }
+    public String toString() {
+	StringBuffer s = new StringBuffer();
+	for (Road e : path()) {
+		s.append(e.base().refid() + "-");
+	}
+    return s.toString();
+    }
+
 }

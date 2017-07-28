@@ -167,4 +167,9 @@ public class Road extends AbstractEdge<Road> {
         }
         return road;
     }
+    public String toString() {
+    	String s = base().refid() + ", Tunnel:" + base.getTunnel() + ", TunnelEntry:" + base.getTunnelEntry();
+    	return s;
+    }
+
 }
