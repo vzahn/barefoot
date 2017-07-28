@@ -66,8 +66,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double lambda = 0d;
 	private double radius = 200;
 	private double distance = 15000;
-	private double maxVelocity = 150.0/3.6;
-	private double avgVelocity = 60.0/3.6;
+	private double maxVelocity = 150.0 / 3.6;
+	private double avgVelocity = 60.0 / 3.6;
 
 	/**
 	 * Creates a HMM map matching filter for some map, router, cost function,
@@ -186,6 +186,14 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		}
 
 		Set<RoadPoint> points_ = map.spatial().radius(sample.point(), radius);
+		for (RoadPoint point : points_) {
+			if (point.edge().base().getTunnel() && !point.edge().base().getTunnelEntry()) {
+				logger.debug("Candidate is in tunnel, ignore: " + point.edge().base().refid() + ", "
+						+ point.edge().base().id());
+				continue;
+			}
+		}
+
 		Set<RoadPoint> points = new HashSet<>(Minset.minimize(points_));
 
 		Map<Long, RoadPoint> map = new HashMap<>();
@@ -206,12 +214,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		logger.debug("{} ({}) candidates", points.size(), points_.size());
 
 		for (RoadPoint point : points) {
-
-			if (point.edge().base().getTunnel() && !point.edge().base().getTunnelEntry()) {
-				logger.debug("Candidate is in tunnel, ignore: " + point.edge().base().refid() + ", "
-						+ point.edge().base().id());
-				continue;
-			}
 
 			double dz = spatial.distance(sample.point(), point.geometry());
 			double emission = 1 / sqrt_2pi_sig2 * Math.exp((-1) * dz / (2 * sig2));
@@ -300,8 +302,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 								? (2.0 * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 
-						double transition = (1 / beta)
-								* Math.exp((-1.0) * Math.max(0, route.cost(cost) - base) / beta);
+						double transition = (1 / beta) * Math.exp((-1.0) * Math.max(0, route.cost(cost) - base) / beta);
 
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
