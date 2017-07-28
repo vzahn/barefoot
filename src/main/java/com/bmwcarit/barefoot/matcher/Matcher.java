@@ -185,13 +185,17 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 					GeometryEngine.geometryToWkt(sample.point(), WktExportFlags.wktExportPoint));
 		}
 
-		Set<RoadPoint> points_ = map.spatial().radius(sample.point(), radius);
-		for (RoadPoint point : points_) {
+		Set<RoadPoint> points_radius = map.spatial().radius(sample.point(), radius);
+
+		// Remove tunnelflag points, they should not have any gps signal
+		Set<RoadPoint> points_ = new HashSet<>();
+		for (RoadPoint point : points_radius) {
 			if (point.edge().base().getTunnel() && !point.edge().base().getTunnelEntry()) {
 				logger.debug("Candidate is in tunnel, ignore: " + point.edge().base().refid() + ", "
 						+ point.edge().base().id());
 				continue;
 			}
+			points_.add(point);
 		}
 
 		Set<RoadPoint> points = new HashSet<>(Minset.minimize(points_));

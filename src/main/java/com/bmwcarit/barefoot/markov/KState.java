@@ -193,7 +193,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         }
 
         if (!sequence.isEmpty() && sequence.peekLast().two().time() > sample.time()) {
-        	// EDIT: ERROR Expression TODO
             throw new RuntimeException("out-of-order state update is prohibited. Last Time: " +sequence.peekLast().two().time() + " , sample time: " + sample.time());
         }
 
