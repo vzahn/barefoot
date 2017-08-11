@@ -48,7 +48,7 @@ import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.WktExportFlags;
 
 
- * Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter
+ /* Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter
  * (@{link Filter}) and determines emission and transition probabilities for map
  * matching with HMM.
  */
@@ -227,7 +227,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		for (RoadPoint point : points) {
 
 			double dz = spatial.distance(sample.point(), point.geometry());
-			double emission = 1 / sqrt_2pi_sig2 * Math.exp((-1) * dz / (2 * sig2));
+			double emission = 1 / sqrt_2pi_sig2 * Math.exp((-1) * dz * dz / (2 * sig2));
 			if (!Double.isNaN(sample.azimuth())) {
 				double da = sample.azimuth() > point.azimuth()
 						? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
