@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.markov.Filter;
 import com.bmwcarit.barefoot.markov.KState;
+import com.bmwcarit.barefoot.road.Heading;
 import com.bmwcarit.barefoot.roadmap.Distance;
 import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
@@ -46,7 +47,7 @@ import com.bmwcarit.barefoot.util.Tuple;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.WktExportFlags;
 
-/**
+
  * Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter
  * (@{link Filter}) and determines emission and transition probabilities for map
  * matching with HMM.
@@ -197,8 +198,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 			}
 			points_.add(point);
 		}
+       Set<RoadPoint> points = new HashSet<>(Minset.minimize(points_));
 
-		Set<RoadPoint> points = new HashSet<>(Minset.minimize(points_));
 
 		Map<Long, RoadPoint> map = new HashMap<>();
 		for (RoadPoint point : points) {
@@ -206,12 +207,18 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		}
 
 		for (MatcherCandidate predecessor : predecessors) {
-			RoadPoint point = map.get(predecessor.point().edge().id());
-			if (point != null && point.fraction() < predecessor.point().fraction()) {
-				points.remove(point);
-				points.add(predecessor.point());
-			}
-		}
+            RoadPoint point = map.get(predecessor.point().edge().id());
+            if (point != null && point.edge() != null
+                    && spatial.distance(point.geometry(),
+                            predecessor.point().geometry()) < getSigma()
+                    && ((point.edge().heading() == Heading.forward
+                            && point.fraction() < predecessor.point().fraction())
+                            || (point.edge().heading() == Heading.backward
+                                    && point.fraction() > predecessor.point().fraction()))) {
+                points.remove(point);
+                points.add(predecessor.point());
+            }
+        }
 
 		Set<Tuple<MatcherCandidate, Double>> candidates = new HashSet<>();
 
