@@ -50,7 +50,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 	private final LinkedList<Tuple<Set<C>, S>> sequence;
 	private final Map<C, Integer> counters;
 	private List<C> candidateStorage;
-    private List<C> candidateStorage;    
+   
 
 	/**
 	 * Creates empty {@link KState} object with default parameters, i.e.
@@ -157,16 +157,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
     	this.candidateStorage = candidateStorage;
     }
 
-	/**
-	 * Sets the candidate store and activates truncation of the matching
-	 * sequence
-	 * 
-	 * @param List<C>
-	 *            ArrayList<C> for the candidate storage
-	 */
-	public void setCandidateStorage(List<C> candidateStorage) {
-		this.candidateStorage = candidateStorage;
-	}
+	
 
 	@Override
 	public boolean isEmpty() {
