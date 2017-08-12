@@ -232,7 +232,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 				double da = sample.azimuth() > point.azimuth()
 						? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
 						: Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
-				emission *= Math.max(1E-2, 1 / sqrt_2pi_sigA * Math.exp((-1) * da / (2 * sigA)));
+				emission *= Math.max(1E-2, 1 / sqrt_2pi_sigA * Math.exp((-1) * da *da / (2 * sigA)));
 			}
 
 			MatcherCandidate candidate = new MatcherCandidate(point);
