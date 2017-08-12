@@ -232,7 +232,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 					estimate = candidate;
 				}
 				if (counters.get(candidate) == 0) {
-					logger.info("remove Candidate:" + candidate.toString());
+					logger.debug("remove Candidate:" + candidate.toString());
 					deletes.add(candidate);
 				}
 			}
@@ -267,7 +267,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 				Set<C> deletes = sequence.removeFirst().one();
 				for (C candidate : deletes) {
 					candidateStorage.add(candidate);
-					logger.info("stable candidate" + candidate.toString());
+					logger.debug("stable candidate" + candidate.toString());
 					counters.remove(candidate);
 
 				}
