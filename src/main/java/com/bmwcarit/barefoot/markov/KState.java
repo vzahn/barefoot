@@ -26,112 +26,128 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.bmwcarit.barefoot.matcher.MatcherCandidate;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
  * <i>k</i>-State data structure for organizing state memory in HMM inference.
  *
- * @param <C> Candidate inherits from {@link StateCandidate}.
- * @param <T> Transition inherits from {@link StateTransition}.
- * @param <S> Sample inherits from {@link Sample}.
+ * @param <C>
+ *            Candidate inherits from {@link StateCandidate}.
+ * @param <T>
+ *            Transition inherits from {@link StateTransition}.
+ * @param <S>
+ *            Sample inherits from {@link Sample}.
  */
 public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample>
-        extends StateMemory<C, T, S> {
-    private final int k;
-    private final long t;
-    private final LinkedList<Tuple<Set<C>, S>> sequence;
-    private final Map<C, Integer> counters;
+		extends StateMemory<C, T, S> {
+	private final static Logger logger = LoggerFactory.getLogger(Filter.class);
+	private final int k;
+	private final long t;
+	private final LinkedList<Tuple<Set<C>, S>> sequence;
+	private final Map<C, Integer> counters;
+	private List<C> candidateStorage;
     private List<C> candidateStorage;    
 
-    /**
-     * Creates empty {@link KState} object with default parameters, i.e. capacity is unbounded.
-     */
-    public KState() {
-        this.k = -1;
-        this.t = -1;
-        this.sequence = new LinkedList<>();
-        this.counters = new HashMap<>();
-    }
+	/**
+	 * Creates empty {@link KState} object with default parameters, i.e.
+	 * capacity is unbounded.
+	 */
+	public KState() {
+		this.k = -1;
+		this.t = -1;
+		this.sequence = new LinkedList<>();
+		this.counters = new HashMap<>();
+	}
 
-    /**
-     * Creates a {@link KState} object from a JSON representation.
-     *
-     * @param json JSON representation of a {@link KState} object.
-     * @param factory Factory for creation of state candidates and transitions.
-     * @throws JSONException thrown on JSON extraction or parsing error.
-     */
-    public KState(JSONObject json, Factory<C, T, S> factory) throws JSONException {
-        this.k = json.getInt("k");
-        this.t = json.getLong("t");
-        this.sequence = new LinkedList<>();
-        this.counters = new HashMap<>();
+	/**
+	 * Creates a {@link KState} object from a JSON representation.
+	 *
+	 * @param json
+	 *            JSON representation of a {@link KState} object.
+	 * @param factory
+	 *            Factory for creation of state candidates and transitions.
+	 * @throws JSONException
+	 *             thrown on JSON extraction or parsing error.
+	 */
+	public KState(JSONObject json, Factory<C, T, S> factory) throws JSONException {
+		this.k = json.getInt("k");
+		this.t = json.getLong("t");
+		this.sequence = new LinkedList<>();
+		this.counters = new HashMap<>();
 
-        Map<String, C> candidates = new HashMap<>();
-        JSONArray jsoncandidates = json.getJSONArray("candidates");
-        for (int i = 0; i < jsoncandidates.length(); ++i) {
-            JSONObject jsoncandidate = jsoncandidates.getJSONObject(i);
-            C candidate = factory.candidate(jsoncandidate.getJSONObject("candidate"));
-            int count = jsoncandidate.getInt("count");
+		Map<String, C> candidates = new HashMap<>();
+		JSONArray jsoncandidates = json.getJSONArray("candidates");
+		for (int i = 0; i < jsoncandidates.length(); ++i) {
+			JSONObject jsoncandidate = jsoncandidates.getJSONObject(i);
+			C candidate = factory.candidate(jsoncandidate.getJSONObject("candidate"));
+			int count = jsoncandidate.getInt("count");
 
-            counters.put(candidate, count);
-            candidates.put(candidate.id(), candidate);
-        }
+			counters.put(candidate, count);
+			candidates.put(candidate.id(), candidate);
+		}
 
-        JSONArray jsonsequence = json.getJSONArray("sequence");
-        for (int i = 0; i < jsonsequence.length(); ++i) {
-            JSONObject jsonseqelement = jsonsequence.getJSONObject(i);
-            Set<C> vector = new HashSet<>();
-            JSONArray jsonvector = jsonseqelement.getJSONArray("vector");
-            for (int j = 0; j < jsonvector.length(); ++j) {
-                JSONObject jsonelement = jsonvector.getJSONObject(j);
+		JSONArray jsonsequence = json.getJSONArray("sequence");
+		for (int i = 0; i < jsonsequence.length(); ++i) {
+			JSONObject jsonseqelement = jsonsequence.getJSONObject(i);
+			Set<C> vector = new HashSet<>();
+			JSONArray jsonvector = jsonseqelement.getJSONArray("vector");
+			for (int j = 0; j < jsonvector.length(); ++j) {
+				JSONObject jsonelement = jsonvector.getJSONObject(j);
 
-                String candid = jsonelement.getString("candid");
-                String predid = jsonelement.getString("predid");
+				String candid = jsonelement.getString("candid");
+				String predid = jsonelement.getString("predid");
 
-                C candidate = candidates.get(candid);
-                C pred = candidates.get(predid);
+				C candidate = candidates.get(candid);
+				C pred = candidates.get(predid);
 
-                if (candidate == null || (!predid.isEmpty() && pred == null)) {
-                    throw new JSONException("inconsistent JSON of KState object");
-                }
+				if (candidate == null || (!predid.isEmpty() && pred == null)) {
+					throw new JSONException("inconsistent JSON of KState object");
+				}
 
-                candidate.predecessor(pred);
-                vector.add(candidate);
-            }
+				candidate.predecessor(pred);
+				vector.add(candidate);
+			}
 
-            S sample = factory.sample(jsonseqelement.getJSONObject("sample"));
+			S sample = factory.sample(jsonseqelement.getJSONObject("sample"));
 
-            sequence.add(new Tuple<>(vector, sample));
-        }
+			sequence.add(new Tuple<>(vector, sample));
+		}
 
-        Collections.sort(sequence, new Comparator<Tuple<Set<C>, S>>() {
-            @Override
-            public int compare(Tuple<Set<C>, S> left, Tuple<Set<C>, S> right) {
-                if (left.two().time() < right.two().time()) {
-                    return -1;
-                } else if (left.two().time() > right.two().time()) {
-                    return +1;
-                }
-                return 0;
-            }
-        });
-    }
+		Collections.sort(sequence, new Comparator<Tuple<Set<C>, S>>() {
+			@Override
+			public int compare(Tuple<Set<C>, S> left, Tuple<Set<C>, S> right) {
+				if (left.two().time() < right.two().time()) {
+					return -1;
+				} else if (left.two().time() > right.two().time()) {
+					return +1;
+				}
+				return 0;
+			}
+		});
+	}
 
-    /**
-     * Creates an empty {@link KState} object and sets <i>&kappa;</i> and <i>&tau;</i> parameters.
-     *
-     * @param k <i>&kappa;</i> parameter bounds the length of the state sequence to at most
-     *        <i>&kappa;+1</i> states, if <i>&kappa; &ge; 0</i>.
-     * @param t <i>&tau;</i> parameter bounds length of the state sequence to contain only states
-     *        for the past <i>&tau;</i> milliseconds.
-     */
-    public KState(int k, long t) {
-        this.k = k;
-        this.t = t;
-        this.sequence = new LinkedList<>();
-        this.counters = new HashMap<>();
-    }
+	/**
+	 * Creates an empty {@link KState} object and sets <i>&kappa;</i> and
+	 * <i>&tau;</i> parameters.
+	 *
+	 * @param k
+	 *            <i>&kappa;</i> parameter bounds the length of the state
+	 *            sequence to at most <i>&kappa;+1</i> states, if <i>&kappa;
+	 *            &ge; 0</i>.
+	 * @param t
+	 *            <i>&tau;</i> parameter bounds length of the state sequence to
+	 *            contain only states for the past <i>&tau;</i> milliseconds.
+	 */
+	public KState(int k, long t) {
+		this.k = k;
+		this.t = t;
+		this.sequence = new LinkedList<>();
+		this.counters = new HashMap<>();
+	}
     
     /**
      * Sets the candidate store and activates truncation of the matching sequence
@@ -141,96 +157,111 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
     	this.candidateStorage = candidateStorage;
     }
 
-    @Override
-    public boolean isEmpty() {
-        return counters.isEmpty();
-    }
+	/**
+	 * Sets the candidate store and activates truncation of the matching
+	 * sequence
+	 * 
+	 * @param List<C>
+	 *            ArrayList<C> for the candidate storage
+	 */
+	public void setCandidateStorage(List<C> candidateStorage) {
+		this.candidateStorage = candidateStorage;
+	}
 
-    @Override
-    public int size() {
-        return counters.size();
-    }
+	@Override
+	public boolean isEmpty() {
+		return counters.isEmpty();
+	}
 
-    @Override
-    public Long time() {
-        if (sequence.isEmpty()) {
-            return null;
-        } else {
-            return sequence.peekLast().two().time();
-        }
-    }
+	@Override
+	public int size() {
+		return counters.size();
+	}
 
-    @Override
-    public S sample() {
-        if (sequence.isEmpty()) {
-            return null;
-        } else {
-            return sequence.peekLast().two();
-        }
-    }
+	@Override
+	public Long time() {
+		if (sequence.isEmpty()) {
+			return null;
+		} else {
+			return sequence.peekLast().two().time();
+		}
+	}
 
-    /**
-     * Gets the sequence of measurements <i>z<sub>0</sub>, z<sub>1</sub>, ..., z<sub>t</sub></i>.
-     *
-     * @return List with the sequence of measurements.
-     */
-    public List<S> samples() {
-        LinkedList<S> samples = new LinkedList<>();
-        for (Tuple<Set<C>, S> element : sequence) {
-            samples.add(element.two());
-        }
-        return samples;
-    }
+	@Override
+	public S sample() {
+		if (sequence.isEmpty()) {
+			return null;
+		} else {
+			return sequence.peekLast().two();
+		}
+	}
 
-    @Override
-    public void update(Set<C> vector, S sample) {
-        if (vector.isEmpty()) {
-            return;
-        }
+	/**
+	 * Gets the sequence of measurements <i>z<sub>0</sub>, z<sub>1</sub>, ...,
+	 * z<sub>t</sub></i>.
+	 *
+	 * @return List with the sequence of measurements.
+	 */
+	public List<S> samples() {
+		LinkedList<S> samples = new LinkedList<>();
+		for (Tuple<Set<C>, S> element : sequence) {
+			samples.add(element.two());
+		}
+		return samples;
+	}
 
-        if (!sequence.isEmpty() && sequence.peekLast().two().time() > sample.time()) {
-            throw new RuntimeException("out-of-order state update is prohibited");
-        }
+	@Override
+	public void update(Set<C> vector, S sample) {
+		if (vector.isEmpty()) {
+			return;
+		}
 
-        for (C candidate : vector) {
-            counters.put(candidate, 0);
-            if (candidate.predecessor() != null) {
-                if (!counters.containsKey(candidate.predecessor())
-                        || !sequence.peekLast().one().contains(candidate.predecessor())) {
-                    throw new RuntimeException("Inconsistent update vector.");
-                }
-                counters.put(candidate.predecessor(), counters.get(candidate.predecessor()) + 1);
-            }
-        }
+		if (!sequence.isEmpty() && sequence.peekLast().two().time() > sample.time()) {
+			throw new RuntimeException("out-of-order state update is prohibited. Last Time: "
+					+ sequence.peekLast().two().time() + " , sample time: " + sample.time());
+		}
 
-        if (!sequence.isEmpty()) {
-            Set<C> deletes = new HashSet<>();
-            C estimate = null;
+		for (C candidate : vector) {
+			counters.put(candidate, 0);
+			if (candidate.predecessor() != null) {
+				if (!counters.containsKey(candidate.predecessor())
+						|| !sequence.peekLast().one().contains(candidate.predecessor())) {
+					throw new RuntimeException("Inconsistent update vector.");
+				}
+				counters.put(candidate.predecessor(), counters.get(candidate.predecessor()) + 1);
+			}
+		}
 
-            for (C candidate : sequence.peekLast().one()) {
-                if (estimate == null || candidate.seqprob() > estimate.seqprob()) {
-                    estimate = candidate;
-                }
-                if (counters.get(candidate) == 0) {
-                    deletes.add(candidate);
-                }
-            }
+		if (!sequence.isEmpty()) {
+			Set<C> deletes = new HashSet<>();
+			C estimate = null;
 
-            int size = sequence.peekLast().one().size();
+			for (C candidate : sequence.peekLast().one()) {
+				if (estimate == null || candidate.seqprob() > estimate.seqprob()) {
+					estimate = candidate;
+				}
+				if (counters.get(candidate) == 0) {
+					logger.debug("remove Candidate:" + candidate.toString());
+					deletes.add(candidate);
+				}
+			}
 
-            for (C candidate : deletes) {
-                if (deletes.size() != size || candidate != estimate) {
-                    remove(candidate, sequence.size() - 1);
-                }
-            }
-        }
+			int size = sequence.peekLast().one().size();
 
-        sequence.add(new Tuple<>(vector, sample));
+			for (C candidate : deletes) {
+				if (deletes.size() != size || candidate != estimate) {
+					remove(candidate, sequence.size() - 1);
+				}
+			}
+		}
 
-        // move stable candidate to the candidate storage, if the storage is set
+		sequence.add(new Tuple<>(vector, sample));
+
+		// move stable candidate to the candidate storage, if the storage is set
 		if (candidateStorage != null) {
 
-			// find the first n sequence elements with an vector length of 1, means they are stable
+			// find the first n sequence elements with an vector length of 1,
+			// means they are stable
 			int stableCount = 0;
 			for (Tuple<Set<C>, S> t : sequence) {
 				if (t.one().size() > 1) {
@@ -239,21 +270,25 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 				stableCount++;
 			}
 
-			// delete all but one stable candidates (the last is kept as an fix point for further matching
-			for (int i=0; i<stableCount-1; i++) {
+			// delete all but one stable candidates (the last is kept as an fix
+			// point for further matching
+			for (int i = 0; i < stableCount - 1; i++) {
 				Set<C> deletes = sequence.removeFirst().one();
 				for (C candidate : deletes) {
 					candidateStorage.add(candidate);
+					logger.debug("stable candidate" + candidate.toString());
 					counters.remove(candidate);
+
 				}
 
 				for (C candidate : sequence.peekFirst().one()) {
 					candidate.predecessor(null);
+
 				}
 			}
-		}
-		else {
-			// deletion of candidates,that are to old (t) or sequence is to long (k)
+		} else {
+			// deletion of candidates,that are to old (t) or sequence is to long
+			// (k)
 			while ((t > 0 && sample.time() - sequence.peekFirst().two().time() > t)
 					|| (k >= 0 && sequence.size() > k + 1)) {
 				Set<C> deletes = sequence.removeFirst().one();
@@ -266,115 +301,137 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 				}
 			}
 		}
-		
-        assert (k < 0 || sequence.size() <= k + 1);
-    }
 
-    protected void remove(C candidate, int index) {
-        Set<C> vector = sequence.get(index).one();
-        counters.remove(candidate);
-        vector.remove(candidate);
+		assert (k < 0 || sequence.size() <= k + 1);
+	}
 
-        C predecessor = candidate.predecessor();
-        if (predecessor != null) {
-            counters.put(predecessor, counters.get(predecessor) - 1);
-            if (counters.get(predecessor) == 0) {
-                remove(predecessor, index - 1);
-            }
-        }
-    }
+	protected void remove(C candidate, int index) {
+		Set<C> vector = sequence.get(index).one();
+		counters.remove(candidate);
+		vector.remove(candidate);
 
-    @Override
-    public Set<C> vector() {
-        if (sequence.isEmpty()) {
-            return new HashSet<>();
-        } else {
-            return sequence.peekLast().one();
-        }
-    }
+		C predecessor = candidate.predecessor();
+		if (predecessor != null) {
+			counters.put(predecessor, counters.get(predecessor) - 1);
+			if (counters.get(predecessor) == 0) {
+				remove(predecessor, index - 1);
+			}
+		}
+	}
 
-    @Override
-    public C estimate() {
-        if (sequence.isEmpty()) {
-            return null;
-        }
+	@Override
+	public Set<C> vector() {
+		if (sequence.isEmpty()) {
+			return new HashSet<>();
+		} else {
+			return sequence.peekLast().one();
+		}
+	}
 
-        C estimate = null;
-        for (C candidate : sequence.peekLast().one()) {
-            if (estimate == null || candidate.filtprob() > estimate.filtprob()) {
-                estimate = candidate;
-            }
-        }
-        return estimate;
-    }
+	@Override
+	public C estimate() {
+		if (sequence.isEmpty()) {
+			return null;
+		}
 
-    /**
-     * Gets the most likely sequence of state candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
-     * s<sub>t</sub></i>.
-     *
-     * @return List of the most likely sequence of state candidates.
-     */
-    public List<C> sequence() {
-        if (sequence.isEmpty()) {
-            return null;
-        }
+		C estimate = null;
+		for (C candidate : sequence.peekLast().one()) {
+			if (estimate == null || candidate.filtprob() > estimate.filtprob()) {
+				estimate = candidate;
+			}
+		}
+		return estimate;
+	}
 
-        C kestimate = null;
+	/**
+	 * Gets the most likely sequence of state candidates <i>s<sub>0</sub>,
+	 * s<sub>1</sub>, ..., s<sub>t</sub></i>.
+	 *
+	 * @return List of the most likely sequence of state candidates.
+	 */
+	public List<C> sequence() {
+		if (sequence.isEmpty()) {
+			return null;
+		}
 
-        for (C candidate : sequence.peekLast().one()) {
-            if (kestimate == null || candidate.seqprob() > kestimate.seqprob()) {
-                kestimate = candidate;
-            }
-        }
+		C kestimate = null;
 
-        LinkedList<C> ksequence = new LinkedList<>();
+		for (C candidate : sequence.peekLast().one()) {
+			if (kestimate == null || candidate.seqprob() > kestimate.seqprob()) {
+				kestimate = candidate;
+			}
+		}
 
-        for (int i = sequence.size() - 1; i >= 0; --i) {
-            if (kestimate != null) {
-                ksequence.push(kestimate);
-                kestimate = kestimate.predecessor();
-            } else {
-                ksequence.push(sequence.get(i).one().iterator().next());
-                assert (sequence.get(i).one().size() == 1);
-            }
-        }
+		LinkedList<C> ksequence = new LinkedList<>();
 
-        return ksequence;
-    }
+		for (int i = sequence.size() - 1; i >= 0; --i) {
+			if (kestimate != null) {
+				ksequence.push(kestimate);
+				kestimate = kestimate.predecessor();
+			} else {
+				ksequence.push(sequence.get(i).one().iterator().next());
+				assert (sequence.get(i).one().size() == 1);
+			}
+		}
 
-    @Override
-    public JSONObject toJSON() throws JSONException {
-        JSONObject json = new JSONObject();
-        JSONArray jsonsequence = new JSONArray();
-        for (Tuple<Set<C>, S> element : sequence) {
-            JSONObject jsonseqelement = new JSONObject();
-            JSONArray jsonvector = new JSONArray();
-            for (C candidate : element.one()) {
-                JSONObject jsoncandidate = new JSONObject();
-                jsoncandidate.put("candid", candidate.id());
-                jsoncandidate.put("predid",
-                        candidate.predecessor() == null ? "" : candidate.predecessor().id());
-                jsonvector.put(jsoncandidate);
-            }
-            jsonseqelement.put("vector", jsonvector);
-            jsonseqelement.put("sample", element.two().toJSON());
-            jsonsequence.put(jsonseqelement);
-        }
+		return ksequence;
+	}
 
-        JSONArray jsoncandidates = new JSONArray();
-        for (Entry<C, Integer> entry : counters.entrySet()) {
-            JSONObject jsoncandidate = new JSONObject();
-            jsoncandidate.put("candidate", entry.getKey().toJSON());
-            jsoncandidate.put("count", entry.getValue());
-            jsoncandidates.put(jsoncandidate);
-        }
-        json.put("k", k);
-        json.put("t", t);
-        json.put("sequence", jsonsequence);
-        json.put("candidates", jsoncandidates);
+	/**
+	 * Gets the stable candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
+	 * s<sub>t</sub></i>.
+	 *
+	 * @return List of stable candidates.
+	 */
+	public Set<C> candidates() {
+		if (counters.isEmpty()) {
+			return null;
+		}
 
-        return json;
-    }
+		return counters.keySet();
+	}
+
+	@Override
+	public JSONObject toJSON() throws JSONException {
+		JSONObject json = new JSONObject();
+		JSONArray jsonsequence = new JSONArray();
+		for (Tuple<Set<C>, S> element : sequence) {
+			JSONObject jsonseqelement = new JSONObject();
+			JSONArray jsonvector = new JSONArray();
+			for (C candidate : element.one()) {
+				JSONObject jsoncandidate = new JSONObject();
+				jsoncandidate.put("candid", candidate.id());
+				jsoncandidate.put("predid", candidate.predecessor() == null ? "" : candidate.predecessor().id());
+				jsonvector.put(jsoncandidate);
+			}
+			jsonseqelement.put("vector", jsonvector);
+			jsonseqelement.put("sample", element.two().toJSON());
+			jsonsequence.put(jsonseqelement);
+		}
+
+		JSONArray jsoncandidates = new JSONArray();
+		for (Entry<C, Integer> entry : counters.entrySet()) {
+			JSONObject jsoncandidate = new JSONObject();
+			jsoncandidate.put("candidate", entry.getKey().toJSON());
+			jsoncandidate.put("count", entry.getValue() + candidateStorage.size());
+			jsoncandidates.put(jsoncandidate);
+		}
+		for (int i = 0; i < candidateStorage.size(); i++) {
+			JSONObject jsoncandidate = new JSONObject();
+			C candidate = candidateStorage.get(i);
+			candidate.transition(null);
+			candidate.predecessor(null);
+			jsoncandidate.put("candidate", candidate.toJSON());
+			jsoncandidate.put("count", i);
+			jsoncandidates.put(jsoncandidate);
+		}
+		json.put("k", k);
+		json.put("t", t);
+		json.put("sequence", jsonsequence);
+		json.put("candidates", jsoncandidates);
+
+		return json;
+	}
     
     /**
      * Returns the candidate list and the samples.

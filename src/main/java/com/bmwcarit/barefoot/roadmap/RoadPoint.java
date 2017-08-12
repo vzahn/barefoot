@@ -80,4 +80,9 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
         double fraction = json.getDouble("frac");
         return new RoadPoint(road, fraction);
     }
+    
+    public String toString() {
+    	String s = edge().base().refid() +"";
+    	return s;
+    }
 }
