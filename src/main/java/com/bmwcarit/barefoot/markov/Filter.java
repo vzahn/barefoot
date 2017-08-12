@@ -187,7 +187,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                 }
 
                 if (candidate_.predecessor() != null) {
-                    logger.info("state candidate {} -> {} ({}, {}, route: {})", ((MatcherCandidate)candidate_.predecessor()).point().edge().base().refid(),
+                    logger.debug("state candidate {} -> {} ({}, {}, route: {})", ((MatcherCandidate)candidate_.predecessor()).point().edge().base().refid(),
     	            		((MatcherCandidate)candidate_).point().edge().base().refid(), candidate_.filtprob(), candidate_.seqprob(), 
     	            		((MatcherCandidate)candidate_).transition().toString());
 
