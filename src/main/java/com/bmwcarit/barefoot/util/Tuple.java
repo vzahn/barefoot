@@ -72,4 +72,9 @@ public class Tuple<X, Y> implements Serializable {
     public void two(Y two) {
         this.two = two;
     }
+    
+    public String toString(){
+    	String s = "RefID: " + this.one + " + flitprob: "  +this.two;
+    	return s;
+    }
 }
