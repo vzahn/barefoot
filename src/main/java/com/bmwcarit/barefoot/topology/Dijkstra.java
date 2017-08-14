@@ -203,7 +203,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
 
             if (max != null && current.four() > max) {
                 logger.trace("reached maximum bound");
-                break;
+                continue;
             }
 
             /*
