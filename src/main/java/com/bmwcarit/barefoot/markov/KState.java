@@ -432,8 +432,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 		for (int i = 0; i < candidateStorage.size(); i++) {
 			JSONObject jsoncandidate = new JSONObject();
 			C candidate = candidateStorage.get(i);
-			candidate.transition(null);
-			candidate.predecessor(null);
 			jsoncandidate.put("candidate", candidate.toJSON());
 			jsoncandidatestorage.put(jsoncandidate);
 		}
