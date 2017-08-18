@@ -13,6 +13,7 @@
 
 package com.bmwcarit.barefoot.markov;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -78,6 +79,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 		this.t = json.getLong("t");
 		this.sequence = new LinkedList<>();
 		this.counters = new HashMap<>();
+		this.candidateStorage = new ArrayList<>();
 
 		Map<String, C> candidates = new HashMap<>();
 		JSONArray jsoncandidates = json.getJSONArray("candidates");
@@ -88,6 +90,12 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 
 			counters.put(candidate, count);
 			candidates.put(candidate.id(), candidate);
+		}
+		JSONArray jsoncandidatestorage = json.getJSONArray("candidatestorage");
+		for (int i = 0; i < jsoncandidatestorage.length(); ++i) {
+			JSONObject jsoncandidate = jsoncandidatestorage.getJSONObject(i);
+			C candidate = factory.candidate(jsoncandidate.getJSONObject("candidate"));
+			candidateStorage.add(candidate);
 		}
 
 		JSONArray jsonsequence = json.getJSONArray("sequence");
@@ -381,6 +389,19 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 
 		return counters.keySet();
 	}
+	
+	/**
+	 * Gets the candidateStorage <i>s<sub>0</sub>, s<sub>1</sub>, ...,
+	 * s<sub>t</sub></i>.
+	 *
+	 * @return List of stored candidates.
+	 */
+	public List<C> candidateStorage() {
+		if (candidateStorage.isEmpty()) {
+			return null;
+		}
+		return candidateStorage;
+	}
 
 	@Override
 	public JSONObject toJSON() throws JSONException {
@@ -404,22 +425,23 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 		for (Entry<C, Integer> entry : counters.entrySet()) {
 			JSONObject jsoncandidate = new JSONObject();
 			jsoncandidate.put("candidate", entry.getKey().toJSON());
-			jsoncandidate.put("count", entry.getValue() + candidateStorage.size());
+			jsoncandidate.put("count", entry.getValue());
 			jsoncandidates.put(jsoncandidate);
 		}
+		JSONArray jsoncandidatestorage = new JSONArray();
 		for (int i = 0; i < candidateStorage.size(); i++) {
 			JSONObject jsoncandidate = new JSONObject();
 			C candidate = candidateStorage.get(i);
 			candidate.transition(null);
 			candidate.predecessor(null);
 			jsoncandidate.put("candidate", candidate.toJSON());
-			jsoncandidate.put("count", i);
-			jsoncandidates.put(jsoncandidate);
+			jsoncandidatestorage.put(jsoncandidate);
 		}
 		json.put("k", k);
 		json.put("t", t);
 		json.put("sequence", jsonsequence);
 		json.put("candidates", jsoncandidates);
+		json.put("candidatestorage", jsoncandidatestorage);
 
 		return json;
 	}
