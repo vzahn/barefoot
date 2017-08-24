@@ -18,9 +18,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.bmwcarit.barefoot.road.BaseRoad;
-import com.bmwcarit.barefoot.roadmap.Road;
-
 /**
  * Path of edges in a graph.
  *
