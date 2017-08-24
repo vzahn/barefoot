@@ -17,6 +17,8 @@ import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * State candidate in Hidden Markov Model (HMM) inference e.g. with a HMM filter
@@ -37,7 +39,7 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
 	private double seqprob = 0d;
 	private double filtprob = 0d;
 	private long time = 0L;
-
+	private final static Logger logger = LoggerFactory.getLogger(StateCandidate.class);
 	/**
 	 * Creates a {@link StateCandidate} object and generates a random UUID.
 	 */
@@ -179,7 +181,14 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
 	public JSONObject toJSON() throws JSONException {
 		JSONObject json = new JSONObject();
 		json.put("id", id);
+		try{
 		json.put("filtprob", Double.isInfinite(filtprob) ? "Infinity" : filtprob);
+		}catch(JSONException e){
+			// TODO if error occures?
+			json.put("filtprob",0.0);
+			logger.debug("Value of flitprob: "+ filtprob);
+			logger.debug("Is it infinite?: "+ Double.isInfinite(filtprob));
+		}
 		json.put("seqprob", Double.isInfinite(seqprob) ? "-Infinity" : seqprob);
 		if (transition != null) {
 			json.put("transition", transition().toJSON());
