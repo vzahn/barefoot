@@ -402,7 +402,8 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 	}
 
 	@Override
-	public JSONObject toJSON() throws JSONException {
+	public JSONObject toJSON() {
+		try{
 		JSONObject json = new JSONObject();
 		JSONArray jsonsequence = new JSONArray();
 		for (Tuple<Set<C>, S> element : sequence) {
@@ -442,6 +443,10 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 		json.put("candidatestorage", jsoncandidatestorage);
 
 		return json;
+		}catch(JSONException e){
+			logger.error("Error during parsing to JSON:", e);
+			return null;
+		}
 	}
     
     /**
