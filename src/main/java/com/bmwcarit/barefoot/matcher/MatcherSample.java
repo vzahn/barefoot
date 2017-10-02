@@ -30,6 +30,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     private final String id;
     private final Point point;
     private final double azimuth;
+    private final boolean gpsOutage;
 
     /**
      * Creates a {@link MatcherSample} object with measured position and time of measurement.
@@ -50,7 +51,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param azimuth Azimuth of measurement sample.
      */
     public MatcherSample(long time, Point point, double azimuth) {
-        this("", time, point, azimuth);
+        this("", time, point, azimuth, false);
     }
 
     /**
@@ -62,7 +63,20 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param point Point of measured position.
      */
     public MatcherSample(String id, long time, Point point) {
-        this(id, time, point, Double.NaN);
+        this(id, time, point, Double.NaN, false);
+    }
+    
+    /**
+     * Creates a {@link MatcherSample} object with an identifier, measured position and time of
+     * measurement.
+     *
+     * @param id Identifier of sample.
+     * @param time Time of measurement in milliseconds epoch time.
+     * @param point Point of measured position.
+     * @param azimuth Azimuth of measurement sample.
+     */
+    public MatcherSample(String id, long time, Point point, double azimuth) {
+        this(id, time, point, azimuth, false);
     }
 
     /**
@@ -73,12 +87,14 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param time Time of measurement in milliseconds epoch time.
      * @param point Point of measured position.
      * @param azimuth Azimuth of measurement sample.
+     * @param gpsOutage GPS regained signal.
      */
-    public MatcherSample(String id, long time, Point point, double azimuth) {
+    public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage) {
         super(time);
         this.id = id;
         this.point = point;
         this.azimuth = norm(azimuth);
+        this.gpsOutage = gpsOutage;
     }
 
     /**
@@ -98,6 +114,12 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
             azimuth = norm(json.getDouble("azimuth"));
         } else {
             azimuth = Double.NaN;
+        }
+        if (json.has("gpsOutage"))
+        {
+            gpsOutage = json.getBoolean("gpsOutage");
+        } else {
+        	gpsOutage = false;
         }
     }
 
@@ -132,8 +154,17 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     public double azimuth() {
         return azimuth;
     }
+    
+    
 
-    @Override
+    /**
+	 * @return the gpsOutage
+	 */
+	public boolean isGpsOutage() {
+		return gpsOutage;
+	}
+
+	@Override
     public JSONObject toJSON() throws JSONException {
         JSONObject json = super.toJSON();
         json.put("id", id);
@@ -141,6 +172,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
         if (!Double.isNaN(azimuth)) {
             json.put("azimuth", azimuth);
         }
+        json.put("gpsOutage", gpsOutage);
         return json;
     }
 }
