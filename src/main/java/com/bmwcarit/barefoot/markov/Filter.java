@@ -47,6 +47,7 @@ import com.bmwcarit.barefoot.util.Tuple;
  */
 public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample> {
 	private final static Logger logger = LoggerFactory.getLogger(Filter.class);
+	private final static double MAXBOUND_TRANSITION_GPS_OUTAGE = 200.0;
 
 	/**
 	 * Gets state vector, which is a set of {@link StateCandidate} objects and
@@ -154,10 +155,10 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 		boolean gpsOutage = ((MatcherSample) sample).isGpsOutage();
 		Set<Tuple<C, Double>> candidates = candidates(predecessors, sample);
 		logger.trace("{} state candidates", candidates.size());
-		if (gpsOutage) {
+
+		if(gpsOutage){
 			gpsOutage = true;
 		}
-
 		double normsum = 0;
 
 		if (!predecessors.isEmpty()) {
@@ -269,10 +270,15 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 			for (C candidate : result) {
 				if (candidate.transition() != null) {
 					List<Road> checkOutage = ((MatcherTransition) candidate.transition()).route().path();
-					for (Road road : checkOutage) {
+					double succbound = 0.0;
+					for (int t = checkOutage.size() - 2; t > 1; t--) {
+						Road road = checkOutage.get(t);
+						succbound = succbound + road.length();
 						if (road.base().getTunnel()) {
 							tempResult.add(candidate);
 							break;
+						}else if(succbound > MAXBOUND_TRANSITION_GPS_OUTAGE){
+							break;							
 						}
 					}
 				}
