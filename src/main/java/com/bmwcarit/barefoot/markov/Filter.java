@@ -269,13 +269,18 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 			Set<C> tempResult = new HashSet<C>();
 			for (C candidate : result) {
 				if (candidate.transition() != null) {
+					if(((MatcherCandidate)candidate).point().edge().base().getTunnel()){
+						tempResult.add(candidate);	
+						break;
+					}	
 					List<Road> checkOutage = ((MatcherTransition) candidate.transition()).route().path();
+									
 					double succbound = 0.0;
 					for (int t = checkOutage.size() - 2; t > 1; t--) {
-						Road road = checkOutage.get(t);
-						succbound = succbound + road.length();
-						if (road.base().getTunnel()) {
-							tempResult.add(candidate);
+						Road roadBackward = checkOutage.get(t);
+						succbound = succbound + roadBackward.length();
+						if (roadBackward.base().getTunnel()) {
+							tempResult.add(candidate);	
 							break;
 						}else if(succbound > MAXBOUND_TRANSITION_GPS_OUTAGE){
 							break;							
