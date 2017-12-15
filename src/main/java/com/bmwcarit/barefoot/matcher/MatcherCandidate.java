@@ -67,8 +67,14 @@ public class MatcherCandidate
             throws JSONException {
         super(json, factory);
         point = RoadPoint.fromJSON(json.getJSONObject("point"), map);
-        vel = null;
-        heading = null;
+        if(json.has("vel") && json.has("heading")){
+        	vel = json.getDouble("vel");
+        	heading = json.getDouble("heading");
+        }else{
+        	vel = null;
+        	heading = null;
+        }
+       
     }
 
     /**
@@ -99,6 +105,10 @@ public class MatcherCandidate
     public JSONObject toJSON() throws JSONException {
         JSONObject json = super.toJSON();
         json.put("point", point.toJSON());
+        if(vel != null && heading != null){
+        	json.put("vel", vel);
+        	json.put("heading", heading);
+        }
         return json;
     }
     @Override
