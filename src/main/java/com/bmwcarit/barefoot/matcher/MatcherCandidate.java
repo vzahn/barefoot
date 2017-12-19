@@ -105,7 +105,7 @@ public class MatcherCandidate
     public JSONObject toJSON() throws JSONException {
         JSONObject json = super.toJSON();
         json.put("point", point.toJSON());
-        if(vel != null && heading != null){
+        if(vel != null && heading != null && !Double.isNaN(vel) && !Double.isNaN(heading)){
         	json.put("vel", vel);
         	json.put("heading", heading);
         }
