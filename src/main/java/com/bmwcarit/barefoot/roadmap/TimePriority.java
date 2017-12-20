@@ -20,7 +20,7 @@ import com.bmwcarit.barefoot.topology.Cost;
  */
 public class TimePriority extends Cost<Road> {
     private static final double heuristic_priority = 1;
-    private static final Time time = new Time();
+    private static final Distance distance = new Distance();
 
     /**
      * Gets time-priority cost for passing the road, i.e. traveling time multiplied with priority
@@ -30,6 +30,7 @@ public class TimePriority extends Cost<Road> {
      */
     @Override
     public double cost(Road road) {
-        return time.cost(road) * Math.max(heuristic_priority, road.priority()) * (road.base().getTunnel() ? 0.9 : 1.0);
+    	
+        return distance.cost(road) * Math.max(heuristic_priority, road.priority()) * (road.base().getTunnel() ? 0.9 : 1.0);
     }
 }

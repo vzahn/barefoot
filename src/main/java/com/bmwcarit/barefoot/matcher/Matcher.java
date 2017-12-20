@@ -272,7 +272,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
 		final AtomicInteger count = new AtomicInteger();
 		final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
-		final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point()) / avgVelocity;
+		final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
 		final double bound = Math.max(maxVelocity,
 				Math.min(distance, ((candidates.one().time() - predecessors.one().time()) / 1000) * maxVelocity));
 
@@ -312,7 +312,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 								? (2.0 * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 
-						double transition = (1 / beta) * Math.exp((-1.0) * Math.max(0, route.cost(cost) - base) / beta);
+						double transition = (1 / beta) * Math.exp((-1.0) * Math.abs(route.cost(cost) - base) / beta);
 
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
