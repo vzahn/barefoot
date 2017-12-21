@@ -35,6 +35,7 @@ public class Route extends Path<Road> {
 
     private Double length = null;
     private Double time = null;
+    private Double velocity = null;
 
     /**
      * Creates a {@link Route} object. (This is a base case that consists of only one
@@ -90,7 +91,21 @@ public class Route extends Path<Road> {
             return length;
         }
     }
-
+    
+    /**
+     * Gets velocity of the {@link Route} in m/s, uses cost function {@link Distance} to determine
+     * the velocity.
+     *
+     * @return Velocity of the {@link Route} in m/s.
+     */
+    public double velocity() {
+        if (velocity != null) {
+            return velocity;
+        } else {
+        	velocity = this.cost(new Velocity()) / this.length();
+            return velocity;
+        }
+    }
     /**
      * Gets travel time for the {@link Route} in seconds, uses cost function {@link Time} to
      * determine travel time.

@@ -312,7 +312,9 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 								? (2.0 * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 
-						double transition = (1 / beta) * Math.exp((-1.0) * Math.abs(route.cost(cost) - base) / beta);
+						double routeCost = route.cost(cost);
+						double velocity = route.velocity();
+						double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
 
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 

@@ -117,7 +117,8 @@ public class Path<E extends AbstractEdge<E>> {
 
         return true;
     }
-
+  
+    
     /**
      * Gets cost value of the path for an arbitrary {@link Cost} function.
      *
