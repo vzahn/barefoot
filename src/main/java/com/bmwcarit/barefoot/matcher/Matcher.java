@@ -313,7 +313,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 								: 1 / lambda;
 
 						double routeCost = route.cost(cost);
-						double velocity = route.velocity();
+						double velocity = 1; //TODO
 						double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
 
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
