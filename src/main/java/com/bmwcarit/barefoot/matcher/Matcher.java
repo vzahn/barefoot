@@ -175,6 +175,21 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	public void setMaxDistance(double distance) {
 		this.distance = distance;
 	}
+	
+
+	/**
+	 * @return the sigA
+	 */
+	public double getSigmaA() {
+		return sigA;
+	}
+
+	/**
+	 * @param sigA the sigA to set
+	 */
+	public void setSigmaA(double sigA) {
+		this.sigA = sigA;
+	}
 
 	@Override
 	protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
