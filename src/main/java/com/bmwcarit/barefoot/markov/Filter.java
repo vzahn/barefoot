@@ -271,7 +271,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 				if (candidate.transition() != null) {
 					if(((MatcherCandidate)candidate).point().edge().base().getTunnel()){
 						tempResult.add(candidate);	
-						break;
+						continue;
 					}	
 					List<Road> checkOutage = ((MatcherTransition) candidate.transition()).route().path();
 									
