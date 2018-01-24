@@ -66,7 +66,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double lambda = 0d;
 	private double radius = 200;
 	private double distance = 15000;
-	private double maxVelocity = 150.0 / 3.6;
+	private double maxVelocity = 180.0 / 3.6;
 	private double avgVelocity = 60.0 / 3.6;
 
 	/**
