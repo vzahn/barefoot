@@ -292,9 +292,17 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 				result = tempResult;
 			}
 		}
-
+		
+		
 		for (C candidate : result) {
-			candidate.filtprob(candidate.filtprob() / normsum);
+			/*
+			 * Change candidate to prob to 0, if normsum of all candidates is 0, NaN cannot be transfered to json
+			 */
+			if(candidate.filtprob() == 0.0 && normsum == 0.0){
+				candidate.filtprob(0.0);
+			}else{
+				candidate.filtprob(candidate.filtprob() / normsum);
+			}
 		}
 
 		logger.trace("{} state candidates for state update", result.size());
