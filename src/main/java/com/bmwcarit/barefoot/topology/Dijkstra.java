@@ -156,7 +156,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
                     }
                     double reachcost = startcost - cost.cost(source.edge(), 1 - target.fraction());
                     double reachbound = bound != null
-                            ? startcost - bound.cost(source.edge(), 1 - target.fraction()) : 0.0;
+                            ? startbound - bound.cost(source.edge(), 1 - target.fraction()) : 0.0;
 
                     logger.trace("reached target {} with start edge {} from {} to {} with {} cost",
                             target, source.edge().id(), source.fraction(), target.fraction(),
