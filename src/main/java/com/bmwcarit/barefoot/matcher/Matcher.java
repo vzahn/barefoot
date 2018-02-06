@@ -67,7 +67,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double radius = 200;
 	private double distance = 15000;
 	private double maxVelocity = 180.0 / 3.6;
-	private double avgVelocity = 60.0 / 3.6;
+	private double avgVelocityDistance = 1000;
 
 	/**
 	 * Creates a HMM map matching filter for some map, router, cost function,
@@ -176,6 +176,20 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		this.distance = distance;
 	}
 	
+	
+	/**
+	 * @return the avgVelocityDistance
+	 */
+	public double getAvgVelocityDistance() {
+		return avgVelocityDistance;
+	}
+
+	/**
+	 * @param avgVelocityDistance the avgVelocityDistance to set
+	 */
+	public void setAvgVelocityDistance(double avgVelocityDistance) {
+		this.avgVelocityDistance = avgVelocityDistance;
+	}
 
 	/**
 	 * @return the sigA
@@ -329,7 +343,16 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
 						double routeCost = route.cost(cost);
 						double velocity = 1; //TODO
-						double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
+						double transition = 0;
+						/*
+						 * When driving a long transition is probability drives to 0, therefore velocity should be applied
+						 */
+						if(base >avgVelocityDistance){
+							velocity = route.velocity();
+							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
+						}else{
+							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
+						}
 
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
