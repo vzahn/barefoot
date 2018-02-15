@@ -206,14 +206,21 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	}
 
 	@Override
+	protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors, MatcherSample sample) {
+		return candidates(predecessors, sample, null);
+	}
+	
+	@Override
 	protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
-			MatcherSample sample) {
+			MatcherSample sample, Double perimeter) {
 		if (logger.isTraceEnabled()) {
 			logger.trace("finding candidates for sample {} {}",
 					new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ").format(sample.time()),
 					GeometryEngine.geometryToWkt(sample.point(), WktExportFlags.wktExportPoint));
 		}
-
+		if(perimeter != null){
+			radius = perimeter;
+		}
 		Set<RoadPoint> points_radius = map.spatial().radius(sample.point(), radius);
 
 		// Remove tunnelflag points, they should not have any gps signal
@@ -348,6 +355,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						 * When driving a long transition is probability drives to 0, therefore velocity should be applied
 						 */
 						if(base >avgVelocityDistance){
+							System.out.println(avgVelocityDistance);
 							velocity = route.velocity();
 							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
 						}else{
@@ -416,4 +424,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
 		return state;
 	}
+
+
 }

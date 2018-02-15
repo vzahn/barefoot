@@ -138,7 +138,7 @@ public class FilterTest {
 
         @Override
         protected Set<Tuple<MockElement, Double>> candidates(Set<MockElement> predecessors,
-                Sample sample) {
+                Sample sample, Double radius) {
             Set<Tuple<MockElement, Double>> candidates = new HashSet<>();
             for (int c = 0; c < states.numCandidates(); ++c) {
                 candidates.add(
@@ -163,6 +163,12 @@ public class FilterTest {
             }
             return execute(predecessors, new Sample(0), new Sample(1));
         }
+
+		@Override
+		protected Set<Tuple<MockElement, Double>> candidates(Set<MockElement> predecessors, Sample sample
+				) {
+			return candidates(predecessors, sample, null);
+		}
     }
 
     @Test

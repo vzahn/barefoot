@@ -33,6 +33,8 @@ import com.bmwcarit.barefoot.matcher.MatcherTransition;
 import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.Route;
 import com.bmwcarit.barefoot.util.Tuple;
+import com.bmwcarit.barefoot.spatial.Geography;
+import com.bmwcarit.barefoot.spatial.SpatialOperator;
 
 /**
  * Hidden Markov Model (HMM) filter for online and offline inference of states
@@ -61,6 +63,22 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 	 *         emission probability.
 	 */
 	protected abstract Set<Tuple<C, Double>> candidates(Set<C> predecessors, S sample);
+	
+	/**
+	 * Gets state vector, which is a set of {@link StateCandidate} objects and
+	 * with its emission probability.
+	 *
+	 * @param predecessors
+	 *            Predecessor state candidate <i>s<sub>t-1</sub></i>.
+	 * @param sample
+	 *            Measurement sample.
+	 *            
+	 * @param radius
+	 * 				SearchRadius for candidates.
+	 * @return Set of tuples consisting of a {@link StateCandidate} and its
+	 *         emission probability.
+	 */
+	protected abstract Set<Tuple<C, Double>> candidates(Set<C> predecessors, S sample, Double radius);
 
 	/**
 	 * Gets transition and its transition probability for a pair of
@@ -116,6 +134,10 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
 		return map;
 	}
+	
+	public Set<C> execute(Set<C> predecessors, S previous, S sample){
+		return execute(predecessors, previous, sample, null);
+	}
 
 	/**
 	 * Executes Hidden Markov Model (HMM) filter iteration that determines for a
@@ -139,7 +161,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 	 * @return State vector <i>S<sub>t</sub></i>, which may be empty if an HMM
 	 *         break occured.
 	 */
-	public Set<C> execute(Set<C> predecessors, S previous, S sample) {
+	public Set<C> execute(Set<C> predecessors, S previous, S sample, Double radius) {
 		if (logger.isTraceEnabled()) {
 			try {
 				logger.trace("execute sample {}", sample.toJSON().toString());
@@ -153,7 +175,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
 		Set<C> result = new HashSet<>();
 		boolean gpsOutage = ((MatcherSample) sample).isGpsOutage();
-		Set<Tuple<C, Double>> candidates = candidates(predecessors, sample);
+		Set<Tuple<C, Double>> candidates = candidates(predecessors, sample, radius);
 		logger.trace("{} state candidates", candidates.size());
 
 		if(gpsOutage){
@@ -185,7 +207,10 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
 				for (C predecessor : predecessors) {
 					Tuple<T, Double> transition = transitions.get(predecessor).get(candidate_);
-
+					
+					//keep tunnel when gpsOutage
+					
+					
 					if (transition == null || transition.two() == 0) {
 						continue;
 					}
@@ -290,7 +315,25 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 			}
 			if (tempResult.size() > 0) {
 				result = tempResult;
+			}else{
+				// if gpsOutage occurs candidate has to be a tunnel in radius
+				final SpatialOperator spatial = new Geography();
+				for(Tuple<C, Double> candidate : candidates){
+					C candidateOne = candidate.one();
+					if(((MatcherCandidate)candidateOne).point().edge().base().getTunnel()){
+						candidateOne.filtprob(1/(100*spatial.distance(((MatcherSample)sample).point(), ((MatcherCandidate)candidateOne).point().geometry())));
+						candidateOne.seqprob(Math.log10(candidateOne.filtprob()));
+						candidateOne.time(sample.time());
+						tempResult.add(candidateOne);
+					}
+					
+				}
+				// if no tunnel occurs use transition candidates
+				if(tempResult.size() >0){
+					result = tempResult;
+				}
 			}
+				
 		}
 		
 		
