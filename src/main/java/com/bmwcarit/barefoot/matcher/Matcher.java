@@ -355,7 +355,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						 * When driving a long transition is probability drives to 0, therefore velocity should be applied
 						 */
 						if(base >avgVelocityDistance){
-							System.out.println(avgVelocityDistance);
 							velocity = route.velocity();
 							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
 						}else{
