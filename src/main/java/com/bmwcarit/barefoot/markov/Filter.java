@@ -178,9 +178,6 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 		Set<Tuple<C, Double>> candidates = candidates(predecessors, sample, radius);
 		logger.trace("{} state candidates", candidates.size());
 
-		if(gpsOutage){
-			gpsOutage = true;
-		}
 		double normsum = 0;
 
 		if (!predecessors.isEmpty()) {
@@ -207,10 +204,6 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
 				for (C predecessor : predecessors) {
 					Tuple<T, Double> transition = transitions.get(predecessor).get(candidate_);
-					
-					//keep tunnel when gpsOutage
-					
-					
 					if (transition == null || transition.two() == 0) {
 						continue;
 					}
