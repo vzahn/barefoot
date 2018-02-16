@@ -294,7 +294,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 					List<Road> checkOutage = ((MatcherTransition) candidate.transition()).route().path();
 									
 					double succbound = 0.0;
-					for (int t = checkOutage.size() - 2; t > 1; t--) {
+					for (int t = checkOutage.size() - 2; t >= 1; t--) {
 						Road roadBackward = checkOutage.get(t);
 						succbound = succbound + roadBackward.length();
 						if (roadBackward.base().getTunnel()) {
