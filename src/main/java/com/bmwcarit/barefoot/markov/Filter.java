@@ -31,10 +31,9 @@ import com.bmwcarit.barefoot.matcher.MatcherCandidate;
 import com.bmwcarit.barefoot.matcher.MatcherSample;
 import com.bmwcarit.barefoot.matcher.MatcherTransition;
 import com.bmwcarit.barefoot.roadmap.Road;
-import com.bmwcarit.barefoot.roadmap.Route;
+
 import com.bmwcarit.barefoot.util.Tuple;
-import com.bmwcarit.barefoot.spatial.Geography;
-import com.bmwcarit.barefoot.spatial.SpatialOperator;
+
 
 /**
  * Hidden Markov Model (HMM) filter for online and offline inference of states
@@ -310,12 +309,12 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 				result = tempResult;
 			}else{
 				// if gpsOutage occurs candidate has to be a tunnel in radius
-				final SpatialOperator spatial = new Geography();
 				for(Tuple<C, Double> candidate : candidates){
 					C candidateOne = candidate.one();
 					if(((MatcherCandidate)candidateOne).point().edge().base().getTunnel()){
-						candidateOne.filtprob(1/(100*spatial.distance(((MatcherSample)sample).point(), ((MatcherCandidate)candidateOne).point().geometry())));
-						candidateOne.seqprob(Math.log10(candidateOne.filtprob()));
+						normsum += candidate.two();
+						candidateOne.filtprob(candidate.two());
+						candidateOne.seqprob(Math.log10(candidate.two()));
 						candidateOne.time(sample.time());
 						tempResult.add(candidateOne);
 					}

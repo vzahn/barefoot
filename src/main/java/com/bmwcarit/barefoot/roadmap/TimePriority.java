@@ -31,6 +31,6 @@ public class TimePriority extends Cost<Road> {
     @Override
     public double cost(Road road) {
     	
-        return distance.cost(road) * Math.max(heuristic_priority, road.priority()) * (road.base().getTunnel() ? 0.9 : 1.0);
+        return distance.cost(road) * Math.max(heuristic_priority, road.base().getTunnel() ? 1.0 : road.priority());
     }
 }
