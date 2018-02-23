@@ -195,7 +195,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	 * @return the sigA
 	 */
 	public double getSigmaA() {
-		return sigA;
+		return Math.sqrt(this.sigA);
 	}
 
 	/**
