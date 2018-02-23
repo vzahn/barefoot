@@ -202,7 +202,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	 * @param sigA the sigA to set
 	 */
 	public void setSigmaA(double sigA) {
-		this.sigA = sigA;
+		this.sigA =  Math.pow(sigA, 2);;
+		this.sqrt_2pi_sigA = Math.sqrt(2d * Math.PI * sigA);
 	}
 
 	@Override
@@ -273,7 +274,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 			MatcherCandidate candidate = new MatcherCandidate(point, sample);
 			candidates.add(new Tuple<>(candidate, emission));
 
-			logger.trace("{} {} {}", candidate.id(), dz, emission);
+			logger.trace("{} distance: {} emission: {}", ((MatcherCandidate) candidate).point().edge().base().refid(), dz, emission);
 		}
 
 		return candidates;
@@ -363,7 +364,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
-						logger.trace("{} -> {} {} {} {}", predecessor.id(), candidate.id(), base, route.length(),
+						logger.trace("{} -> {} base: {} routeCost: {} transition: {}", ((MatcherCandidate) predecessor).point().edge().base().refid(), ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost,
 								transition);
 						count.incrementAndGet();
 					}

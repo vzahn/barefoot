@@ -194,7 +194,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
 				if (logger.isTraceEnabled()) {
 					try {
-						logger.trace("state candidate {} ({}) {}", candidate_.id(), candidate.two(),
+						logger.trace("state candidate {} ({}) {}", ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate.two(),
 								candidate_.toJSON().toString());
 					} catch (JSONException e) {
 						logger.trace("state candidate (not JSON parsable candidate: {})", e.getMessage());
@@ -213,7 +213,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
 					if (logger.isTraceEnabled()) {
 						try {
-							logger.trace("state transition {} -> {} ({}, {}, {}) {}", predecessor.id(), candidate_.id(),
+							logger.trace("state transition {} -> {} (seqprob: {}, transitionlog10: {}, emissionlog10: {}) {}", ((MatcherCandidate) predecessor).point().edge().base().refid(), ((MatcherCandidate) candidate.one()).point().edge().base().refid(),
 									predecessor.seqprob(), Math.log10(transition.two()), Math.log10(candidate.two()),
 									transition.one().toJSON().toString());
 						} catch (JSONException e) {
@@ -234,10 +234,10 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 							((MatcherCandidate) candidate_).point().edge().base().refid(), candidate_.filtprob(),
 							candidate_.seqprob(), ((MatcherCandidate) candidate_).transition().toString());
 
-					logger.trace("state candidate {} -> {} ({}, {})", candidate_.predecessor().id(), candidate_.id(),
+					logger.trace("state candidate {} -> {} ({}, {})", ((MatcherCandidate) candidate_.predecessor()).point().edge().base().refid(), ((MatcherCandidate) candidate_).point().edge().base().refid(),
 							candidate_.filtprob(), candidate_.seqprob());
 				} else {
-					logger.trace("state candidate - -> {} ({}, {})", candidate_.id(), candidate_.filtprob(),
+					logger.trace("state candidate - -> {} ({}, {})", ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate_.filtprob(),
 							candidate_.seqprob());
 				}
 
