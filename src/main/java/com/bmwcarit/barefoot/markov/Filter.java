@@ -270,7 +270,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
 				if (logger.isTraceEnabled()) {
 					try {
-						logger.trace("state candidate {} ({}) {}", candidate_.id(), candidate.two(),
+						logger.trace("state candidate {} ({}) {}", ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate.two(),
 								candidate_.toJSON().toString());
 					} catch (JSONException e) {
 						logger.trace("state candidate (not JSON parsable candidate: {})", e.getMessage());

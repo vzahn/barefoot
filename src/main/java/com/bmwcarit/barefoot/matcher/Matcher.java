@@ -67,7 +67,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double radius = 200;
 	private double distance = 15000;
 	private double maxVelocity = 180.0 / 3.6;
-	private double avgVelocityDistance = 1000;
+
 
 	/**
 	 * Creates a HMM map matching filter for some map, router, cost function,
@@ -176,20 +176,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		this.distance = distance;
 	}
 	
-	
-	/**
-	 * @return the avgVelocityDistance
-	 */
-	public double getAvgVelocityDistance() {
-		return avgVelocityDistance;
-	}
-
-	/**
-	 * @param avgVelocityDistance the avgVelocityDistance to set
-	 */
-	public void setAvgVelocityDistance(double avgVelocityDistance) {
-		this.avgVelocityDistance = avgVelocityDistance;
-	}
 
 	/**
 	 * @return the sigA
@@ -268,7 +254,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 				double da = sample.azimuth() > point.azimuth()
 						? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
 						: Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
-				emission *= Math.max(1E-2, 1 / sqrt_2pi_sigA * Math.exp((-1) * da *da / (2 * sigA)));
+				double emissionHeading = Math.max(  1 / sqrt_2pi_sig2 * Math.exp((-1) * radius * radius / (2 * sig2)), 1 / sqrt_2pi_sigA * Math.exp((-1) * da *da / (2 * sigA)));
+	
+				logger.trace("---diffHeading: {} HeadingEmission: {} distanceEmission {}", dz, emission, emissionHeading);
+				
+				emission *=  emissionHeading;
 			}
 
 			MatcherCandidate candidate = new MatcherCandidate(point, sample);
@@ -350,18 +340,15 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 								: 1 / lambda;
 
 						double routeCost = route.cost(cost);
-						double velocity = 1; //TODO
+						double timeDiffernce = Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000;
 						double transition = 0;
 						/*
 						 * When driving a long transition is probability drives to 0, therefore velocity should be applied
 						 */
-						if(base >avgVelocityDistance){
-							velocity = route.velocity();
-							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
-						}else{
-							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / velocity) / beta);
-						}
 
+						transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / timeDiffernce) / beta);
+
+						
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
 						logger.trace("{} -> {} base: {} routeCost: {} transition: {}", ((MatcherCandidate) predecessor).point().edge().base().refid(), ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost,
