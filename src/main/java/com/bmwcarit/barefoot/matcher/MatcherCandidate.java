@@ -28,6 +28,7 @@ public class MatcherCandidate
     private final RoadPoint point;
     private final Double heading;
     private final Double vel;
+    
 
     /**
      * Creates a matching candidate.

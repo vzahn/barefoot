@@ -247,7 +247,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		logger.debug("{} ({}) candidates", points.size(), points_.size());
 
 		for (RoadPoint point : points) {
-
+			MatcherCandidate candidate = new MatcherCandidate(point, sample);
 			double dz = spatial.distance(sample.point(), point.geometry());
 			double emission = 1 / sqrt_2pi_sig2 * Math.exp((-1) * dz * dz / (2 * sig2));
 			if (!Double.isNaN(sample.azimuth())) {
@@ -255,13 +255,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
 						: Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
 				double emissionHeading = Math.max(  1 / sqrt_2pi_sig2 * Math.exp((-1) * radius * radius / (2 * sig2)), 1 / sqrt_2pi_sigA * Math.exp((-1) * da *da / (2 * sigA)));
-	
+				candidate.setDeltaHeading(da);
+				candidate.setDistance(dz);
 				logger.trace("---diffHeading: {} HeadingEmission: {} distanceEmission {}", dz, emission, emissionHeading);
-				
 				emission *=  emissionHeading;
 			}
 
-			MatcherCandidate candidate = new MatcherCandidate(point, sample);
+			
 			candidates.add(new Tuple<>(candidate, emission));
 
 			logger.trace("{} distance: {} emission: {}", ((MatcherCandidate) candidate).point().edge().base().refid(), dz, emission);
@@ -293,10 +293,17 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		sw.start();
 
 		final Set<RoadPoint> targets = new HashSet<>();
+		double prioPerM = 0d; 
+		double lengthCandidates = 0d;
 		for (MatcherCandidate candidate : candidates.two()) {
+			lengthCandidates += candidate.point().edge().base().length();
+			prioPerM += candidate.point().edge().base().length()*candidate.point().edge().base().priority();
 			targets.add(candidate.point());
 		}
-
+		if(prioPerM!=0d){
+			prioPerM /= lengthCandidates;
+		}
+		final double avgPriority = prioPerM;
 		final AtomicInteger count = new AtomicInteger();
 		final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
 		final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
@@ -336,7 +343,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						// case of u-turns.
 
 						double beta = lambda == 0
-								? (2.0 * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
+								? (1.9 * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 
 						double routeCost = route.cost(cost);
@@ -346,9 +353,9 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						 * When driving a long transition is probability drives to 0, therefore velocity should be applied
 						 */
 
-						transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) / timeDiffernce) / beta);
+						transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) ) / beta);
 
-						
+						candidate.setDeltaRoute(Math.abs((route.length() - base)));
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
 						logger.trace("{} -> {} base: {} routeCost: {} transition: {}", ((MatcherCandidate) predecessor).point().edge().base().refid(), ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost,
