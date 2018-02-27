@@ -343,7 +343,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						// case of u-turns.
 
 						double beta = lambda == 0
-								? (1.9 * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
+								? (avgPriority * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 
 						double routeCost = route.cost(cost);
@@ -352,8 +352,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						/*
 						 * When driving a long transition is probability drives to 0, therefore velocity should be applied
 						 */
-
-						transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) ) / beta);
+						if(lambda > 0){
+							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)/timeDiffernce ) / beta);
+						}else {
+							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) ) / beta);
+						}
 
 						candidate.setDeltaRoute(Math.abs((route.length() - base)));
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
