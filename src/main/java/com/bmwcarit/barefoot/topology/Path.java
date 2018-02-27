@@ -157,15 +157,16 @@ public class Path<E extends AbstractEdge<E>> {
         	Polyline edgeLine= ((Road)edges.get(i)).geometry();
         	int lastPointCount = edgeLine.getPointCount()-1;
         	com.esri.core.geometry.Point pointVertexA =edgeLine.getPoint(0);
-        	value += cost.cost(edges.get(i));
+        	double edgeCost =  cost.cost(edges.get(i));
+        	value += edgeCost;
         	 for (int l = 1; l <= lastPointCount; l++) {
         		 com.esri.core.geometry.Point pointVertexB =edgeLine.getPoint(l);
         		 double pointDirection = spatial.azimuth(pointVertexA, pointVertexB, 1);
         		 double deltaDirection = sourceDirection > pointDirection
  						? Math.min(sourceDirection - pointDirection, 360 - (sourceDirection - pointDirection))
  						: Math.min(pointDirection - sourceDirection, 360 - (pointDirection - sourceDirection));
- 				 if(deltaDirection>sigA){
- 					value *= 1.1;
+ 				 if(deltaDirection>sigA*2){
+ 					value += edgeCost *0.1;
  				 }
         		 
              }
