@@ -66,7 +66,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double lambda = 0d;
 	private double radius = 200;
 	private double distance = 15000;
-	private double maxVelocity = 180.0 / 3.6;
+	private double maxVelocity = 1.85;
 
 
 	/**
@@ -307,9 +307,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		final AtomicInteger count = new AtomicInteger();
 		final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
 		final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
-		final double bound = Math.max(maxVelocity,
-				Math.min(distance, ((candidates.one().time() - predecessors.one().time()) / 1000) * maxVelocity));
-
+		final double bound = distance;
+		final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
+		final double maxOverSpeed = maxVelocity;
+		
+		
 		InlineScheduler scheduler = StaticScheduler.scheduler();
 		for (final MatcherCandidate predecessor : predecessors.two()) {
 			scheduler.spawn(new Task() {
@@ -319,7 +321,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 					Stopwatch sw = new Stopwatch();
 					sw.start();
 					Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
-							bound);
+							bound, deltaTime, maxOverSpeed);
 					sw.stop();
 
 					logger.trace("{} routes ({} ms)", routes.size(), sw.ms());
@@ -346,7 +348,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 								? (avgPriority * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 
-						double routeCost = route.cost(cost);
+						double routeCost = route.cost(cost, predecessor.point(), Math.sqrt(sigA));
 						double timeDiffernce = Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000;
 						double transition = 0;
 						/*

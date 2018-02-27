@@ -18,6 +18,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.bmwcarit.barefoot.roadmap.Road;
+import com.bmwcarit.barefoot.roadmap.RoadPoint;
+import com.bmwcarit.barefoot.spatial.Geography;
+import com.bmwcarit.barefoot.spatial.SpatialOperator;
+import com.esri.core.geometry.Polyline;
+
 /**
  * Path of edges in a graph.
  *
@@ -27,6 +33,7 @@ public class Path<E extends AbstractEdge<E>> {
     private final Point<E> source;
     private Point<E> target;
     private final LinkedList<E> edges;
+    private final static SpatialOperator spatial = new Geography();
 
     public Path(Point<E> single) {
         this.source = single;
@@ -127,9 +134,41 @@ public class Path<E extends AbstractEdge<E>> {
      */
     public double cost(Cost<E> cost) {
         double value = cost.cost(source.edge(), 1 - source.fraction());
-
         for (int i = 1; i < edges.size(); ++i) {
         	value += cost.cost(edges.get(i));
+        }
+
+        value -= cost.cost(target.edge(), 1 - target.fraction());
+        return value;
+    }
+    
+    /**
+     * Gets cost value of the path for an arbitrary {@link Cost} function.
+     *
+     * @param cost {@link Cost} function to be used.
+     * @param sigA 
+     * @return Cost value of the path.
+     */
+    public double cost(Cost<E> cost, RoadPoint point, double sigA) {
+        double value = cost.cost(source.edge(), 1 - source.fraction());
+        double sourceDirection = point.azimuth();
+        			
+        for (int i = 1; i < edges.size(); ++i) {	
+        	Polyline edgeLine= ((Road)edges.get(i)).geometry();
+        	int lastPointCount = edgeLine.getPointCount()-1;
+        	com.esri.core.geometry.Point pointVertexA =edgeLine.getPoint(0);
+        	value += cost.cost(edges.get(i));
+        	 for (int l = 1; l <= lastPointCount; l++) {
+        		 com.esri.core.geometry.Point pointVertexB =edgeLine.getPoint(l);
+        		 double pointDirection = spatial.azimuth(pointVertexA, pointVertexB, 1);
+        		 double deltaDirection = sourceDirection > pointDirection
+ 						? Math.min(sourceDirection - pointDirection, 360 - (sourceDirection - pointDirection))
+ 						: Math.min(pointDirection - sourceDirection, 360 - (pointDirection - sourceDirection));
+ 				 if(deltaDirection>sigA){
+ 					value *= 1.1;
+ 				 }
+        		 
+             }
         }
 
         value -= cost.cost(target.edge(), 1 - target.fraction());

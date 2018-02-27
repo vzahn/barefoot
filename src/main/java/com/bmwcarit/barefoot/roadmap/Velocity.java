@@ -19,17 +19,16 @@ import com.bmwcarit.barefoot.topology.Cost;
  * Time cost function for routing in {@link Road} networks.
  */
 public class Velocity extends Cost<Road> {
-    private static final float heuristic_speed = 130;
     private static final Distance distance = new Distance();
 
     /**
-     * Gets average velocity for passing the road.
+     * Gets velocity for passing the road.
      *
-     * @return m²/s for passing the road.
+     * @return s for passing the road.
      */
     @Override
     public double cost(Road road) {
-        return (distance.cost(road) *  Math.min(road.maxspeed(), heuristic_speed) / 3.6);
+        return (distance.cost(road) / ( road.maxspeed()/3.6));
     }
     
     
