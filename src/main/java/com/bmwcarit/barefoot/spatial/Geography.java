@@ -109,6 +109,27 @@ public class Geography implements SpatialOperator {
     public Point interpolate(Polyline path, double f) {
         return interpolate(path, length(path), f);
     }
+    
+    @Override
+    public int getIndexPoint(Polyline p, double length) {
+      
+        Point a = p.getPoint(0);
+        double ds = 0;
+
+
+        for (int i = 1; i < p.getPointCount(); ++i) {
+            Point b = p.getPoint(i);
+            ds += distance(a, b);
+
+            if (ds>= length) {
+                return i;
+            }
+  
+            a = b;
+        }
+
+        return p.getPointCount()-1;
+    }
 
     @Override
     public Point interpolate(Polyline p, double l, double f) {

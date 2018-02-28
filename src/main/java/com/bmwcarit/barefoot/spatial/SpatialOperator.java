@@ -164,4 +164,16 @@ public interface SpatialOperator {
      */
     Envelope2D envelope(Point c, double r);
 
+    /**
+     * Gets {@link IndexPoint} from linear interpolation of a fraction <i>f</i>, in the interval
+     * <i>[0,1]</i>, on a {@link Polyline}.The fraction refers to the full
+     * length of the {@link Polyline}.
+     *
+     * @param p {@link Polyline} of interpolation.
+     * @param length length where the last indexPoint shall occur.    
+     * @return {@link Integer} index of Point from {@link Polyline}.
+     */
+    
+	int getIndexPoint(Polyline p, double length);
+
 }

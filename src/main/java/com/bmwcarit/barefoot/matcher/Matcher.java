@@ -67,6 +67,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double radius = 200;
 	private double distance = 15000;
 	private double maxVelocity = 1.85;
+	private double bearingDelta = 24d;
 
 
 	/**
@@ -348,7 +349,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 								? (avgPriority * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 
-						double routeCost = route.cost(cost, predecessor.point(), Math.sqrt(sigA));
+						double routeCost = route.cost(cost, predecessor.point(), bearingDelta);
 						double timeDiffernce = Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000;
 						double transition = 0;
 						/*
