@@ -67,7 +67,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double radius = 200;
 	private double distance = 15000;
 	private double maxVelocity = 1.85;
-	private double bearingDelta = 24d;
+	private double bearingDelta = 8.7;
 
 
 	/**
@@ -308,6 +308,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		final AtomicInteger count = new AtomicInteger();
 		final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
 		final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
+		final double directionHeading = spatial.azimuth(predecessors.one().point(), candidates.one().point(), 1);
 		final double bound = distance;
 		final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
 		final double maxOverSpeed = maxVelocity;
@@ -348,8 +349,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						double beta = lambda == 0
 								? (avgPriority * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
-
-						double routeCost = route.cost(cost, predecessor.point(), bearingDelta);
+						
+						double routeCost = route.cost(cost, directionHeading, bearingDelta);
 						double timeDiffernce = Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000;
 						double transition = 0;
 						/*

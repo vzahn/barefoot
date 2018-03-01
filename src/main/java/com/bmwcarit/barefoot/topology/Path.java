@@ -154,9 +154,10 @@ public class Path<E extends AbstractEdge<E>> {
      * @param maxDeltaCourse limit for deltaDirection between points 
      * @return Cost value of the path.
      */
-    public double cost(Cost<E> cost, RoadPoint point, double maxDeltaCourse) {
+    public double cost(Cost<E> cost, double courseDirection, double maxDeltaCourse) {
         double value = cost.cost(source.edge(), 1 - source.fraction());
-        double sourceDirection = point.azimuth();
+        double sourceDirection = courseDirection;
+        boolean charge = false;
         			
         for (int i = 1; i < edges.size(); ++i) {	      	
         	double edgeCost =  cost.cost(edges.get(i));
@@ -164,9 +165,11 @@ public class Path<E extends AbstractEdge<E>> {
         	
         	Polyline edgeLine= ((Road)edges.get(i)).geometry(); 
         	int lastPointCount = edgeLine.getPointCount()-1;
+        	double edgeVertexCost = edgeCost;
         	if(i==edges.size()-1 ){
         		//For last element only calculate until RoadPoint match polyline
         		lastPointCount = spatial.getIndexPoint(edgeLine, ((Road)edges.get(i)).length()*target.fraction());
+        		edgeVertexCost = cost.cost(edges.get(i), ((Road)edges.get(i)).length()*target.fraction());
         	}
         	com.esri.core.geometry.Point pointVertexA =edgeLine.getPoint(0);
         	
@@ -177,13 +180,17 @@ public class Path<E extends AbstractEdge<E>> {
  						? Math.min(sourceDirection - pointDirection, 360 - (sourceDirection - pointDirection))
  						: Math.min(pointDirection - sourceDirection, 360 - (pointDirection - sourceDirection));
  				 logger.trace("route {} deltaDircetion {}", ((Road)edges.get(i)).base().refid(),  deltaDirection );
- 				 if(deltaDirection>maxDeltaCourse){				
- 					double edgeVertexCost = cost.cost(edges.get(i), spatial.distance(pointVertexA, pointVertexB)/((Road)edges.get(i)).length());
- 					value += edgeVertexCost *0.1;
+ 				 if(deltaDirection>maxDeltaCourse || charge){	
+ 					
+ 					value += edgeVertexCost *0.014;
+ 					
  					logger.trace("Increase routecost of {} with {} deltaDircetion {}", ((Road)edges.get(i)).base().refid(), edgeVertexCost *0.1, deltaDirection );
+ 					charge = true;
+ 					break;
  				 }
         		 
              }
+        	 
         }
 
         value -= cost.cost(target.edge(), 1 - target.fraction());
