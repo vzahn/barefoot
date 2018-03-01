@@ -169,7 +169,7 @@ public class Path<E extends AbstractEdge<E>> {
         	if(i==edges.size()-1 ){
         		//For last element only calculate until RoadPoint match polyline
         		lastPointCount = spatial.getIndexPoint(edgeLine, ((Road)edges.get(i)).length()*target.fraction());
-        		edgeVertexCost = cost.cost(edges.get(i), ((Road)edges.get(i)).length()*target.fraction());
+        		edgeVertexCost = cost.cost(edges.get(i), target.fraction());
         	}
         	com.esri.core.geometry.Point pointVertexA =edgeLine.getPoint(0);
         	
@@ -182,9 +182,9 @@ public class Path<E extends AbstractEdge<E>> {
  				 logger.trace("route {} deltaDircetion {}", ((Road)edges.get(i)).base().refid(),  deltaDirection );
  				 if(deltaDirection>maxDeltaCourse || charge){	
  					
- 					value += edgeVertexCost *0.014;
+ 					value += edgeVertexCost *0.3;
  					
- 					logger.trace("Increase routecost of {} with {} deltaDircetion {}", ((Road)edges.get(i)).base().refid(), edgeVertexCost *0.1, deltaDirection );
+ 					logger.trace("Increase routecost of {} with {} deltaDircetion {}", ((Road)edges.get(i)).base().refid(), edgeVertexCost *0.3, deltaDirection );
  					charge = true;
  					break;
  				 }
