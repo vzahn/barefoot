@@ -68,6 +68,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	private double distance = 15000;
 	private double maxVelocity = 1.85;
 	private double bearingDelta = 8.7;
+	private double routeCourseCost = 1.3;
 
 
 	/**
@@ -191,6 +192,50 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	public void setSigmaA(double sigA) {
 		this.sigA =  Math.pow(sigA, 2);;
 		this.sqrt_2pi_sigA = Math.sqrt(2d * Math.PI * sigA);
+	}
+	
+	
+
+	/**
+	 * @return the maxVelocity
+	 */
+	public double getMaxVelocity() {
+		return maxVelocity;
+	}
+
+	/**
+	 * @param maxVelocity the maxVelocity to set
+	 */
+	public void setMaxVelocity(double maxVelocity) {
+		this.maxVelocity = maxVelocity;
+	}
+
+	/**
+	 * @return the bearingDelta
+	 */
+	public double getBearingDelta() {
+		return bearingDelta;
+	}
+
+	/**
+	 * @param bearingDelta the bearingDelta to set
+	 */
+	public void setBearingDelta(double bearingDelta) {
+		this.bearingDelta = bearingDelta;
+	}
+
+	/**
+	 * @return the routeCourseCost
+	 */
+	public double getRouteCourseCost() {
+		return routeCourseCost;
+	}
+
+	/**
+	 * @param routeCourseCost the routeCourseCost to set
+	 */
+	public void setRouteCourseCost(double routeCourseCost) {
+		this.routeCourseCost = routeCourseCost;
 	}
 
 	@Override
@@ -349,8 +394,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						double beta = lambda == 0
 								? (avgPriority * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
-						
-						double routeCost = route.cost(cost, directionHeading, bearingDelta);
+								
+						double routeCost = 0;
+						if(bearingDelta > 0){
+							routeCost = route.cost(cost, directionHeading, bearingDelta, routeCourseCost);
+						}else{
+							routeCost = route.cost(cost);
+						}
 						double timeDiffernce = Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000;
 						double transition = 0;
 						/*
