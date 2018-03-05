@@ -19,7 +19,11 @@ import org.json.JSONObject;
 import com.bmwcarit.barefoot.markov.StateCandidate;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.RoadPoint;
+import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.Point;
+import com.esri.core.geometry.WktExportFlags;
+import com.esri.core.geometry.WktImportFlags;
+import com.esri.core.geometry.Geometry.Type;
 
 /**
  * Matching candidate for Hidden Markov Model (HMM) map matching representing a position on the map.
@@ -75,10 +79,15 @@ public class MatcherCandidate
         if(json.has("vel") && json.has("heading")){
         	vel = json.getDouble("vel");
         	heading = json.getDouble("heading");
-        	sample = null; //TODO
         }else{
         	vel = null;
         	heading = null;
+
+        }
+        if(json.has("sample")){
+        	sample = (Point) GeometryEngine.geometryFromWkt(json.getString("sample"), WktImportFlags.wktImportDefaults,
+                    Type.Point);
+        }else{
         	sample = null;
         }
        
@@ -124,6 +133,9 @@ public class MatcherCandidate
         if(vel != null && heading != null && !Double.isNaN(vel) && !Double.isNaN(heading)){
         	json.put("vel", vel);
         	json.put("heading", heading);
+        }
+        if(sample != null){
+        	json.put("sample", GeometryEngine.geometryToWkt(sample, WktExportFlags.wktExportPoint));
         }
         return json;
     }
