@@ -13,6 +13,7 @@
 
 package com.bmwcarit.barefoot.topology;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -150,7 +151,125 @@ public class Path<E extends AbstractEdge<E>> {
 		value -= cost.cost(target.edge(), 1 - target.fraction());
 		return value;
 	}
+	
+	/**
+	 * Gets average delta value of the path for an courseheading.
+	 *
+	 * @param maxDeltaCourse
+	 *            limit for deltaDirection between points
+	 * @return Cost value of the path.
+	 */
+	public double cost(final double courseDirection) {
+		//double value = cost.cost(source.edge(), 1 - source.fraction());
+		double value = 0;
+		int counter = 0;
+		Polyline edgeLine = ((Road) source.edge()).geometry();
+		int lastPointCount = spatial.getIndexPoint(edgeLine, 
+				((Road) source.edge()).length() * (source.fraction())); // Point to start from !!
+		
+		com.esri.core.geometry.Point pointVertexA = edgeLine.getPoint(lastPointCount-1);
+		
+		for (int l = lastPointCount; l <= edgeLine.getPointCount()-1; l++) {
+			com.esri.core.geometry.Point pointVertexB = edgeLine.getPoint(l);
+			double pointDirection = spatial.azimuth(pointVertexA, pointVertexB, 1);
+			double deltaDirection = courseDirection > pointDirection
+					? Math.min(courseDirection - pointDirection, 360 - (courseDirection - pointDirection))
+					: Math.min(pointDirection - courseDirection, 360 - (pointDirection - courseDirection));
+			logger.trace("route {} deltaDircetion {}", ((Road) edges.get(0)).base().refid(), deltaDirection);
+			value += deltaDirection;
+			counter++;
+			pointVertexA = pointVertexB;
+		}
 
+		for (int i = 1; i < edges.size(); ++i) {
+		
+				edgeLine = ((Road) edges.get(i)).geometry();
+				lastPointCount = edgeLine.getPointCount() - 1;
+				if (i == edges.size() - 1) {
+					// For last element only calculate until RoadPoint match
+					// polyline
+					lastPointCount = spatial.getIndexPoint(edgeLine,
+							((Road) edges.get(i)).length() * target.fraction());
+				} 
+				pointVertexA = edgeLine.getPoint(0);
+
+				for (int l = 1; l <= lastPointCount; l++) {
+					com.esri.core.geometry.Point pointVertexB = edgeLine.getPoint(l);
+					double pointDirection = spatial.azimuth(pointVertexA, pointVertexB, 1);
+					double deltaDirection = courseDirection > pointDirection
+							? Math.min(courseDirection - pointDirection, 360 - (courseDirection - pointDirection))
+							: Math.min(pointDirection - courseDirection, 360 - (pointDirection - courseDirection));
+					logger.trace("route {} deltaDircetion {}", ((Road) edges.get(i)).base().refid(), deltaDirection);
+					value += deltaDirection;
+					counter++;
+					pointVertexA = pointVertexB;
+				}
+
+			}
+		
+		return value/counter;
+	}
+
+	/**
+	 * Gets average delta value of the path for an courseheading.
+	 *
+	 * @param maxDeltaCourse
+	 *            limit for deltaDirection between points
+	 * @return Cost value of the path.
+	 */
+	public List<Double> costList(final double courseDirection) {
+		//double value = cost.cost(source.edge(), 1 - source.fraction());
+		ArrayList<Double> value = new ArrayList<>();
+		int counter = 0;
+		Polyline edgeLine = ((Road) source.edge()).geometry();
+		int lastPointCount = spatial.getIndexPoint(edgeLine, 
+				((Road) source.edge()).length() * (source.fraction())); // Point to start from !!
+		
+		com.esri.core.geometry.Point pointVertexA = edgeLine.getPoint(lastPointCount-1);
+		
+		for (int l = lastPointCount; l <= edgeLine.getPointCount()-1; l++) {
+			com.esri.core.geometry.Point pointVertexB = edgeLine.getPoint(l);
+			double pointDirection = spatial.azimuth(pointVertexA, pointVertexB, 1);
+			double deltaDirection = courseDirection > pointDirection
+					? Math.min(courseDirection - pointDirection, 360 - (courseDirection - pointDirection))
+					: Math.min(pointDirection - courseDirection, 360 - (pointDirection - courseDirection));
+			logger.trace("route {} deltaDircetion {}", ((Road) edges.get(0)).base().refid(), deltaDirection);
+			value.add(deltaDirection);
+
+
+		}
+
+		for (int i = 1; i < edges.size(); ++i) {
+		
+				edgeLine = ((Road) edges.get(i)).geometry();
+				lastPointCount = edgeLine.getPointCount() - 1;
+				if (i == edges.size() - 1) {
+					// For last element only calculate until RoadPoint match
+					// polyline
+					lastPointCount = spatial.getIndexPoint(edgeLine,
+							((Road) edges.get(i)).length() * target.fraction());
+				} 
+				pointVertexA = edgeLine.getPoint(0);
+
+				for (int l = 1; l <= lastPointCount; l++) {
+					com.esri.core.geometry.Point pointVertexB = edgeLine.getPoint(l);
+					double pointDirection = spatial.azimuth(pointVertexA, pointVertexB, 1);
+					double deltaDirection = courseDirection > pointDirection
+							? Math.min(courseDirection - pointDirection, 360 - (courseDirection - pointDirection))
+							: Math.min(pointDirection - courseDirection, 360 - (pointDirection - courseDirection));
+					logger.trace("route {} deltaDircetion {}", ((Road) edges.get(i)).base().refid(), deltaDirection);
+					value.add(deltaDirection);
+
+				
+				}
+
+			}
+		
+		return value;
+	}
+	
+	
+	
 	/**
 	 * Gets cost value of the path for an arbitrary {@link Cost} function.
 	 *

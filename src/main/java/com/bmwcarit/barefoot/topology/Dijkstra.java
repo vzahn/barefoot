@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.RoadPoint;
 import com.bmwcarit.barefoot.roadmap.Time;
+import com.bmwcarit.barefoot.roadmap.TimeSpeed;
 import com.bmwcarit.barefoot.roadmap.Velocity;
 import com.bmwcarit.barefoot.util.Quadruple;
 import com.bmwcarit.barefoot.util.Tuple;
@@ -160,7 +161,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
         Map<P, Mark> finishs = new HashMap<>();
         Map<Mark, P> reaches = new HashMap<>();
         Map<Mark, P> starts = new HashMap<>();
-        Cost<E> time = (Cost<E>) new Time();
+        Cost<E> time = (Cost<E>) new TimeSpeed(maxVelocity);
 
         /*
          * Initialize map of edges with start points
@@ -169,7 +170,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
             double startcost = cost.cost(source.edge(), 1 - source.fraction());
             double startbound =
                     bound != null ? bound.cost(source.edge(), 1 - source.fraction()) : 0.0;
-            double startDrivenTime = time != null ? time.cost(source.edge(), 1 - source.fraction()) / maxVelocity : 0.0;
+            double startDrivenTime = time != null ? time.cost(source.edge(), 1 - source.fraction())  : 0.0;
 
             logger.trace("init source {} with start edge {} and fraction {} with {} cost", source,
                     source.edge().id(), source.fraction(), startcost);
@@ -182,7 +183,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
                     double reachcost = startcost - cost.cost(source.edge(), 1 - target.fraction());
                     double reachbound = bound != null
                             ? startbound - bound.cost(source.edge(), 1 - target.fraction()) : 0.0;
-                    double reachDrivenTime = time != null ? startDrivenTime - time.cost(source.edge(), 1 - source.fraction()) / maxVelocity : 0.0;       
+                    double reachDrivenTime = time != null ? startDrivenTime - time.cost(source.edge(), 1 - source.fraction())  : 0.0;       
 
                     logger.trace("reached target {} with start edge {} from {} to {} with {} cost",
                             target, source.edge().id(), source.fraction(), target.fraction(),
@@ -270,7 +271,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
 
                 double succcost = current.three() + cost.cost(successor);
                 double succbound = bound != null ? current.four() + bound.cost(successor) : 0.0;
-                double succDrivenTime = time != null ? current.drivenTime + time.cost(successor) / maxVelocity : 0.0;
+                double succDrivenTime = time != null ? current.drivenTime + time.cost(successor)  : 0.0;
 
                 if (targetEdges.containsKey(successor)) { // reach target edge
                     for (P target : targetEdges.get(successor)) {
@@ -278,7 +279,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
                         double reachbound = bound != null
                                 ? succbound - bound.cost(successor, 1 - target.fraction()) : 0.0;
 
-                        double reachDrivenTime = time != null ? succDrivenTime - time.cost(successor, 1 - target.fraction()) / maxVelocity : 0.0;       
+                        double reachDrivenTime = time != null ? succDrivenTime - time.cost(successor, 1 - target.fraction())  : 0.0;       
 
                         logger.trace(
                                 "reached target {} with successor edge {} and fraction {} with {} cost",

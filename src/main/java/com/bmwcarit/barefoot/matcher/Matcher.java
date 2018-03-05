@@ -401,6 +401,9 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						}else{
 							routeCost = route.cost(cost);
 						}
+						routeCost = route.cost(cost);
+//						double headingcost = route.cost(directionHeading);
+//						List<Double> candidateCourse = route.costList(directionHeading);
 						double timeDiffernce = Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000;
 						double transition = 0;
 						/*
@@ -411,8 +414,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						}else {
 							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) ) / beta);
 						}
-
+//						double headingTransition = Math.max(  1 / sqrt_2pi_sig2 * Math.exp((-1) * radius * radius / (2 * sig2)),
+//								1 / Math.sqrt(2d * Math.PI * Math.pow(bearingDelta, 2)) * Math.exp((-1) * headingcost *headingcost / (2 * Math.pow(bearingDelta, 2))));
+//						transition *= headingTransition; 
 						candidate.setDeltaRoute(Math.abs((route.length() - base)));
+//						candidate.setDeltaList(candidateCourse);
 						map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
 						logger.trace("{} -> {} base: {} routeCost: {} transition: {}", ((MatcherCandidate) predecessor).point().edge().base().refid(), ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost,

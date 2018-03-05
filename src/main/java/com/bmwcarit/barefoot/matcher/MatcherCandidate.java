@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import com.bmwcarit.barefoot.markov.StateCandidate;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.RoadPoint;
+import com.esri.core.geometry.Point;
 
 /**
  * Matching candidate for Hidden Markov Model (HMM) map matching representing a position on the map.
@@ -28,6 +29,7 @@ public class MatcherCandidate
     private final RoadPoint point;
     private final Double heading;
     private final Double vel;
+    private final Point sample;
     
 
     /**
@@ -40,6 +42,7 @@ public class MatcherCandidate
         this.point = point;
         this.heading = null;
         this.vel = null;
+        this.sample = null;
     }
     
     /**
@@ -52,6 +55,7 @@ public class MatcherCandidate
         this.point = point;
         this.heading = sample.azimuth();
         this.vel =	sample.getVelocity();
+        this.sample = sample.point();
         
     }
 
@@ -71,9 +75,11 @@ public class MatcherCandidate
         if(json.has("vel") && json.has("heading")){
         	vel = json.getDouble("vel");
         	heading = json.getDouble("heading");
+        	sample = null; //TODO
         }else{
         	vel = null;
         	heading = null;
+        	sample = null;
         }
        
     }
@@ -100,6 +106,15 @@ public class MatcherCandidate
 	 */
 	public Double getVel() {
 		return vel;
+	}
+	
+	
+
+	/**
+	 * @return the sample
+	 */
+	public Point getSample() {
+		return sample;
 	}
 
 	@Override

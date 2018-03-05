@@ -89,7 +89,7 @@ public class Road extends AbstractEdge<Road> {
      * @return Road's priority factor.
      */
     public float priority() {   
-        return base.priority();
+        return 1f;
     }
 
     /**
