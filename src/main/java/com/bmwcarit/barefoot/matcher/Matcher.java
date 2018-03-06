@@ -300,11 +300,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 				double da = sample.azimuth() > point.azimuth()
 						? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
 						: Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
-				double emissionHeading = Math.max(  1 / sqrt_2pi_sig2 * Math.exp((-1) * radius * radius / (2 * sig2)), 1 / sqrt_2pi_sigA * Math.exp((-1) * da *da / (2 * sigA)));
+						
+				emission = (1 / sqrt_2pi_sig2 *  1 / sqrt_2pi_sigA )*  Math.exp((-1)* dz * dz / (2 * sig2) + (-1) * da *da / (2 * sigA));
+				//double emissionHeading = Math.max(  1 / sqrt_2pi_sig2 * Math.exp((-1) * radius * radius / (2 * sig2)), 1 / sqrt_2pi_sigA * Math.exp((-1) * da *da / (2 * sigA)));
 				candidate.setDeltaHeading(da);
 				candidate.setDistance(dz);
-				logger.trace("---diffHeading: {} HeadingEmission: {} distanceEmission {}", dz, emission, emissionHeading);
-				emission *=  emissionHeading;
+				logger.trace("---diffHeading: {} emission: {}", dz, emission);
+			//	emission *=  emissionHeading;
 			}
 
 			
