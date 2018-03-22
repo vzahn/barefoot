@@ -43,7 +43,7 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
 	private Double distance =0d;
 	private Double deltaHeading =0d;
 	private Double deltaRoute =0d;
-	private List<Double> deltaList;
+
 
 	    
 	private final static Logger logger = LoggerFactory.getLogger(StateCandidate.class);
@@ -256,20 +256,6 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
 	 */
 	public void setDeltaRoute(Double deltaRoute) {
 		this.deltaRoute = deltaRoute;
-	}
-
-	/**
-	 * @return the deltaList
-	 */
-	public List<Double> getDeltaList() {
-		return deltaList;
-	}
-
-	/**
-	 * @param deltaList the deltaList to set
-	 */
-	public void setDeltaList(List<Double> deltaList) {
-		this.deltaList = deltaList;
 	}
 
 	
