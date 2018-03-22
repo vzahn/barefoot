@@ -61,7 +61,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
 	private double sig2 = Math.pow(5d, 2);
 	private double sigA = Math.pow(10d, 2);
-	private double sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sig2);
 	private double sqrt_2pi_sigA = Math.sqrt(2d * Math.PI * sigA);
 	private double lambda = 0d;
 	private double radius = 200;
@@ -112,7 +111,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 	 */
 	public void setSigma(double sigma) {
 		this.sig2 = Math.pow(sigma, 2);
-		this.sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sig2);
 	}
 
 	/**
@@ -295,13 +293,21 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		for (RoadPoint point : points) {
 			MatcherCandidate candidate = new MatcherCandidate(point, sample);
 			double dz = spatial.distance(sample.point(), point.geometry());
-			double emission = 1 / sqrt_2pi_sig2 * Math.exp((-1) * dz * dz / (2 * sig2));
+			double sigma2= sig2;
+			double sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sigma2);
+			if(!Double.isNaN(sample.getAccuracy())){
+				sigma2 = Math.pow(sample.getAccuracy(),2);
+				sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sigma2);
+			}
+			
+			double emission = 1 / sqrt_2pi_sig2 * Math.exp((-1) * dz * dz / (2 * sigma2));
+			
 			if (!Double.isNaN(sample.azimuth())) {
 				double da = sample.azimuth() > point.azimuth()
 						? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
 						: Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
 						
-				emission = (1 / sqrt_2pi_sig2 *  1 / sqrt_2pi_sigA )*  Math.exp((-1)* dz * dz / (2 * sig2) + (-1) * da *da / (2 * sigA));
+				emission = (1 / sqrt_2pi_sig2 *  1 / sqrt_2pi_sigA )*  Math.exp((-1)* dz * dz / (2 * sigma2) + (-1) * da *da / (2 * sigA));
 				candidate.setDeltaHeading(da);
 				candidate.setDistance(dz);
 				logger.trace("---diffHeading: {} emission: {}", dz, emission);

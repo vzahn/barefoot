@@ -32,6 +32,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     private final double azimuth;
     private final boolean gpsOutage;
     private final double velocity;
+    private final double accuracy;
 
     /**
      * Creates a {@link MatcherSample} object with measured position and time of measurement.
@@ -52,7 +53,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param azimuth Azimuth of measurement sample.
      */
     public MatcherSample(long time, Point point, double azimuth) {
-        this("", time, point, azimuth, false, Double.NaN);
+        this("", time, point, azimuth, false, Double.NaN, Double.NaN);
     }
 
     /**
@@ -64,7 +65,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param point Point of measured position.
      */
     public MatcherSample(String id, long time, Point point) {
-        this(id, time, point, Double.NaN, false, Double.NaN);
+        this(id, time, point, Double.NaN, false, Double.NaN, Double.NaN);
     }
     
     /**
@@ -77,7 +78,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param azimuth Azimuth of measurement sample.
      */
     public MatcherSample(String id, long time, Point point, double azimuth) {
-        this(id, time, point, azimuth, false, Double.NaN);
+        this(id, time, point, azimuth, false, Double.NaN, Double.NaN);
     }
     
     /**
@@ -91,7 +92,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param gpsOutage GPS regained signal.
      */
     public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage) {
-    	this(id, time, point, azimuth, gpsOutage, Double.NaN);
+    	this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
     }
 
     /**
@@ -106,12 +107,29 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      * @param velocity speed of vehicle in meter per second
      */
     public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage, double velocity) {
+    	this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
+    }
+    
+    /**
+     * Creates a {@link MatcherSample} object with an identifier, measured position, time of
+     * measurement, and azimuth.
+     *
+     * @param id Identifier of sample.
+     * @param time Time of measurement in milliseconds epoch time.
+     * @param point Point of measured position.
+     * @param azimuth Azimuth of measurement sample.
+     * @param gpsOutage GPS regained signal.
+     * @param velocity speed of vehicle in meter per second
+     * @param accuracy standard deviation of this sample
+     */
+    public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage, double velocity, double accuracy) {
         super(time);
         this.id = id;
         this.point = point;
         this.azimuth = norm(azimuth);
         this.gpsOutage = gpsOutage;
         this.velocity = velocity;
+        this.accuracy = accuracy;
     }
 
     /**
@@ -143,6 +161,12 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
             velocity = json.getDouble("velocity");
         } else {
         	velocity = Double.NaN;
+        }
+        if (json.has("accuracy"))
+        {
+        	accuracy = json.getDouble("accuracy");
+        } else {
+        	accuracy = Double.NaN;
         }
     }
 
@@ -196,6 +220,15 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
 	public double getVelocity() {
 		return velocity;
 	}
+	
+	
+
+	/**
+	 * @return the accuracy
+	 */
+	public double getAccuracy() {
+		return accuracy;
+	}
 
 	@Override
     public JSONObject toJSON() throws JSONException {
@@ -208,6 +241,9 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
         json.put("gpsOutage", gpsOutage);
         if(!Double.isNaN(velocity)){
         	json.put("velocity", velocity);
+        }
+        if(!Double.isNaN(accuracy)){
+        	json.put("accuracy", accuracy);
         }
         return json;
     }
