@@ -302,11 +302,10 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						: Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
 						
 				emission = (1 / sqrt_2pi_sig2 *  1 / sqrt_2pi_sigA )*  Math.exp((-1)* dz * dz / (2 * sig2) + (-1) * da *da / (2 * sigA));
-				//double emissionHeading = Math.max(  1 / sqrt_2pi_sig2 * Math.exp((-1) * radius * radius / (2 * sig2)), 1 / sqrt_2pi_sigA * Math.exp((-1) * da *da / (2 * sigA)));
 				candidate.setDeltaHeading(da);
 				candidate.setDistance(dz);
 				logger.trace("---diffHeading: {} emission: {}", dz, emission);
-			//	emission *=  emissionHeading;
+
 			}
 
 			
@@ -341,17 +340,10 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 		sw.start();
 
 		final Set<RoadPoint> targets = new HashSet<>();
-		double prioPerM = 0d; 
-		double lengthCandidates = 0d;
-		for (MatcherCandidate candidate : candidates.two()) {
-			lengthCandidates += candidate.point().edge().base().length();
-			prioPerM += candidate.point().edge().base().length()*candidate.point().edge().base().priority();
+		for (MatcherCandidate candidate : candidates.two()) {		
 			targets.add(candidate.point());
 		}
-		if(prioPerM!=0d){
-			prioPerM /= lengthCandidates;
-		}
-		final double avgPriority = prioPerM;
+
 		final AtomicInteger count = new AtomicInteger();
 		final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
 		final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
@@ -393,22 +385,18 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 						// case of u-turns.
 
 						double beta = lambda == 0
-								? (avgPriority * Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
+								? (Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
 								: 1 / lambda;
 								
 						
 						double routeCost = route.cost(cost);
-					
-						double timeDiffernce = Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000;
-						double transition = 0;
+
 						/*
 						 * When driving a long transition is probability drives to 0, therefore velocity should be applied
 						 */
-						if(lambda > 0){
-							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)/timeDiffernce ) / beta);
-						}else {
-							transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) ) / beta);
-						}
+						
+						 double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) ) / beta);
+						
 				
 						candidate.setDeltaRoute(Math.abs((route.length() - base)));
 				

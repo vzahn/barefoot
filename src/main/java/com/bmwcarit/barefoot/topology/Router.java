@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.bmwcarit.barefoot.roadmap.Distance;
-import com.bmwcarit.barefoot.roadmap.Road;
-import com.bmwcarit.barefoot.roadmap.RoadPoint;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
