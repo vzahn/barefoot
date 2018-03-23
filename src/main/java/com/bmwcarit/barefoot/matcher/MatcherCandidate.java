@@ -69,9 +69,9 @@ public class MatcherCandidate
     public MatcherCandidate(JSONObject json, MatcherFactory factory, RoadMap map)
             throws JSONException {
         super(json, factory);
-        point = RoadPoint.fromJSON(json.getJSONObject("point"), map);
+        point = RoadPoint.fromJSON(json.getJSONObject("roadpoint"), map);
         if(json.has("sample")){
-        	sample = new MatcherSample(json);//(Point) GeometryEngine.geometryFromWkt(json.getString("sample"), WktImportFlags.wktImportDefaults,
+        	sample = new MatcherSample(json.getJSONObject("sample"));//(Point) GeometryEngine.geometryFromWkt(json.getString("sample"), WktImportFlags.wktImportDefaults,
                     //Type.Point);
         }else{
         	sample = null;
@@ -101,7 +101,7 @@ public class MatcherCandidate
 	@Override
     public JSONObject toJSON() throws JSONException {
         JSONObject json = super.toJSON();
-        json.put("point", point.toJSON());
+        json.put("roadpoint", point.toJSON());
       
         if(sample != null){
         	json.put("sample", sample.toJSON());
