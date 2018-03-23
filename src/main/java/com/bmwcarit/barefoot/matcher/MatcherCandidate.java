@@ -31,9 +31,7 @@ import com.esri.core.geometry.Geometry.Type;
 public class MatcherCandidate
         extends StateCandidate<MatcherCandidate, MatcherTransition, MatcherSample> {
     private final RoadPoint point;
-    private final Double heading;
-    private final Double vel;
-    private final Point sample;
+    private final MatcherSample sample;
     
 
     /**
@@ -44,8 +42,6 @@ public class MatcherCandidate
      */
     public MatcherCandidate(RoadPoint point) {
         this.point = point;
-        this.heading = null;
-        this.vel = null;
         this.sample = null;
     }
     
@@ -57,9 +53,7 @@ public class MatcherCandidate
      */
     public MatcherCandidate(RoadPoint point, MatcherSample sample) {
         this.point = point;
-        this.heading = sample.azimuth();
-        this.vel =	sample.getVelocity();
-        this.sample = sample.point();
+        this.sample = sample;
         
     }
 
@@ -76,17 +70,9 @@ public class MatcherCandidate
             throws JSONException {
         super(json, factory);
         point = RoadPoint.fromJSON(json.getJSONObject("point"), map);
-        if(json.has("vel") && json.has("heading")){
-        	vel = json.getDouble("vel");
-        	heading = json.getDouble("heading");
-        }else{
-        	vel = null;
-        	heading = null;
-
-        }
         if(json.has("sample")){
-        	sample = (Point) GeometryEngine.geometryFromWkt(json.getString("sample"), WktImportFlags.wktImportDefaults,
-                    Type.Point);
+        	sample = new MatcherSample(json);//(Point) GeometryEngine.geometryFromWkt(json.getString("sample"), WktImportFlags.wktImportDefaults,
+                    //Type.Point);
         }else{
         	sample = null;
         }
@@ -103,26 +89,12 @@ public class MatcherCandidate
     }
  
 
-    /**
-	 * @return the heading
-	 */
-	public Double getHeading() {
-		return heading;
-	}
-
-	/**
-	 * @return the vel
-	 */
-	public Double getVel() {
-		return vel;
-	}
-	
-	
+   
 
 	/**
 	 * @return the sample
 	 */
-	public Point getSample() {
+	public MatcherSample getSample() {
 		return sample;
 	}
 
@@ -130,12 +102,9 @@ public class MatcherCandidate
     public JSONObject toJSON() throws JSONException {
         JSONObject json = super.toJSON();
         json.put("point", point.toJSON());
-        if(vel != null && heading != null && !Double.isNaN(vel) && !Double.isNaN(heading)){
-        	json.put("vel", vel);
-        	json.put("heading", heading);
-        }
+      
         if(sample != null){
-        	json.put("sample", GeometryEngine.geometryToWkt(sample, WktExportFlags.wktExportPoint));
+        	json.put("sample", sample.toJSON());
         }
         return json;
     }
