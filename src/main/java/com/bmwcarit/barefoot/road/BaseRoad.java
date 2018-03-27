@@ -48,6 +48,7 @@ public class BaseRoad implements Serializable {
 	private final byte[] geometry;
 	private final Boolean tunnel;
 	private final Boolean tunnelEntry;
+	private final int direction;
 
 	/**
 	 * Constructs {@link BaseRoad} object.
@@ -93,6 +94,7 @@ public class BaseRoad implements Serializable {
 		this.geometry = OperatorExportToWkb.local().execute(WkbExportFlags.wkbExportLineString, geometry, null).array();
 		this.tunnel = null;
 		this.tunnelEntry = null;
+		this.direction = 3;
 	}
 
 	/**
@@ -138,6 +140,7 @@ public class BaseRoad implements Serializable {
 		this.geometry = wkb;
 		this.tunnel = null;
 		this.tunnelEntry = null;
+		this.direction = 3;
 	}
 
 	/**
@@ -187,7 +190,64 @@ public class BaseRoad implements Serializable {
 		this.geometry = wkb;
 		this.tunnel = tunnel;
 		this.tunnelEntry = tunnelEntry;
+		this.direction = 3;
 	}
+
+	/**
+	 * Constructs {@link BaseRoad} object.
+	 *
+	 * @param id
+	 *            Unique road identifier.
+	 * @param source
+	 *            Source vertex identifier (in road topology representation).
+	 * @param target
+	 *            Target vertex identifier (in road topology representation).
+	 * @param osmId
+	 *            Identifier of corresponding OpenStreetMap road.
+	 * @param direction
+	 *            Direction of this road segment (traffic restriction).
+	 * @param type
+	 *            Identifier of this road's type.
+	 * @param priority
+	 *            Road priority factor, which is greater or equal than one.
+	 * @param maxspeedForward
+	 *            Maximum speed limit for passing this road from source to
+	 *            target.
+	 * @param maxspeedBackward
+	 *            Maximum speed limit for passing this road from target to
+	 *            source.
+	 * @param length
+	 *            Length of road geometry in meters.
+	 * @param wkb
+	 *            Road's geometry in WKB format from source to target.
+	 * @param tunnel
+	 *            'true' if segment is a tunnel.
+	 * @param tunnelEntry
+	 *            'true' if segment is last element before tunnel.
+	 */
+	public BaseRoad(long id, long source, long target, long osmId, int direction, short type, float priority,
+			float maxspeedForward, float maxspeedBackward, float length, byte[] wkb, boolean tunnel, boolean tunnelEntry) {
+		this.id = id;
+		this.source = source;
+		this.target = target;
+		this.refid = osmId;
+		this.direction = direction;
+		this.type = type;
+		this.priority = priority;
+		this.maxspeedForward = maxspeedForward;
+		this.maxspeedBackward = maxspeedBackward;
+		this.length = length;
+		this.geometry = wkb;
+		this.tunnel = tunnel;
+		this.tunnelEntry = tunnelEntry;
+		if(direction == 3){
+			this.oneway = false;
+		}else{
+			this.oneway = true;
+		}
+		
+	}
+
 
 	/**
 	 * Gets unique road identifier.
@@ -318,6 +378,18 @@ public class BaseRoad implements Serializable {
 	public Boolean getTunnelEntry() {
 		return tunnelEntry;
 	}
+
+	/**
+	 * @return the direction
+	 * 1 = Start->End
+	 * 2 = End -> Start
+	 * 3 = both
+	 */
+	public int getDirection() {
+		return direction;
+	}
+	
+	
 
 	
 	

@@ -51,11 +51,25 @@ public class RoadMap extends Graph<Road> implements Serializable {
     static Collection<Road> split(BaseRoad base) {
         ArrayList<Road> roads = new ArrayList<>();
 
-        roads.add(new Road(base, Heading.forward));
+        if(base.getDirection() == 3){
+        	 roads.add(new Road(base, Heading.forward));
 
-        if (!base.oneway()) {
-            roads.add(new Road(base, Heading.backward));
+             if (!base.oneway()) {
+                 roads.add(new Road(base, Heading.backward));
+             }
+        }else if(base.getDirection() == 2){
+        	roads.add(new Road(base, Heading.backward));
+        }else if(base.getDirection() == 1){
+        	roads.add(new Road(base, Heading.forward));
+        }else{
+            roads.add(new Road(base, Heading.forward));
+
+            if (!base.oneway()) {
+                roads.add(new Road(base, Heading.backward));
+            }
         }
+        
+       
 
         return roads;
     }
