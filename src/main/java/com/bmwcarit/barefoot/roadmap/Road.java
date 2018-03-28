@@ -35,7 +35,7 @@ public class Road extends AbstractEdge<Road> {
     private final BaseRoad base;
     private final Heading heading;
 
-    static Polyline invert(Polyline geometry) {
+    public static Polyline invert(Polyline geometry) {
         Polyline reverse = new Polyline();
         int last = geometry.getPointCount() - 1;
         reverse.startPath(geometry.getPoint(last));

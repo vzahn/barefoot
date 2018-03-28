@@ -16,6 +16,7 @@ package com.bmwcarit.barefoot.road;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
+import com.bmwcarit.barefoot.roadmap.Road;
 import com.esri.core.geometry.Geometry.Type;
 import com.esri.core.geometry.OperatorExportToWkb;
 import com.esri.core.geometry.OperatorImportFromWkb;
@@ -248,6 +249,38 @@ public class BaseRoad implements Serializable {
 		
 	}
 
+	/**
+	 * Constructs {@link BaseRoad} object from BaseRoad Object.
+	 *
+	 * @param base
+	 *            BaseRoad to construct.
+	 * @param heading
+	 *            Inverts geometry if driving backwards.
+	 * 
+	 */
+	public BaseRoad(BaseRoad base, Heading heading) {
+	    
+	    	this.id = base.id;
+		this.source = base.source;
+		this.target = base.target;
+		this.refid = base.refid;
+		this.direction = base.direction;
+		this.type = base.type;
+		this.priority = base.priority;
+		this.maxspeedForward = base.maxspeedForward;
+		this.maxspeedBackward = base.maxspeedBackward;
+		this.length = base.length;
+		if(heading == Heading.backward){
+		    this.geometry = OperatorExportToWkb.local().execute(WkbExportFlags.wkbExportLineString, Road.invert(base.geometry()), null).array();
+		}else{
+		    this.geometry = base.geometry;
+		}
+		this.tunnel = base.tunnel;
+		this.tunnelEntry = base.tunnelEntry;
+		this.oneway = base.oneway;
+	    
+		
+	}
 
 	/**
 	 * Gets unique road identifier.
@@ -349,6 +382,8 @@ public class BaseRoad implements Serializable {
 		return (Polyline) OperatorImportFromWkb.local().execute(WkbImportFlags.wkbImportDefaults, Type.Polyline,
 				ByteBuffer.wrap(geometry), null);
 	}
+	
+	
 
 	/**
 	 * Gets road's geometry as a {@link ByteBuffer} in WKB format from the

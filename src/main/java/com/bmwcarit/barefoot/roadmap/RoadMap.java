@@ -58,7 +58,8 @@ public class RoadMap extends Graph<Road> implements Serializable {
                  roads.add(new Road(base, Heading.backward));
              }
         }else if(base.getDirection() == 2){
-        	roads.add(new Road(base, Heading.backward));
+                BaseRoad reverseGeometry = new BaseRoad(base, Heading.backward);
+        	roads.add(new Road(reverseGeometry, Heading.backward));
         }else if(base.getDirection() == 1){
         	roads.add(new Road(base, Heading.forward));
         }else{
