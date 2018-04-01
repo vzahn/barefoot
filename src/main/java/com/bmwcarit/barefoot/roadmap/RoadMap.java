@@ -58,8 +58,8 @@ public class RoadMap extends Graph<Road> implements Serializable {
                  roads.add(new Road(base, Heading.backward));
              }
         }else if(base.getDirection() == 2){
-                BaseRoad reverseGeometry = new BaseRoad(base, Heading.backward);
-        	roads.add(new Road(reverseGeometry, Heading.backward));
+            	
+        	roads.add(new Road(base, Heading.backward));
         }else if(base.getDirection() == 1){
         	roads.add(new Road(base, Heading.forward));
         }else{
@@ -100,10 +100,10 @@ public class RoadMap extends Graph<Road> implements Serializable {
              * This uses the road
              */
             for (Tuple<Integer, Double> point : points) {
-                neighbors.add(new RoadPoint(edges.get((long) point.one() * 2), point.two()));
-
-                if (edges.containsKey((long) point.one() * 2 + 1)) {
-                    neighbors.add(new RoadPoint(edges.get((long) point.one() * 2 + 1),
+        	  if (edges.containsKey((long) point.one() * 2 )) {
+        	      neighbors.add(new RoadPoint(edges.get((long) point.one() * 2), point.two()));
+                  } else if (edges.containsKey((long) point.one() * 2 + 1)) {
+                      neighbors.add(new RoadPoint(edges.get((long) point.one() * 2 + 1),
                             1.0 - point.two()));
                 }
             }
@@ -279,7 +279,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
                     Road _road = iterator.next();
 
-                    if (_road.id() % 2 == 1) {
+                    if (_road.id() % 2 == 1 && !_road.base().oneway()) {
                         continue;
                     }
 
