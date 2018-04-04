@@ -102,7 +102,8 @@ public class RoadMap extends Graph<Road> implements Serializable {
             for (Tuple<Integer, Double> point : points) {
         	  if (edges.containsKey((long) point.one() * 2 )) {
         	      neighbors.add(new RoadPoint(edges.get((long) point.one() * 2), point.two()));
-                  } else if (edges.containsKey((long) point.one() * 2 + 1)) {
+                  } 
+        	  if (edges.containsKey((long) point.one() * 2 + 1)) {
                       neighbors.add(new RoadPoint(edges.get((long) point.one() * 2 + 1),
                             1.0 - point.two()));
                 }
