@@ -67,6 +67,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double maxVelocity = 1.85;
     private double bearingDelta = 8.7;
     private double routeCourseCost = 1.3;
+    private boolean sync = false;
 
     /**
      * Creates a HMM map matching filter for some map, router, cost function, and
@@ -236,6 +237,21 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         this.routeCourseCost = routeCourseCost;
     }
 
+    /**
+     * @return the sync
+     */
+    public boolean isSync() {
+        return sync;
+    }
+
+    /**
+     * @param sync
+     *            the sync to set
+     */
+    public void setSync(boolean sync) {
+        this.sync = sync;
+    }
+
     @Override
     protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
             MatcherSample sample) {
@@ -346,9 +362,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                     predecessors.two().size(), candidates.two().size());
         }
 
-        Stopwatch sw = new Stopwatch();
-        sw.start();
-
         final Set<RoadPoint> targets = new HashSet<>();
         for (MatcherCandidate candidate : candidates.two()) {
             targets.add(candidate.point());
@@ -361,75 +374,100 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
         final double maxOverSpeed = maxVelocity;
 
-        InlineScheduler scheduler = StaticScheduler.scheduler();
-        for (final MatcherCandidate predecessor : predecessors.two()) {
-            scheduler.spawn(new Task() {
-                @Override
-                public void run() {
-                    Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new HashMap<>();
-                    Stopwatch sw = new Stopwatch();
-                    sw.start();
-                    Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
-                            bound, deltaTime, maxOverSpeed);
-                    sw.stop();
+        if (sync) {
+            for (final MatcherCandidate predecessor : predecessors.two()) {
+                Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
+                        bound, deltaTime, maxOverSpeed);
 
-                    logger.trace("{} routes ({} ms)", routes.size(), sw.ms());
+                transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
+            }
 
-                    for (MatcherCandidate candidate : candidates.two()) {
-                        List<Road> edges = routes.get(candidate.point());
+        } else {
+            Stopwatch sw = new Stopwatch();
+            sw.start();
+            InlineScheduler scheduler = StaticScheduler.scheduler();
+            for (final MatcherCandidate predecessor : predecessors.two()) {
+                scheduler.spawn(new Task() {
+                    @Override
+                    public void run() {
 
-                        if (edges == null) {
-                            continue;
-                        }
+                        Stopwatch sw = new Stopwatch();
+                        sw.start();
+                        Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost,
+                                new Distance(), bound, deltaTime, maxOverSpeed);
+                        sw.stop();
+                        logger.trace("{} routes ({} ms)", routes.size(), sw.ms());
 
-                        Route route = new Route(predecessor.point(), candidate.point(), edges);
-
-                        // According to Newson and Krumm 2009, transition
-                        // probability is lambda *
-                        // Math.exp((-1.0) * lambda * Math.abs(dt -
-                        // route.length())), however, we
-                        // experimentally choose lambda * Math.exp((-1.0) *
-                        // lambda * Math.max(0,
-                        // route.length() - dt)) to avoid unnecessary routes in
-                        // case of u-turns.
-
-                        double beta = lambda == 0
-                                ? (Math.max(1d, candidates.one().time() - predecessors.one().time()) / 1000)
-                                : 1 / lambda;
-
-                        double routeCost = route.cost(cost);
-
-                        /*
-                         * When driving a long transition is probability drives to 0, therefore velocity
-                         * should be applied
-                         */
-
-                        double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
-
-                        candidate.setDeltaRoute(Math.abs((route.length() - base)));
-
-                        map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
-
-                        logger.trace("{} -> {} base: {} routeCost: {} transition: {}",
-                                ((MatcherCandidate) predecessor).point().edge().base().refid(),
-                                ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost,
-                                transition);
+                        transitions.put(predecessor,
+                                addTransitions(candidates, predecessor, base, routes, predecessors.one()));
+                        // TODO outside loop ?
                         count.incrementAndGet();
                     }
 
-                    transitions.put(predecessor, map);
-                }
-            });
-        }
-        if (!scheduler.sync()) {
-            throw new RuntimeException();
-        }
+                });
+            }
+            if (!scheduler.sync()) {
+                throw new RuntimeException();
+            }
 
-        sw.stop();
-
-        logger.trace("{} transitions ({} ms)", count.get(), sw.ms());
+            sw.stop();
+            logger.trace("{} transitions ({} ms)", count.get(), sw.ms());
+        }
 
         return transitions;
+    }
+
+    /**
+     * @param candidates
+     * @param predecessor
+     * @param base
+     * @param routes
+     * @param matcherSample
+     * @return map Map<MatcherCandidate, Tuple<MatcherTransition, Double>>
+     */
+    protected Map<MatcherCandidate, Tuple<MatcherTransition, Double>> addTransitions(
+            Tuple<MatcherSample, Set<MatcherCandidate>> candidates, MatcherCandidate predecessor, double base,
+            Map<RoadPoint, List<Road>> routes, MatcherSample matcherSample) {
+        Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new HashMap<>();
+        for (MatcherCandidate candidate : candidates.two()) {
+            List<Road> edges = routes.get(candidate.point());
+
+            if (edges == null) {
+                continue;
+            }
+
+            Route route = new Route(predecessor.point(), candidate.point(), edges);
+
+            // According to Newson and Krumm 2009, transition
+            // probability is lambda *
+            // Math.exp((-1.0) * lambda * Math.abs(dt -
+            // route.length())), however, we
+            // experimentally choose lambda * Math.exp((-1.0) *
+            // lambda * Math.max(0,
+            // route.length() - dt)) to avoid unnecessary routes in
+            // case of u-turns.
+
+            double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
+                    : 1 / lambda;
+
+            double routeCost = route.cost(cost);
+
+            /*
+             * When driving a long transition is probability drives to 0, therefore velocity
+             * should be applied
+             */
+
+            double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
+
+            candidate.setDeltaRoute(Math.abs((route.length() - base)));
+            map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
+
+            logger.trace("{} -> {} base: {} routeCost: {} transition: {}",
+                    ((MatcherCandidate) predecessor).point().edge().base().refid(),
+                    ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost, transition);
+
+        }
+        return map;
     }
 
     /**
