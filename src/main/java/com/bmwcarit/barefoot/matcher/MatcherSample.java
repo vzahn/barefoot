@@ -23,8 +23,8 @@ import com.esri.core.geometry.WktExportFlags;
 import com.esri.core.geometry.WktImportFlags;
 
 /**
- * Measurement sample for Hidden Markov Model (HMM) map matching which is a position measurement,
- * e.g. measured with a GPS device.
+ * Measurement sample for Hidden Markov Model (HMM) map matching which is a
+ * position measurement, e.g. measured with a GPS device.
  */
 public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     private final String id;
@@ -35,94 +35,126 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     private final double accuracy;
 
     /**
-     * Creates a {@link MatcherSample} object with measured position and time of measurement.
+     * Creates a {@link MatcherSample} object with measured position and time of
+     * measurement.
      *
-     * @param time Time of measurement in milliseconds epoch time.
-     * @param point Point of measured position.
+     * @param time
+     *            Time of measurement in milliseconds epoch time.
+     * @param point
+     *            Point of measured position.
      */
     public MatcherSample(long time, Point point) {
         this("", time, point);
     }
 
     /**
-     * Creates a {@link MatcherSample} object with measured position, time of measurement, and
-     * azimuth.
+     * Creates a {@link MatcherSample} object with measured position, time of
+     * measurement, and azimuth.
      *
-     * @param time Time of measurement in milliseconds epoch time.
-     * @param point Point of measured position.
-     * @param azimuth Azimuth of measurement sample.
+     * @param time
+     *            Time of measurement in milliseconds epoch time.
+     * @param point
+     *            Point of measured position.
+     * @param azimuth
+     *            Azimuth of measurement sample.
      */
     public MatcherSample(long time, Point point, double azimuth) {
         this("", time, point, azimuth, false, Double.NaN, Double.NaN);
     }
 
     /**
-     * Creates a {@link MatcherSample} object with an identifier, measured position and time of
-     * measurement.
+     * Creates a {@link MatcherSample} object with an identifier, measured position
+     * and time of measurement.
      *
-     * @param id Identifier of sample.
-     * @param time Time of measurement in milliseconds epoch time.
-     * @param point Point of measured position.
+     * @param id
+     *            Identifier of sample.
+     * @param time
+     *            Time of measurement in milliseconds epoch time.
+     * @param point
+     *            Point of measured position.
      */
     public MatcherSample(String id, long time, Point point) {
         this(id, time, point, Double.NaN, false, Double.NaN, Double.NaN);
     }
-    
+
     /**
-     * Creates a {@link MatcherSample} object with an identifier, measured position and time of
-     * measurement.
+     * Creates a {@link MatcherSample} object with an identifier, measured position
+     * and time of measurement.
      *
-     * @param id Identifier of sample.
-     * @param time Time of measurement in milliseconds epoch time.
-     * @param point Point of measured position.
-     * @param azimuth Azimuth of measurement sample.
+     * @param id
+     *            Identifier of sample.
+     * @param time
+     *            Time of measurement in milliseconds epoch time.
+     * @param point
+     *            Point of measured position.
+     * @param azimuth
+     *            Azimuth of measurement sample.
      */
     public MatcherSample(String id, long time, Point point, double azimuth) {
         this(id, time, point, azimuth, false, Double.NaN, Double.NaN);
     }
-    
+
     /**
-     * Creates a {@link MatcherSample} object with an identifier, measured position, time of
-     * measurement, and azimuth.
+     * Creates a {@link MatcherSample} object with an identifier, measured position,
+     * time of measurement, and azimuth.
      *
-     * @param id Identifier of sample.
-     * @param time Time of measurement in milliseconds epoch time.
-     * @param point Point of measured position.
-     * @param azimuth Azimuth of measurement sample.
-     * @param gpsOutage GPS regained signal.
+     * @param id
+     *            Identifier of sample.
+     * @param time
+     *            Time of measurement in milliseconds epoch time.
+     * @param point
+     *            Point of measured position.
+     * @param azimuth
+     *            Azimuth of measurement sample.
+     * @param gpsOutage
+     *            GPS regained signal.
      */
     public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage) {
-    	this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
+        this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
     }
 
     /**
-     * Creates a {@link MatcherSample} object with an identifier, measured position, time of
-     * measurement, and azimuth.
+     * Creates a {@link MatcherSample} object with an identifier, measured position,
+     * time of measurement, and azimuth.
      *
-     * @param id Identifier of sample.
-     * @param time Time of measurement in milliseconds epoch time.
-     * @param point Point of measured position.
-     * @param azimuth Azimuth of measurement sample.
-     * @param gpsOutage GPS regained signal.
-     * @param velocity speed of vehicle in meter per second
+     * @param id
+     *            Identifier of sample.
+     * @param time
+     *            Time of measurement in milliseconds epoch time.
+     * @param point
+     *            Point of measured position.
+     * @param azimuth
+     *            Azimuth of measurement sample.
+     * @param gpsOutage
+     *            GPS regained signal.
+     * @param velocity
+     *            speed of vehicle in meter per second
      */
     public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage, double velocity) {
-    	this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
+        this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
     }
-    
+
     /**
-     * Creates a {@link MatcherSample} object with an identifier, measured position, time of
-     * measurement, and azimuth.
+     * Creates a {@link MatcherSample} object with an identifier, measured position,
+     * time of measurement, and azimuth.
      *
-     * @param id Identifier of sample.
-     * @param time Time of measurement in milliseconds epoch time.
-     * @param point Point of measured position.
-     * @param azimuth Azimuth of measurement sample.
-     * @param gpsOutage GPS regained signal.
-     * @param velocity speed of vehicle in meter per second
-     * @param accuracy standard deviation of this sample
+     * @param id
+     *            Identifier of sample.
+     * @param time
+     *            Time of measurement in milliseconds epoch time.
+     * @param point
+     *            Point of measured position.
+     * @param azimuth
+     *            Azimuth of measurement sample.
+     * @param gpsOutage
+     *            GPS regained signal.
+     * @param velocity
+     *            speed of vehicle in meter per second
+     * @param accuracy
+     *            standard deviation of this sample
      */
-    public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage, double velocity, double accuracy) {
+    public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage, double velocity,
+            double accuracy) {
         super(time);
         this.id = id;
         this.point = point;
@@ -135,43 +167,40 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     /**
      * Creates a {@link MatcherSample} object from its JSON representation.
      *
-     * @param json JSON representation of {@link MatcherSample} object. JSONException thrown on JSON
-     *        extraction or parsing error.
-     * @throws JSONException thrown on JSON parse error.
+     * @param json
+     *            JSON representation of {@link MatcherSample} object. JSONException
+     *            thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON parse error.
      */
     public MatcherSample(JSONObject json) throws JSONException {
         super(json);
         id = json.getString("id");
         String wkt = json.getString("point");
-        point = (Point) GeometryEngine.geometryFromWkt(wkt, WktImportFlags.wktImportDefaults,
-                Type.Point);
+        point = (Point) GeometryEngine.geometryFromWkt(wkt, WktImportFlags.wktImportDefaults, Type.Point);
         if (json.has("azimuth")) {
             azimuth = norm(json.getDouble("azimuth"));
         } else {
             azimuth = Double.NaN;
         }
-        if (json.has("gpsOutage"))
-        {
+        if (json.has("gpsOutage")) {
             gpsOutage = json.getBoolean("gpsOutage");
         } else {
-        	gpsOutage = false;
+            gpsOutage = false;
         }
-        if (json.has("velocity"))
-        {
+        if (json.has("velocity")) {
             velocity = json.getDouble("velocity");
         } else {
-        	velocity = Double.NaN;
+            velocity = Double.NaN;
         }
-        if (json.has("accuracy"))
-        {
-        	accuracy = json.getDouble("accuracy");
+        if (json.has("accuracy")) {
+            accuracy = json.getDouble("accuracy");
         } else {
-        	accuracy = Double.NaN;
+            accuracy = Double.NaN;
         }
     }
 
-
-	private static double norm(double azimuth) {
+    private static double norm(double azimuth) {
         return azimuth >= 360 ? azimuth - (360 * (int) (azimuth / 360))
                 : azimuth < 0 ? azimuth - (360 * ((int) (azimuth / 360) - 1)) : azimuth;
     }
@@ -202,35 +231,29 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     public double azimuth() {
         return azimuth;
     }
-    
-    
 
     /**
-	 * @return the gpsOutage
-	 */
-	public boolean isGpsOutage() {
-		return gpsOutage;
-	}
-	
-	
+     * @return the gpsOutage
+     */
+    public boolean isGpsOutage() {
+        return gpsOutage;
+    }
 
-	/**
-	 * @return the velocity
-	 */
-	public double getVelocity() {
-		return velocity;
-	}
-	
-	
+    /**
+     * @return the velocity
+     */
+    public double getVelocity() {
+        return velocity;
+    }
 
-	/**
-	 * @return the accuracy
-	 */
-	public double getAccuracy() {
-		return accuracy;
-	}
+    /**
+     * @return the accuracy
+     */
+    public double getAccuracy() {
+        return accuracy;
+    }
 
-	@Override
+    @Override
     public JSONObject toJSON() throws JSONException {
         JSONObject json = super.toJSON();
         json.put("id", id);
@@ -239,12 +262,19 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
             json.put("azimuth", azimuth);
         }
         json.put("gpsOutage", gpsOutage);
-        if(!Double.isNaN(velocity)){
-        	json.put("velocity", velocity);
+        if (!Double.isNaN(velocity)) {
+            json.put("velocity", velocity);
         }
-        if(!Double.isNaN(accuracy)){
-        	json.put("accuracy", accuracy);
+        if (!Double.isNaN(accuracy)) {
+            json.put("accuracy", accuracy);
         }
         return json;
     }
+
+    @Override
+    public String toString() {
+        String s = "point: " + this.point().getX() + ", " + this.point().getY() + ", time:" + this.time();
+        return s;
+    }
+
 }

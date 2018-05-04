@@ -294,7 +294,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double sigma2 = sig2;
             double sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sigma2);
             if (!Double.isNaN(sample.getAccuracy())) {
-                sigma2 = Math.pow(sample.getAccuracy(), 2);
+                sigma2 = Math.pow((sample.getAccuracy() + sig2) / 2d, 2);
                 sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sigma2);
             }
 
