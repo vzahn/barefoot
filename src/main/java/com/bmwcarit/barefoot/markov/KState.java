@@ -61,6 +61,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         this.t = -1;
         this.sequence = new LinkedList<>();
         this.counters = new HashMap<>();
+        this.candidateStorage = new ArrayList<>();
     }
 
     /**
