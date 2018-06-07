@@ -65,8 +65,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double radius = 200;
     private double distance = 15000;
     private double maxVelocity = 1.85;
-    private double bearingDelta = 8.7;
-    private double routeCourseCost = 1.3;
+    private double transitionFactor = 2;
     private boolean sync = false;
 
     /**
@@ -208,36 +207,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     }
 
     /**
-     * @return the bearingDelta
-     */
-    public double getBearingDelta() {
-        return bearingDelta;
-    }
-
-    /**
-     * @param bearingDelta
-     *            the bearingDelta to set
-     */
-    public void setBearingDelta(double bearingDelta) {
-        this.bearingDelta = bearingDelta;
-    }
-
-    /**
-     * @return the routeCourseCost
-     */
-    public double getRouteCourseCost() {
-        return routeCourseCost;
-    }
-
-    /**
-     * @param routeCourseCost
-     *            the routeCourseCost to set
-     */
-    public void setRouteCourseCost(double routeCourseCost) {
-        this.routeCourseCost = routeCourseCost;
-    }
-
-    /**
      * @return the sync
      */
     public boolean isSync() {
@@ -250,6 +219,16 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      */
     public void setSync(boolean sync) {
         this.sync = sync;
+    }
+
+    /**
+     * great cycle distance x factor shall me smaller than transition
+     * 
+     * @param transitionFactor
+     *            the transitionFactor to set
+     */
+    public void setTransitionFactor(double transitionFactor) {
+        this.transitionFactor = transitionFactor;
     }
 
     @Override
@@ -400,7 +379,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
                         transitions.put(predecessor,
                                 addTransitions(candidates, predecessor, base, routes, predecessors.one()));
-                        // TODO outside loop ?
                         count.incrementAndGet();
                     }
 
@@ -453,11 +431,15 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double routeCost = route.cost(cost);
 
             /*
-             * When driving a long transition is probability drives to 0, therefore velocity
-             * should be applied
+             * If routeCost is longer then 2 x base then discard transition, except route
+             * includes tunnel
              */
 
             double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
+
+            if (routeCost > base * transitionFactor && !route.hasTunnel()) {
+                transition = 0;
+            }
 
             candidate.setDeltaRoute(Math.abs((route.length() - base)));
             map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
