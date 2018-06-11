@@ -222,6 +222,15 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     }
 
     /**
+     * Get factor of transition to calculate HHM-break.
+     * 
+     * @return the transitionFactor double
+     */
+    public double getTransitionFactor() {
+        return transitionFactor;
+    }
+
+    /**
      * great cycle distance x factor shall me smaller than transition
      * 
      * @param transitionFactor
