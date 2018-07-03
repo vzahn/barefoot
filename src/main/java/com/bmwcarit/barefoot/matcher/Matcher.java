@@ -357,6 +357,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
         final AtomicInteger count = new AtomicInteger();
         final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
+        final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
         final double bound = distance;
         final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
         final double maxOverSpeed = maxVelocity;
@@ -366,7 +367,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
                         bound, deltaTime, maxOverSpeed);
 
-                transitions.put(predecessor, addTransitions(candidates, predecessor, routes, predecessors.one()));
+                transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
             }
 
         } else {
@@ -386,7 +387,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                         logger.trace("{} routes ({} ms)", routes.size(), sw.ms());
 
                         transitions.put(predecessor,
-                                addTransitions(candidates, predecessor, routes, predecessors.one()));
+                                addTransitions(candidates, predecessor, base, routes, predecessors.one()));
                         count.incrementAndGet();
                     }
 
@@ -412,7 +413,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      * @return map Map<MatcherCandidate, Tuple<MatcherTransition, Double>>
      */
     protected Map<MatcherCandidate, Tuple<MatcherTransition, Double>> addTransitions(
-            Tuple<MatcherSample, Set<MatcherCandidate>> candidates, MatcherCandidate predecessor,
+            Tuple<MatcherSample, Set<MatcherCandidate>> candidates, MatcherCandidate predecessor, double base,
             Map<RoadPoint, List<Road>> routes, MatcherSample matcherSample) {
         Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new HashMap<>();
         for (MatcherCandidate candidate : candidates.two()) {
@@ -437,7 +438,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                     : 1 / lambda;
 
             double routeCost = route.cost(cost);
-            double base = spatial.distance(route.source().geometry(), route.target().geometry());
+            double distanceRoute = spatial.distance(route.source().geometry(), route.target().geometry());
 
             /*
              * If routeCost is longer then 2 x base then discard transition, except route
@@ -446,7 +447,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
             double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
 
-            if (routeCost > base * transitionFactor && !route.hasTunnel()) {
+            if (routeCost > distanceRoute * transitionFactor && !route.hasTunnel()) {
                 transition = 0;
             }
 
