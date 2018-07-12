@@ -269,7 +269,10 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             }
             points_.add(point);
         }
-        Set<RoadPoint> points = new HashSet<>(Minset.minimize(points_));
+        Set<RoadPoint> points = points_;
+        if (!sample.isGpsOutage()) {
+            points = new HashSet<>(Minset.minimize(points_));
+        }
 
         Map<Long, RoadPoint> map = new HashMap<>();
         for (RoadPoint point : points) {
