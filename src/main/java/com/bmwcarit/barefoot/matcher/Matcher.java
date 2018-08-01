@@ -66,6 +66,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double distance = 15000;
     private double maxVelocity = 1.85;
     private double transitionFactor = 2;
+    private double transitionDistance = 800d;
     private boolean sync = false;
 
     /**
@@ -238,6 +239,24 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      */
     public void setTransitionFactor(double transitionFactor) {
         this.transitionFactor = transitionFactor;
+    }
+
+    /**
+     * @return the transitionDistance
+     */
+    public double getTransitionDistance() {
+        return transitionDistance;
+    }
+
+    /**
+     * Set max value for transitionfactor, after this value max transition is x
+     * sqrt(2)
+     * 
+     * @param transitionDistance
+     *            the transitionDistance to set
+     */
+    public void setTransitionDistance(double transitionDistance) {
+        this.transitionDistance = transitionDistance;
     }
 
     @Override
@@ -450,7 +469,9 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
             double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
 
-            if (routeCost > distanceRoute * transitionFactor && !route.hasTunnel()) {
+            if ((routeCost > distanceRoute * transitionFactor
+                    || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
+                    && !route.hasTunnel()) {
                 transition = 0;
             }
 
