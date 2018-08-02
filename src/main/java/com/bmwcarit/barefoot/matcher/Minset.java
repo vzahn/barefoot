@@ -22,13 +22,13 @@ import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.RoadPoint;
 
 /**
- * Minimizes a set of matching candidates represented as {@link RoadPoint} to remove semantically
- * redundant candidates.
+ * Minimizes a set of matching candidates represented as {@link RoadPoint} to
+ * remove semantically redundant candidates.
  */
 public abstract class Minset {
     /**
-     * Floating point precision for considering a {@link RoadPoint} be the same as a vertex,
-     * fraction is zero or one (default: 1E-8).
+     * Floating point precision for considering a {@link RoadPoint} be the same as a
+     * vertex, fraction is zero or one (default: 1E-8).
      */
     public static double precision = 1E-8;
 
@@ -37,17 +37,20 @@ public abstract class Minset {
     }
 
     /**
-     * Removes semantically redundant matching candidates from a set of matching candidates (as
-     * {@link RoadPoint} object) and returns a minimized (reduced) subset.
+     * Removes semantically redundant matching candidates from a set of matching
+     * candidates (as {@link RoadPoint} object) and returns a minimized (reduced)
+     * subset.
      * <p>
-     * Given a position measurement, a matching candidate is each road in a certain radius of the
-     * measured position, and in particular that point on each road that is closest to the measured
-     * position. Hence, there are as many state candidates as roads in that area. The idea is to
-     * conserve only possible routes through the area and use each route with its closest point to
-     * the measured position as a matching candidate. Since roads are split into multiple segments,
-     * the number of matching candidates is significantly higher than the respective number of
-     * routes. To give an example, assume the following matching candidates as {@link RoadPoint}
-     * objects with a road id and a fraction:
+     * Given a position measurement, a matching candidate is each road in a certain
+     * radius of the measured position, and in particular that point on each road
+     * that is closest to the measured position. Hence, there are as many state
+     * candidates as roads in that area. The idea is to conserve only possible
+     * routes through the area and use each route with its closest point to the
+     * measured position as a matching candidate. Since roads are split into
+     * multiple segments, the number of matching candidates is significantly higher
+     * than the respective number of routes. To give an example, assume the
+     * following matching candidates as {@link RoadPoint} objects with a road id and
+     * a fraction:
      *
      * <ul>
      * <li><i>(r<sub>i</sub>, 0.5)</i>
@@ -55,18 +58,22 @@ public abstract class Minset {
      * <li><i>(r<sub>k</sub>, 0.0)</i>
      * </ul>
      *
-     * where they are connected as <i>r<sub>i</sub> &#8594; r<sub>j</sub></i> and <i>r<sub>i</sub>
-     * &#8594; r<sub>k</sub></i>. Here, matching candidates <i>r<sub>j</sub></i> and
-     * <i>r<sub>k</sub></i> can be removed if we see routes as matching candidates. This is because
-     * both, <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i>, are reachable from <i>r<sub>i</sub></i>.
+     * where they are connected as <i>r<sub>i</sub> &#8594; r<sub>j</sub></i> and
+     * <i>r<sub>i</sub> &#8594; r<sub>k</sub></i>. Here, matching candidates
+     * <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i> can be removed if we see routes
+     * as matching candidates. This is because both, <i>r<sub>j</sub></i> and
+     * <i>r<sub>k</sub></i>, are reachable from <i>r<sub>i</sub></i>.
      * <p>
-     * <b>Note:</b> Of course, <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i> may be seen as relevant
-     * matching candidates, however, in the present HMM map matching algorithm there is no
-     * optimization of matching candidates along the road, instead it only considers the closest
-     * point of a road as a matching candidate.
+     * <b>Note:</b> Of course, <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i> may be
+     * seen as relevant matching candidates, however, in the present HMM map
+     * matching algorithm there is no optimization of matching candidates along the
+     * road, instead it only considers the closest point of a road as a matching
+     * candidate.
      *
-     * @param candidates Set of matching candidates as {@link RoadPoint} objects.
-     * @return Minimized (reduced) set of matching candidates as {@link RoadPoint} objects.
+     * @param candidates
+     *            Set of matching candidates as {@link RoadPoint} objects.
+     * @return Minimized (reduced) set of matching candidates as {@link RoadPoint}
+     *         objects.
      */
     public static Set<RoadPoint> minimize(Set<RoadPoint> candidates) {
 
@@ -90,8 +97,8 @@ public abstract class Minset {
                     misses.put(id, misses.get(id) + 1);
                 }
 
-                if (map.containsKey(successor.id())
-                        && round(map.get(successor.id()).fraction()) == 0) {
+                if (map.containsKey(successor.id()) && round(map.get(successor.id()).fraction()) == 0
+                        && map.get(successor.id()).edge().heading() != successor.heading()) {
                     removes.add(successor.id());
                     misses.put(id, misses.get(id) + 1);
                 }
