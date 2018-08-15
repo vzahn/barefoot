@@ -68,6 +68,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double transitionFactor = 2;
     private double transitionDistance = 800d;
     private boolean sync = false;
+    private double gpsOutageFactor = 0.0d;
 
     /**
      * Creates a HMM map matching filter for some map, router, cost function, and
@@ -277,21 +278,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             radius = perimeter;
         }
         Set<RoadPoint> points_radius = map.spatial().radius(sample.point(), radius);
-
-        // Remove tunnelflag points, they should not have any gps signal
-        Set<RoadPoint> points_ = new HashSet<>();
-        for (RoadPoint point : points_radius) {
-            if (point.edge().base().getTunnel() && !point.edge().base().getTunnelEntry()) {
-                logger.debug("Candidate is in tunnel, ignore: " + point.edge().base().refid() + ", "
-                        + point.edge().base().id());
-                continue;
-            }
-            points_.add(point);
-        }
-        Set<RoadPoint> points = points_;
-        if (!sample.isGpsOutage()) {
-            points = new HashSet<>(Minset.minimize(points_));
-        }
+        Set<RoadPoint> points = points_radius;
 
         Map<Long, RoadPoint> map = new HashMap<>();
         for (RoadPoint point : points) {
@@ -309,11 +296,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 points.add(predecessor.point());
             }
         }
-
         Set<Tuple<MatcherCandidate, Double>> candidates = new HashSet<>();
-
-        logger.debug("{} ({}) candidates", points.size(), points_.size());
-
+        logger.debug("{} candidates", points.size());
         for (RoadPoint point : points) {
             MatcherCandidate candidate = new MatcherCandidate(point, sample);
             double dz = spatial.distance(sample.point(), point.geometry());
@@ -339,6 +323,17 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                         ((MatcherCandidate) candidate).point().edge().base().refid(), da,
                         1 / sqrt_2pi_sigA * Math.exp((-1) * da * da / (2 * sigA)));
 
+            }
+
+            // weight gpsFlag:
+            if (sample.isGpsOutage()) {
+                if (!candidate.point().edge().base().getTunnel()) {
+                    emission = emission * gpsOutageFactor;
+                }
+            } else {
+                if (candidate.point().edge().base().getTunnel()) {
+                    emission = emission * gpsOutageFactor;
+                }
             }
 
             candidates.add(new Tuple<>(candidate, emission));

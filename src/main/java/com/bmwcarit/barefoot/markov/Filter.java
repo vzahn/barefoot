@@ -15,7 +15,6 @@ package com.bmwcarit.barefoot.markov;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,8 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.matcher.MatcherCandidate;
 import com.bmwcarit.barefoot.matcher.MatcherSample;
-import com.bmwcarit.barefoot.matcher.MatcherTransition;
-import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
@@ -42,7 +39,6 @@ import com.bmwcarit.barefoot.util.Tuple;
  */
 public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample> {
     private final static Logger logger = LoggerFactory.getLogger(Filter.class);
-    private final static double MAXBOUND_TRANSITION_GPS_OUTAGE = 200.0;
 
     /**
      * Gets state vector, which is a set of {@link StateCandidate} objects and with
@@ -166,7 +162,6 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
         assert (sample != null);
 
         Set<C> result = new HashSet<>();
-        boolean gpsOutage = ((MatcherSample) sample).isGpsOutage();
         Set<Tuple<C, Double>> candidates = candidates(predecessors, sample, radius);
         logger.trace("{} state candidates", candidates.size());
 
@@ -282,51 +277,6 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
         if (result.isEmpty()) {
             logger.info("HMM break - no state emissions" + ((MatcherSample) sample).toString());
-        }
-        if (gpsOutage) {
-            Set<C> tempResult = new HashSet<C>();
-            for (C candidate : result) {
-                if (candidate.transition() != null) {
-                    if (((MatcherCandidate) candidate).point().edge().base().getTunnel()) {
-                        tempResult.add(candidate);
-                        continue;
-                    }
-                    List<Road> checkOutage = ((MatcherTransition) candidate.transition()).route().path();
-
-                    double succbound = 0.0;
-                    for (int t = checkOutage.size() - 2; t >= 1; t--) {
-                        Road roadBackward = checkOutage.get(t);
-                        succbound = succbound + roadBackward.length();
-                        if (roadBackward.base().getTunnel()) {
-                            tempResult.add(candidate);
-                            break;
-                        } else if (succbound > MAXBOUND_TRANSITION_GPS_OUTAGE) {
-                            break;
-                        }
-                    }
-                }
-            }
-            if (tempResult.size() > 0) {
-                result = tempResult;
-            } else {
-                // if gpsOutage occurs candidate has to be a tunnel in radius
-                for (Tuple<C, Double> candidate : candidates) {
-                    C candidateOne = candidate.one();
-                    if (((MatcherCandidate) candidateOne).point().edge().base().getTunnel()) {
-                        normsum += candidate.two();
-                        candidateOne.filtprob(candidate.two());
-                        candidateOne.seqprob(Math.log10(candidate.two()));
-                        candidateOne.time(sample.time());
-                        tempResult.add(candidateOne);
-                    }
-
-                }
-                // if no tunnel occurs use transition candidates
-                if (tempResult.size() > 0) {
-                    result = tempResult;
-                }
-            }
-
         }
 
         for (C candidate : result) {
