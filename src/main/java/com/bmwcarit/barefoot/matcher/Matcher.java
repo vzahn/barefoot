@@ -325,17 +325,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
             }
 
-            // weight gpsFlag:
-            if (sample.isGpsOutage()) {
-                if (!candidate.point().edge().base().getTunnel()) {
-                    emission = emission * gpsOutageFactor;
-                }
-            } else {
-                if (candidate.point().edge().base().getTunnel()) {
-                    emission = emission * gpsOutageFactor;
-                }
-            }
-
             candidates.add(new Tuple<>(candidate, emission));
 
             logger.trace("{} diffDistance: {} emission: {}",
@@ -468,6 +457,19 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                     || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
                     && !route.hasTunnel()) {
                 transition = 0;
+            }
+
+            // weight gpsFlag:
+            if (candidate.transition() != null) {
+                if (matcherSample.isGpsOutage()) {
+                    if (!candidate.transition().route().hasTunnel()) {
+                        transition = transition * gpsOutageFactor;
+                    }
+                } else {
+                    if (candidate.transition() != null && candidate.transition().route().hasTunnel()) {
+                        transition = transition * gpsOutageFactor;
+                    }
+                }
             }
 
             candidate.setDeltaRoute(Math.abs((route.length() - base)));
