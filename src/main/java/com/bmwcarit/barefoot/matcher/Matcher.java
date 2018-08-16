@@ -260,6 +260,17 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         this.transitionDistance = transitionDistance;
     }
 
+    /**
+     * Set GPS-outage factor to multiply transition with, depending on gpsOutage and
+     * tunnel transition.
+     * 
+     * @param gpsOutageFactor
+     *            the gpsOutageFactor to set
+     */
+    public void setGpsOutageFactor(double gpsOutageFactor) {
+        this.gpsOutageFactor = gpsOutageFactor;
+    }
+
     @Override
     protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
             MatcherSample sample) {
