@@ -470,16 +470,14 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 transition = 0;
             }
 
-            // weight gpsFlag:
-            if (candidate.transition() != null) {
-                if (matcherSample.isGpsOutage()) {
-                    if (!candidate.transition().route().hasTunnel()) {
-                        transition = transition * gpsOutageFactor;
-                    }
-                } else {
-                    if (candidate.transition() != null && candidate.transition().route().hasTunnel()) {
-                        transition = transition * gpsOutageFactor;
-                    }
+            // Weighting GPS re-gain
+            if (matcherSample.isGpsOutage()) {
+                if (!route.hasTunnel()) {
+                    transition = transition * gpsOutageFactor;
+                }
+            } else {
+                if (route.hasTunnel()) {
+                    transition = transition * gpsOutageFactor;
                 }
             }
 

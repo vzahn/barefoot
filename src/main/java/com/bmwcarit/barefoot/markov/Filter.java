@@ -295,4 +295,5 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
         logger.trace("{} state candidates for state update", result.size());
         return result;
     }
+
 }
