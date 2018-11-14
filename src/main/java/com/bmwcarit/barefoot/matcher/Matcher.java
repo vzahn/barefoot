@@ -471,7 +471,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             }
 
             // Weighting GPS re-gain
-            if (matcherSample.isGpsOutage()) {
+            if (predecessor.getSample().isGpsOutage()) {
                 if (!route.hasTunnel()) {
                     transition = transition * gpsOutageFactor;
                 }
