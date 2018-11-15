@@ -473,11 +473,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             // Weighting GPS re-gain
             if (candidate.getSample().isGpsOutage()) {
                 if (!route.hasTunnel()) {
-                    transition = transition * gpsOutageFactor;
+                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) * gpsOutageFactor) / beta);
                 }
             } else {
                 if (route.hasTunnel()) {
-                    transition = transition * gpsOutageFactor;
+                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) * gpsOutageFactor) / beta);
                 }
             }
 
