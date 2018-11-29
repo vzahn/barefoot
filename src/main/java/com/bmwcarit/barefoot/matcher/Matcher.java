@@ -46,10 +46,11 @@ import com.bmwcarit.barefoot.util.Tuple;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.WktExportFlags;
 
-/* Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter
-* (@{link Filter}) and determines emission and transition probabilities for map
-* matching with HMM.
-*/
+/**
+ * Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter
+ * (@{link Filter}) and determines emission and transition probabilities for map
+ * matching with HMM.
+ */
 public class Matcher extends Filter<MatcherCandidate, MatcherTransition, MatcherSample> {
     private static final Logger logger = LoggerFactory.getLogger(Matcher.class);
 
@@ -60,7 +61,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
     private double sig2 = Math.pow(5d, 2);
     private double sigA = Math.pow(10d, 2);
-    private double sqrt_2pi_sigA = Math.sqrt(2d * Math.PI * sigA);
+    private double sqrt2piSigA = Math.sqrt(2d * Math.PI * sigA);
     private double lambda = 0d;
     private double radius = 200;
     private double distance = 15000;
@@ -176,49 +177,33 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         this.distance = distance;
     }
 
-    /**
-     * @return the sigA
-     */
     public double getSigmaA() {
         return Math.sqrt(this.sigA);
     }
 
     /**
+     * Sets sigA and sqrt2piSigA.
+     * 
      * @param sigA
-     *            the sigA to set
+     *            sigA
      */
     public void setSigmaA(double sigA) {
         this.sigA = Math.pow(sigA, 2);
-        ;
-        this.sqrt_2pi_sigA = Math.sqrt(2d * Math.PI * sigA);
+        this.sqrt2piSigA = Math.sqrt(2d * Math.PI * sigA);
     }
 
-    /**
-     * @return the maxVelocity
-     */
     public double getMaxVelocity() {
         return maxVelocity;
     }
 
-    /**
-     * @param maxVelocity
-     *            the maxVelocity to set
-     */
     public void setMaxVelocity(double maxVelocity) {
         this.maxVelocity = maxVelocity;
     }
 
-    /**
-     * @return the sync
-     */
     public boolean isSync() {
         return sync;
     }
 
-    /**
-     * @param sync
-     *            the sync to set
-     */
     public void setSync(boolean sync) {
         this.sync = sync;
     }
@@ -233,7 +218,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     }
 
     /**
-     * great cycle distance x factor shall me smaller than transition
+     * Great cycle distance x factor shall me smaller than transition.
      * 
      * @param transitionFactor
      *            the transitionFactor to set
@@ -242,16 +227,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         this.transitionFactor = transitionFactor;
     }
 
-    /**
-     * @return the transitionDistance
-     */
     public double getTransitionDistance() {
         return transitionDistance;
     }
 
     /**
      * Set max value for transitionfactor, after this value max transition is x
-     * sqrt(2)
+     * sqrt(2).
      * 
      * @param transitionDistance
      *            the transitionDistance to set
@@ -288,8 +270,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         if (perimeter != null) {
             radius = perimeter;
         }
-        Set<RoadPoint> points_radius = map.spatial().radius(sample.point(), radius);
-        Set<RoadPoint> points = points_radius;
+        Set<RoadPoint> pointsRadius = map.spatial().radius(sample.point(), radius);
+        Set<RoadPoint> points = pointsRadius;
 
         Map<Long, RoadPoint> map = new HashMap<>();
         for (RoadPoint point : points) {
@@ -313,36 +295,39 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             MatcherCandidate candidate = new MatcherCandidate(point, sample);
             double dz = spatial.distance(sample.point(), point.geometry());
             double sigma2 = sig2;
-            double sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sigma2);
+            double sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             if (!Double.isNaN(sample.getAccuracy())) {
                 sigma2 = Math.pow((sample.getAccuracy() + sig2) / 2d, 2);
-                sqrt_2pi_sig2 = Math.sqrt(2d * Math.PI * sigma2);
+                sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             }
 
-            double emission = 1 / sqrt_2pi_sig2 * Math.exp((-1) * dz * dz / (2 * sigma2));
+            double emission = 1 / sqrt2piSig2 * Math.exp((-1) * dz * dz / (2 * sigma2));
 
             if (!Double.isNaN(sample.azimuth())) {
                 double da = sample.azimuth() > point.azimuth()
                         ? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
                         : Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
 
-                emission = (1 / sqrt_2pi_sig2 * 1 / sqrt_2pi_sigA)
+                emission = (1 / sqrt2piSig2 * 1 / sqrt2piSigA)
                         * Math.exp((-1) * dz * dz / (2 * sigma2) + (-1) * da * da / (2 * sigA));
                 candidate.setDeltaHeading(da);
                 candidate.setDistance(dz);
-                logger.trace("{} diffHeading: {} emission: {}",
-                        ((MatcherCandidate) candidate).point().edge().base().refid(), da,
-                        1 / sqrt_2pi_sigA * Math.exp((-1) * da * da / (2 * sigA)));
+                if (logger.isTraceEnabled()) {
+                    logger.trace("{} diffHeading: {} emission: {}",
+                            ((MatcherCandidate) candidate).point().edge().base().refid(), da,
+                            1 / sqrt2piSigA * Math.exp((-1) * da * da / (2 * sigA)));
+                }
 
             }
 
             candidates.add(new Tuple<>(candidate, emission));
-
-            logger.trace("{} diffDistance: {} emission: {}",
-                    ((MatcherCandidate) candidate).point().edge().base().refid(), dz,
-                    1 / sqrt_2pi_sig2 * Math.exp((-1) * dz * dz / (2 * sigma2)));
-            logger.trace("{} -> total emission: {}", ((MatcherCandidate) candidate).point().edge().base().refid(),
-                    emission);
+            if (logger.isTraceEnabled()) {
+                logger.trace("{} diffDistance: {} emission: {}",
+                        ((MatcherCandidate) candidate).point().edge().base().refid(), dz,
+                        1 / sqrt2piSig2 * Math.exp((-1) * dz * dz / (2 * sigma2)));
+                logger.trace("{} -> total emission: {}", ((MatcherCandidate) candidate).point().edge().base().refid(),
+                        emission);
+            }
         }
 
         return candidates;
@@ -421,36 +406,20 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         return transitions;
     }
 
-    /**
-     * @param candidates
-     * @param predecessor
-     * @param base
-     * @param routes
-     * @param matcherSample
-     * @return map Map<MatcherCandidate, Tuple<MatcherTransition, Double>>
-     */
     protected Map<MatcherCandidate, Tuple<MatcherTransition, Double>> addTransitions(
             Tuple<MatcherSample, Set<MatcherCandidate>> candidates, MatcherCandidate predecessor, double base,
             Map<RoadPoint, List<Road>> routes, MatcherSample matcherSample) {
         Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new HashMap<>();
         for (MatcherCandidate candidate : candidates.two()) {
             List<Road> edges = routes.get(candidate.point());
-
             if (edges == null) {
                 continue;
             }
-
             Route route = new Route(predecessor.point(), candidate.point(), edges);
-
-            // According to Newson and Krumm 2009, transition
-            // probability is lambda *
-            // Math.exp((-1.0) * lambda * Math.abs(dt -
-            // route.length())), however, we
-            // experimentally choose lambda * Math.exp((-1.0) *
-            // lambda * Math.max(0,
-            // route.length() - dt)) to avoid unnecessary routes in
-            // case of u-turns.
-
+            // According to Newson and Krumm 2009, transition probability is lambda *
+            // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())), however, we
+            // experimentally choose lambda * Math.exp((-1.0) * lambda * Math.max(0,
+            // route.length() - dt)) to avoid unnecessary routes in case of u-turns.
             double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
                     : 1 / lambda;
 
@@ -461,7 +430,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
              * If routeCost is longer then 2 x base then discard transition, except route
              * includes tunnel
              */
-
             double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
 
             if ((routeCost > distanceRoute * transitionFactor
@@ -471,22 +439,20 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             }
 
             // Weighting GPS re-gain
-            if (candidate.getSample().isGpsOutage()) {
-                if (!route.hasTunnel()) {
-                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) * gpsOutageFactor) / beta);
-                }
-            } else {
-                if (route.hasTunnel()) {
-                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) * gpsOutageFactor) / beta);
-                }
-            }
+            boolean routeShouldBeTunnel = candidate.getSample().isGpsOutage();
+            boolean routeHasTunnel = route.hasTunnel();
+            if ((routeShouldBeTunnel && !routeHasTunnel) || (!routeShouldBeTunnel && routeHasTunnel)) {
+                // punish mismatch between sample and map information
+                transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost * gpsOutageFactor - base)) / beta);
+            } // else leave transition as is, without punishing
 
             candidate.setDeltaRoute(Math.abs((route.length() - base)));
             map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
-
-            logger.trace("{} -> {} base: {} routeCost: {} transition: {}",
-                    ((MatcherCandidate) predecessor).point().edge().base().refid(),
-                    ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost, transition);
+            if (logger.isTraceEnabled()) {
+                logger.trace("{} -> {} base: {} routeCost: {} transition: {}",
+                        ((MatcherCandidate) predecessor).point().edge().base().refid(),
+                        ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost, transition);
+            }
 
         }
         return map;
