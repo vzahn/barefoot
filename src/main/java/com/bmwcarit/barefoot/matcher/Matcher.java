@@ -426,17 +426,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double routeCost = route.cost(cost);
             double distanceRoute = spatial.distance(route.source().geometry(), route.target().geometry());
 
-            /*
-             * If routeCost is longer then 2 x base then discard transition, except route
-             * includes tunnel
-             */
             double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
-
-            if ((routeCost > distanceRoute * transitionFactor
-                    || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
-                    && !route.hasTunnel()) {
-                transition = 0;
-            }
 
             // Weighting GPS re-gain
             boolean routeShouldBeTunnel = candidate.getSample().isGpsOutage();
@@ -445,6 +435,14 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 // punish mismatch between sample and map information
                 transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost * gpsOutageFactor - base)) / beta);
             } // else leave transition as is, without punishing
+
+            // If routeCost is longer than 2 x base then discard transition, except route
+            // includes tunnel
+            if ((routeCost > distanceRoute * transitionFactor
+                    || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
+                    && !routeHasTunnel) {
+                transition = 0;
+            }
 
             candidate.setDeltaRoute(Math.abs((route.length() - base)));
             map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
