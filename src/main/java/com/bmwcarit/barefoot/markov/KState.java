@@ -48,6 +48,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
     private final static Logger logger = LoggerFactory.getLogger(Filter.class);
     private final int k;
     private final long t;
+    private final int maxCounters;
     private final LinkedList<Tuple<Set<C>, S>> sequence;
     private final Map<C, Integer> counters;
     private List<C> candidateStorage;
@@ -57,6 +58,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
      * unbounded.
      */
     public KState() {
+        this.maxCounters = Integer.MAX_VALUE;
         this.k = -1;
         this.t = -1;
         this.sequence = new LinkedList<>();
@@ -71,10 +73,12 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
      *            JSON representation of a {@link KState} object.
      * @param factory
      *            Factory for creation of state candidates and transitions.
+     *
      * @throws JSONException
      *             thrown on JSON extraction or parsing error.
      */
     public KState(JSONObject json, Factory<C, T, S> factory) throws JSONException {
+        this.maxCounters = json.getInt("m");
         this.k = json.getInt("k");
         this.t = json.getLong("t");
         this.sequence = new LinkedList<>();
@@ -148,12 +152,20 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
      * @param t
      *            <i>&tau;</i> parameter bounds length of the state sequence to
      *            contain only states for the past <i>&tau;</i> milliseconds.
+     * 
+     * 
+     * @param m
+     *            parameter bounds length of counter to contain only limited
+     *            candidates, amount m.
+     * 
      */
-    public KState(int k, long t) {
+    public KState(int k, long t, int m) {
         this.k = k;
         this.t = t;
+        this.maxCounters = m;
         this.sequence = new LinkedList<>();
         this.counters = new HashMap<>();
+        this.candidateStorage = new ArrayList<>();
     }
 
     /**
@@ -218,7 +230,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
             throw new RuntimeException("out-of-order state update is prohibited. Last Time: "
                     + sequence.peekLast().two().time() + " , sample time: " + sample.time());
         }
-
         for (C candidate : vector) {
             counters.put(candidate, 0);
             if (candidate.predecessor() != null) {
@@ -292,23 +303,54 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 
                 }
             }
-        } else {
+        }
+
+        if (counters.size() > maxCounters) {
+            /*
+             * deletes old counters when size is reached.
+             */
+            int deletedCounters = 0;
+            Set<C> allKeys = counters.keySet();
+            Set<C> removableCounters = new HashSet<>();
+            for (C candidate : allKeys) {
+                if (t > 0 && t < sample.time() - candidate.time()) {
+                    removableCounters.add(candidate);
+                    deletedCounters++;
+                }
+            }
+            for (C removeable : removableCounters) {
+                counters.remove(removeable);
+            }
+
+            logger.warn("Size of candidates: " + maxCounters + " reached. Deleted " + deletedCounters
+                    + " counters with time older than " + t + " in ms");
+        }
+        if (!sequence.isEmpty()) {
             // deletion of candidates,that are to old (t) or sequence is to long
             // (k)
-            while ((t > 0 && sample.time() - sequence.peekFirst().two().time() > t)
+
+            int deletedCounters = 0;
+            while ((t > 0 && !sequence.isEmpty() && sample.time() - sequence.peekFirst().two().time() > t)
                     || (k >= 0 && sequence.size() > k + 1)) {
                 Set<C> deletes = sequence.removeFirst().one();
                 for (C candidate : deletes) {
-                    counters.remove(candidate);
+                    if (counters.remove(candidate) != null) {
+                        deletedCounters++;
+                    }
                 }
 
                 for (C candidate : sequence.peekFirst().one()) {
                     candidate.predecessor(null);
                 }
             }
-        }
+            if (deletedCounters > 0) {
+                logger.warn(
+                        "Size of previous candidates: " + k + " reached. Deleted " + deletedCounters + " counters.");
+            }
 
+        }
         assert (k < 0 || sequence.size() <= k + 1);
+
     }
 
     protected void remove(C candidate, int index) {
@@ -436,7 +478,15 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
             jsoncandidates.put(jsoncandidate);
         }
         JSONArray jsoncandidatestorage = new JSONArray();
-        for (int i = 0; i < candidateStorage.size(); i++) {
+        /*
+         * 
+         */
+        int maxCandidateStorage = 10;
+        if (candidateStorage.size() < maxCandidateStorage) {
+            maxCandidateStorage = candidateStorage.size();
+        }
+
+        for (int i = 0; i < maxCandidateStorage; i++) {
             JSONObject jsoncandidate = new JSONObject();
             C candidate = candidateStorage.get(i);
             jsoncandidate.put("candidate", candidate.toJSON());
@@ -444,6 +494,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         }
         json.put("k", k);
         json.put("t", t);
+        json.put("m", maxCounters);
         json.put("sequence", jsonsequence);
         json.put("candidates", jsoncandidates);
         json.put("candidatestorage", jsoncandidatestorage);

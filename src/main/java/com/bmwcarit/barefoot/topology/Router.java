@@ -20,122 +20,136 @@ import java.util.Set;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
- * Interface of a router for routing in a directed {@link Graph}. The routing functions return paths
- * from a source {@link Point} to a target {@link Point} that minimize a {@link Cost} function.
+ * Interface of a router for routing in a directed {@link Graph}. The routing
+ * functions return paths from a source {@link Point} to a target {@link Point}
+ * that minimize a {@link Cost} function.
  *
- * @param <E>{@link AbstractEdge} type of the graph.
+ * @param <E>{@link
+ *            AbstractEdge} type of the graph.
  */
 public interface Router<E extends AbstractEdge<E>, P extends Point<E>> {
 
     /**
-     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source {@link Point} to target
-     * {@link Point} with minimum cost according to {@link Cost} function.
+     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source
+     * {@link Point} to target {@link Point} with minimum cost according to
+     * {@link Cost} function.
      *
-     * @param source Source {@link Point} in the graph.
-     * @param target Target {@link Point} in the graph.
-     * @param cost Custom {@link Cost} function.
-     * @return Path, i.e. a sequence of {@link AbstractEdge}s, from source {@link Point} to target
-     *         {@link Point} with minimum cost according to {@link Cost} function. If there is no
-     *         path from source to target, it returns null.
+     * @param source
+     *            Source {@link Point} in the graph.
+     * @param target
+     *            Target {@link Point} in the graph.
+     * @param cost
+     *            Custom {@link Cost} function.
+     * @return Path, i.e. a sequence of {@link AbstractEdge}s, from source
+     *         {@link Point} to target {@link Point} with minimum cost according to
+     *         {@link Cost} function. If there is no path from source to target, it
+     *         returns null.
      */
     List<E> route(P source, P target, Cost<E> cost);
 
     /**
-     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source {@link Point} to target
-     * {@link Point} with minimum cost according to {@link Cost} function. Search depth of routing
-     * can be bound by bounding {@link Cost} function and a maximum bounding cost value.
+     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source
+     * {@link Point} to target {@link Point} with minimum cost according to
+     * {@link Cost} function. Search depth of routing can be bound by bounding
+     * {@link Cost} function and a maximum bounding cost value.
      *
-     * @param source Source {@link Point} in the graph.
-     * @param target Target {@link Point} in the graph.
-     * @param cost Custom {@link Cost} function.
-     * @param bound Bounding {@link Cost} function.
-     * @param max Maximum bounding cost value to bound search depth.
-     * @return Path, i.e. a sequence of {@link AbstractEdge}s, from source {@link Point} to target
-     *         {@link Point} with minimum cost according to {@link Cost} function. If there is no
-     *         path from source to target, it returns null.
+     * @param source
+     *            Source {@link Point} in the graph.
+     * @param target
+     *            Target {@link Point} in the graph.
+     * @param cost
+     *            Custom {@link Cost} function.
+     * @param bound
+     *            Bounding {@link Cost} function.
+     * @param max
+     *            Maximum bounding cost value to bound search depth.
+     * @return Path, i.e. a sequence of {@link AbstractEdge}s, from source
+     *         {@link Point} to target {@link Point} with minimum cost according to
+     *         {@link Cost} function. If there is no path from source to target, it
+     *         returns null.
      */
     List<E> route(P source, P target, Cost<E> cost, Cost<E> bound, Double max);
 
     /**
-     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source {@link Point} to each target
-     * {@link Point} with minimum cost according to {@link Cost} function.
+     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source
+     * {@link Point} to each target {@link Point} with minimum cost according to
+     * {@link Cost} function.
      *
-     * @param source Source {@link Point} in the graph.
-     * @param targets Set of target {@link Point}s in the graph.
-     * @param cost Custom {@link Cost} function.
-     * @return Map of target {@link Point} to path, i.e. a sequence of {@link AbstractEdge}s, from
-     *         source {@link Point} to target {@link Point} with minimum cost according to
-     *         {@link Cost} function. If there is no path from source to target, it maps to null.
+     * @param source
+     *            Source {@link Point} in the graph.
+     * @param targets
+     *            Set of target {@link Point}s in the graph.
+     * @param cost
+     *            Custom {@link Cost} function.
+     * @return Map of target {@link Point} to path, i.e. a sequence of
+     *         {@link AbstractEdge}s, from source {@link Point} to target
+     *         {@link Point} with minimum cost according to {@link Cost} function.
+     *         If there is no path from source to target, it maps to null.
      */
     Map<P, List<E>> route(P source, Set<P> targets, Cost<E> cost);
 
     /**
-     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source {@link Point} to each target
-     * {@link Point} with minimum cost according to {@link Cost} function. Search depth of routing
-     * can be bound by bounding {@link Cost} function and a maximum bounding cost value.
+     * Gets path, i.e. a sequence of {@link AbstractEdge}s, from source
+     * {@link Point} to each target {@link Point} with minimum cost according to
+     * {@link Cost} function. Search depth of routing can be bound by bounding
+     * {@link Cost} function and a maximum bounding cost value.
      *
-     * @param source Source {@link Point} in the graph.
-     * @param targets Set of target {@link Point}s in the graph.
-     * @param cost Custom {@link Cost} function.
-     * @param bound Bounding {@link Cost} function.
-     * @param max Maximum bounding cost value to bound search depth.
-     * @return Map of target {@link Point} to path, i.e. a sequence of {@link AbstractEdge}s, from
-     *         source {@link Point} to target {@link Point} with minimum cost according to
-     *         {@link Cost} function. If there is no path from source to target, it maps to null.
+     * @param source
+     *            Source {@link Point} in the graph.
+     * @param targets
+     *            Set of target {@link Point}s in the graph.
+     * @param cost
+     *            Custom {@link Cost} function.
+     * @param bound
+     *            Bounding {@link Cost} function.
+     * @param max
+     *            Maximum bounding cost value to bound search depth.
+     * @return Map of target {@link Point} to path, i.e. a sequence of
+     *         {@link AbstractEdge}s, from source {@link Point} to target
+     *         {@link Point} with minimum cost according to {@link Cost} function.
+     *         If there is no path from source to target, it maps to null.
      */
     Map<P, List<E>> route(P source, Set<P> targets, Cost<E> cost, Cost<E> bound, Double max);
 
     /**
-     * Gets path, i.e. a sequence of {@link AbstractEdge}s, to each target {@link Point} from
-     * exactly that source {@link Point} that has minimum cost according to {@link Cost} function.
+     * Gets path, i.e. a sequence of {@link AbstractEdge}s, to each target
+     * {@link Point} from exactly that source {@link Point} that has minimum cost
+     * according to {@link Cost} function.
      *
-     * @param sources Set of source {@link Point}s in the graph.
-     * @param targets Set of target {@link Point}s in the graph.
-     * @param cost Custom {@link Cost} function.
+     * @param sources
+     *            Set of source {@link Point}s in the graph.
+     * @param targets
+     *            Set of target {@link Point}s in the graph.
+     * @param cost
+     *            Custom {@link Cost} function.
      * @return Map of target {@link Point} to a tuple of path, i.e. a sequence of
-     *         {@link AbstractEdge}s, and source {@link Point} that have minimum cost according to
-     *         {@link Cost} function for reaching the target. If there is no path to target, it maps
-     *         to null.
+     *         {@link AbstractEdge}s, and source {@link Point} that have minimum
+     *         cost according to {@link Cost} function for reaching the target. If
+     *         there is no path to target, it maps to null.
      */
     Map<P, Tuple<P, List<E>>> route(Set<P> sources, Set<P> targets, Cost<E> cost);
 
     /**
-     * Gets path, i.e. a sequence of {@link AbstractEdge}s, to each target {@link Point} from
-     * exactly that source {@link Point} that has minimum cost according to {@link Cost} function.
-     * Search depth of routing can be bound by bounding {@link Cost} function and a maximum bounding
-     * cost value.
+     * Gets path, i.e. a sequence of {@link AbstractEdge}s, to each target
+     * {@link Point} from exactly that source {@link Point} that has minimum cost
+     * according to {@link Cost} function. Search depth of routing can be bound by
+     * bounding {@link Cost} function and a maximum bounding cost value.
      *
-     * @param sources Set of source {@link Point}s in the graph.
-     * @param targets Set of target {@link Point}s in the graph.
-     * @param cost Custom {@link Cost} function.
-     * @param bound Bounding {@link Cost} function.
-     * @param max Maximum bounding cost value to bound search depth.
+     * @param sources
+     *            Set of source {@link Point}s in the graph.
+     * @param targets
+     *            Set of target {@link Point}s in the graph.
+     * @param cost
+     *            Custom {@link Cost} function.
+     * @param bound
+     *            Bounding {@link Cost} function.
+     * @param max
+     *            Maximum bounding cost value to bound search depth.
      * @return Map of target {@link Point} to a tuple of path, i.e. a sequence of
-     *         {@link AbstractEdge}s, and source {@link Point} that have minimum cost according to
-     *         {@link Cost} function for reaching the target. If there is no path to target, it maps
-     *         to null.
+     *         {@link AbstractEdge}s, and source {@link Point} that have minimum
+     *         cost according to {@link Cost} function for reaching the target. If
+     *         there is no path to target, it maps to null.
      */
-    Map<P, Tuple<P, List<E>>> route(Set<P> sources, Set<P> targets, Cost<E> cost, Cost<E> bound,
-            Double max);
-    
-    /**
-     * Gets path, i.e. a sequence of {@link AbstractEdge}s, to each target {@link Point} from
-     * exactly that source {@link Point} that has minimum cost according to {@link Cost} function.
-     * Search depth of routing can be bound by bounding {@link Cost} function and a maximum bounding
-     * cost value.
-     *
-     * @param roadPoint Set of source {@link Point}s in the graph.
-     * @param targets Set of target {@link Point}s in the graph.
-     * @param cost Custom {@link Cost} function.
-     * @param bound Bounding {@link Cost} function.
-     * @param max Maximum bounding cost value to bound search depth.
-     * @param deltaTime maximum time to reach destiny.
-     * @param allowed increased speed to reach destiny.
-     * @return Map of target {@link Point} to a tuple of path, i.e. a sequence of
-     *         {@link AbstractEdge}s, and source {@link Point} that have minimum cost according to
-     *         {@link Cost} function for reaching the target. If there is no path to target, it maps
-     *         to null.
-     */
+    Map<P, Tuple<P, List<E>>> route(Set<P> sources, Set<P> targets, Cost<E> cost, Cost<E> bound, Double max);
 
-    Map<P, List<E>> route(P source, Set<P> targets, Cost<E> cost, Cost<E> bound, Double max, Double deltaTime, Double maxVelocity);
 }

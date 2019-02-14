@@ -18,12 +18,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bmwcarit.barefoot.roadmap.Road;
-import com.bmwcarit.barefoot.spatial.Geography;
-import com.bmwcarit.barefoot.spatial.SpatialOperator;
 
 /**
  * Path of edges in a graph.
@@ -35,8 +30,6 @@ public class Path<E extends AbstractEdge<E>> {
     private final Point<E> source;
     private Point<E> target;
     private final LinkedList<E> edges;
-    private final static SpatialOperator spatial = new Geography();
-    private static final Logger logger = LoggerFactory.getLogger(Path.class);
 
     public Path(Point<E> single) {
         this.source = single;

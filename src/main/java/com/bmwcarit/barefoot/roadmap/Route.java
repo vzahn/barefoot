@@ -22,14 +22,13 @@ import org.json.JSONObject;
 
 import com.bmwcarit.barefoot.spatial.Geography;
 import com.bmwcarit.barefoot.spatial.SpatialOperator;
-import com.bmwcarit.barefoot.topology.Cost;
 import com.bmwcarit.barefoot.topology.Path;
 import com.esri.core.geometry.Point;
 import com.esri.core.geometry.Polyline;
 
 /**
- * Route in a {@link Road} network that consists of a start and end {@link RoadPoint} and sequence
- * of {@link Road}s.
+ * Route in a {@link Road} network that consists of a start and end
+ * {@link RoadPoint} and sequence of {@link Road}s.
  */
 public class Route extends Path<Road> {
     private final static SpatialOperator spatial = new Geography();
@@ -39,10 +38,11 @@ public class Route extends Path<Road> {
     private Double velocity = null;
 
     /**
-     * Creates a {@link Route} object. (This is a base case that consists of only one
-     * {@link RoadPoint}.)
+     * Creates a {@link Route} object. (This is a base case that consists of only
+     * one {@link RoadPoint}.)
      *
-     * @param point {@link RoadPoint} that is start and end point.
+     * @param point
+     *            {@link RoadPoint} that is start and end point.
      */
     public Route(RoadPoint point) {
         super(point);
@@ -51,9 +51,12 @@ public class Route extends Path<Road> {
     /**
      * Creates a {@link Route} object.
      *
-     * @param source Source/start {@link RoadPoint} of the route.
-     * @param target Target/end {@link RoadPoint} of the route.
-     * @param roads Sequence of {@link Road}s that make the route.
+     * @param source
+     *            Source/start {@link RoadPoint} of the route.
+     * @param target
+     *            Target/end {@link RoadPoint} of the route.
+     * @param roads
+     *            Sequence of {@link Road}s that make the route.
      */
     public Route(RoadPoint source, RoadPoint target, List<Road> roads) {
         super(source, target, roads);
@@ -71,7 +74,8 @@ public class Route extends Path<Road> {
     /**
      * Gets {@link Road} by index of the sequence of {@link Road} objects.
      *
-     * @param index Index of the road to be returned from the sequence of roads.
+     * @param index
+     *            Index of the road to be returned from the sequence of roads.
      * @return Road at the given index.
      */
     public Road get(int index) {
@@ -79,8 +83,8 @@ public class Route extends Path<Road> {
     }
 
     /**
-     * Gets length of the {@link Route} in meters, uses cost function {@link Distance} to determine
-     * the length.
+     * Gets length of the {@link Route} in meters, uses cost function
+     * {@link Distance} to determine the length.
      *
      * @return Length of the {@link Route} in meters.
      */
@@ -92,10 +96,10 @@ public class Route extends Path<Road> {
             return length;
         }
     }
-    
+
     /**
-     * Gets velocity of the {@link Route} in m/s, uses cost function {@link Distance} to determine
-     * the velocity.
+     * Gets velocity of the {@link Route} in m/s, uses cost function
+     * {@link Distance} to determine the velocity.
      *
      * @return Velocity of the {@link Route} in m/s.
      */
@@ -103,13 +107,14 @@ public class Route extends Path<Road> {
         if (velocity != null) {
             return velocity;
         } else {
-        	velocity = this.cost(new Velocity()) / this.length();
+            velocity = this.cost(new Velocity()) / this.length();
             return velocity;
         }
     }
+
     /**
-     * Gets travel time for the {@link Route} in seconds, uses cost function {@link Time} to
-     * determine travel time.
+     * Gets travel time for the {@link Route} in seconds, uses cost function
+     * {@link Time} to determine travel time.
      *
      * @return Travel time of the {@link Route} in seconds.
      */
@@ -140,8 +145,9 @@ public class Route extends Path<Road> {
     }
 
     /**
-     * Gets geometry of the {@link Route} from start point to end point by concatenating the
-     * geometries of the roads in the route's road sequence respectively.
+     * Gets geometry of the {@link Route} from start point to end point by
+     * concatenating the geometries of the roads in the route's road sequence
+     * respectively.
      *
      * @return Geometry of the route.
      */
@@ -220,10 +226,14 @@ public class Route extends Path<Road> {
     /**
      * Creates a {@link Route} object from its JSON representation.
      *
-     * @param json JSON representation of the {@link Route}.
-     * @param map {@link RoadMap} object as the reference of {@link RoadPoint}s and {@link Road}s.
+     * @param json
+     *            JSON representation of the {@link Route}.
+     * @param map
+     *            {@link RoadMap} object as the reference of {@link RoadPoint}s and
+     *            {@link Road}s.
      * @return {@link Route} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public static Route fromJSON(JSONObject json, RoadMap map) throws JSONException {
         LinkedList<Road> roads = new LinkedList<>();
@@ -247,7 +257,8 @@ public class Route extends Path<Road> {
      * Gets a JSON representation of the {@link Route}.
      *
      * @return {@link JSONObject} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
@@ -264,13 +275,13 @@ public class Route extends Path<Road> {
 
         return json;
     }
-    public String toString() {
-	StringBuffer s = new StringBuffer();
-	for (Road e : path()) {
-		s.append(e.base().refid() + "-");
-	}
-    return s.toString();
-    }
 
+    public String toString() {
+        StringBuffer s = new StringBuffer();
+        for (Road e : path()) {
+            s.append(e.base().refid() + "-");
+        }
+        return s.toString();
+    }
 
 }

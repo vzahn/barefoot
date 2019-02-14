@@ -72,11 +72,9 @@ public class KStateTest {
         elements.put(1, new MockElem(1, Math.log10(0.2), 0.2, null));
         elements.put(2, new MockElem(2, Math.log10(0.5), 0.5, null));
 
-        KState<MockElem, StateTransition, Sample> state =
-                new KState<>();
+        KState<MockElem, StateTransition, Sample> state = new KState<>();
         {
-            Set<MockElem> vector = new HashSet<>(
-                    Arrays.asList(elements.get(0), elements.get(1), elements.get(2)));
+            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(0), elements.get(1), elements.get(2)));
 
             state.update(vector, new Sample(0));
 
@@ -90,8 +88,8 @@ public class KStateTest {
         elements.put(6, new MockElem(6, Math.log10(0.1), 0.1, elements.get(2)));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(3),
-                    elements.get(4), elements.get(5), elements.get(6)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(3), elements.get(4), elements.get(5), elements.get(6)));
 
             state.update(vector, new Sample(1));
 
@@ -110,8 +108,8 @@ public class KStateTest {
         elements.put(10, new MockElem(10, Math.log10(0.1), 0.1, elements.get(6)));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(7),
-                    elements.get(8), elements.get(9), elements.get(10)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(7), elements.get(8), elements.get(9), elements.get(10)));
 
             state.update(vector, new Sample(2));
 
@@ -130,8 +128,8 @@ public class KStateTest {
         elements.put(14, new MockElem(14, Math.log10(0.1), 0.1, null));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(11),
-                    elements.get(12), elements.get(13), elements.get(14)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(11), elements.get(12), elements.get(13), elements.get(14)));
 
             state.update(vector, new Sample(3));
 
@@ -165,11 +163,9 @@ public class KStateTest {
         elements.put(1, new MockElem(1, Math.log10(0.2), 0.2, null));
         elements.put(2, new MockElem(2, Math.log10(0.5), 0.5, null));
 
-        KState<MockElem, StateTransition, Sample> state =
-                new KState<>(1, -1);
+        KState<MockElem, StateTransition, Sample> state = new KState<>(1, -1, -1);
         {
-            Set<MockElem> vector = new HashSet<>(
-                    Arrays.asList(elements.get(0), elements.get(1), elements.get(2)));
+            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(0), elements.get(1), elements.get(2)));
 
             state.update(vector, new Sample(0));
 
@@ -183,8 +179,8 @@ public class KStateTest {
         elements.put(6, new MockElem(6, Math.log10(0.1), 0.1, elements.get(2)));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(3),
-                    elements.get(4), elements.get(5), elements.get(6)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(3), elements.get(4), elements.get(5), elements.get(6)));
 
             state.update(vector, new Sample(1));
 
@@ -203,8 +199,8 @@ public class KStateTest {
         elements.put(10, new MockElem(10, Math.log10(0.1), 0.1, elements.get(6)));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(7),
-                    elements.get(8), elements.get(9), elements.get(10)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(7), elements.get(8), elements.get(9), elements.get(10)));
 
             state.update(vector, new Sample(2));
 
@@ -223,8 +219,8 @@ public class KStateTest {
         elements.put(14, new MockElem(14, Math.log10(0.1), 0.1, null));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(11),
-                    elements.get(12), elements.get(13), elements.get(14)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(11), elements.get(12), elements.get(13), elements.get(14)));
 
             state.update(vector, new Sample(3));
 
@@ -258,11 +254,9 @@ public class KStateTest {
         elements.put(1, new MockElem(1, Math.log10(0.2), 0.2, null));
         elements.put(2, new MockElem(2, Math.log10(0.5), 0.5, null));
 
-        KState<MockElem, StateTransition, Sample> state =
-                new KState<>(-1, 1);
+        KState<MockElem, StateTransition, Sample> state = new KState<>(-1, 1, -1);
         {
-            Set<MockElem> vector = new HashSet<>(
-                    Arrays.asList(elements.get(0), elements.get(1), elements.get(2)));
+            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(0), elements.get(1), elements.get(2)));
 
             state.update(vector, new Sample(0));
 
@@ -276,8 +270,8 @@ public class KStateTest {
         elements.put(6, new MockElem(6, Math.log10(0.1), 0.1, elements.get(2)));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(3),
-                    elements.get(4), elements.get(5), elements.get(6)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(3), elements.get(4), elements.get(5), elements.get(6)));
 
             state.update(vector, new Sample(1));
 
@@ -296,8 +290,8 @@ public class KStateTest {
         elements.put(10, new MockElem(10, Math.log10(0.1), 0.1, elements.get(6)));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(7),
-                    elements.get(8), elements.get(9), elements.get(10)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(7), elements.get(8), elements.get(9), elements.get(10)));
 
             state.update(vector, new Sample(2));
 
@@ -316,8 +310,8 @@ public class KStateTest {
         elements.put(14, new MockElem(14, Math.log10(0.1), 0.1, null));
 
         {
-            Set<MockElem> vector = new HashSet<>(Arrays.asList(elements.get(11),
-                    elements.get(12), elements.get(13), elements.get(14)));
+            Set<MockElem> vector = new HashSet<>(
+                    Arrays.asList(elements.get(11), elements.get(12), elements.get(13), elements.get(14)));
 
             state.update(vector, new Sample(3));
 
@@ -348,8 +342,7 @@ public class KStateTest {
     public void TestKStateJSON() throws JSONException {
         Map<Integer, MockElem> elements = new HashMap<>();
 
-        KState<MockElem, StateTransition, Sample> state =
-                new KState<>(1, -1);
+        KState<MockElem, StateTransition, Sample> state = new KState<>(1, -1, -1);
 
         {
             JSONObject json = state.toJSON();
@@ -360,10 +353,7 @@ public class KStateTest {
         elements.put(1, new MockElem(1, Math.log10(0.2), 0.2, null));
         elements.put(2, new MockElem(2, Math.log10(0.5), 0.5, null));
 
-        state.update(
-                new HashSet<>(
-                        Arrays.asList(elements.get(0), elements.get(1), elements.get(2))),
-                new Sample(0));
+        state.update(new HashSet<>(Arrays.asList(elements.get(0), elements.get(1), elements.get(2))), new Sample(0));
 
         {
             JSONObject json = state.toJSON();
@@ -381,8 +371,7 @@ public class KStateTest {
         elements.put(5, new MockElem(5, Math.log10(0.4), 0.4, elements.get(2)));
         elements.put(6, new MockElem(6, Math.log10(0.1), 0.1, elements.get(2)));
 
-        state.update(new HashSet<>(
-                Arrays.asList(elements.get(3), elements.get(4), elements.get(5), elements.get(6))),
+        state.update(new HashSet<>(Arrays.asList(elements.get(3), elements.get(4), elements.get(5), elements.get(6))),
                 new Sample(1));
 
         {
@@ -401,8 +390,7 @@ public class KStateTest {
         elements.put(9, new MockElem(9, Math.log10(0.4), 0.4, elements.get(6)));
         elements.put(10, new MockElem(10, Math.log10(0.1), 0.1, elements.get(6)));
 
-        state.update(new HashSet<>(
-                Arrays.asList(elements.get(7), elements.get(8), elements.get(9), elements.get(10))),
+        state.update(new HashSet<>(Arrays.asList(elements.get(7), elements.get(8), elements.get(9), elements.get(10))),
                 new Sample(2));
 
         {
@@ -421,15 +409,15 @@ public class KStateTest {
         elements.put(13, new MockElem(13, Math.log10(0.4), 0.4, null));
         elements.put(14, new MockElem(14, Math.log10(0.1), 0.1, null));
 
-        state.update(new HashSet<>(Arrays.asList(elements.get(11), elements.get(12),
-                elements.get(13), elements.get(14))), new Sample(3));
+        state.update(
+                new HashSet<>(Arrays.asList(elements.get(11), elements.get(12), elements.get(13), elements.get(14))),
+                new Sample(3));
 
         state.update(new HashSet<MockElem>(), new Sample(4));
 
         {
             JSONObject json = state.toJSON();
-            KState<MockElem, StateTransition, Sample> state2 =
-                    new KState<>(json, new MockFactory());
+            KState<MockElem, StateTransition, Sample> state2 = new KState<>(json, new MockFactory());
 
             assertEquals(state.size(), state2.size());
             assertEquals(5, state2.size());

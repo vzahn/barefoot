@@ -361,13 +361,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
         final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
         final double bound = distance;
-        final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
-        final double maxOverSpeed = maxVelocity;
 
         if (sync) {
             for (final MatcherCandidate predecessor : predecessors.two()) {
                 Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
-                        bound, deltaTime, maxOverSpeed);
+                        bound);
 
                 transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
             }
@@ -384,7 +382,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                         Stopwatch sw = new Stopwatch();
                         sw.start();
                         Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost,
-                                new Distance(), bound, deltaTime, maxOverSpeed);
+                                new Distance(), bound);
                         sw.stop();
                         logger.trace("{} routes ({} ms)", routes.size(), sw.ms());
 

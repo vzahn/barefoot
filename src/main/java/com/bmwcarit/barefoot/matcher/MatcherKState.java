@@ -25,14 +25,14 @@ import com.esri.core.geometry.Polyline;
 import com.esri.core.geometry.WktExportFlags;
 
 /**
- * <i>k</i>-State data structure wrapper of {@link KState} for organizing state memory in HMM map
- * matching.
+ * <i>k</i>-State data structure wrapper of {@link KState} for organizing state
+ * memory in HMM map matching.
  */
 public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, MatcherSample> {
 
     /**
-     * Creates empty {@link MatcherKState} object with default parameters, which means capacity is
-     * unbound.
+     * Creates empty {@link MatcherKState} object with default parameters, which
+     * means capacity is unbound.
      */
     public MatcherKState() {
         super();
@@ -41,32 +41,46 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
     /**
      * Creates a {@link MatcherKState} object from a JSON representation.
      *
-     * @param json JSON representation of a {@link MatcherKState} object.
-     * @param factory {@link MatcherFactory} for creation of matcher candidates and transitions.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @param json
+     *            JSON representation of a {@link MatcherKState} object.
+     * @param factory
+     *            {@link MatcherFactory} for creation of matcher candidates and
+     *            transitions.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public MatcherKState(JSONObject json, MatcherFactory factory) throws JSONException {
         super(json, factory);
+
     }
 
     /**
-     * Creates an empty {@link MatcherKState} object and sets <i>&kappa;</i> and <i>&tau;</i>
-     * parameters.
+     * Creates an empty {@link MatcherKState} object and sets <i>&kappa;</i> and
+     * <i>&tau;</i> parameters.
      *
-     * @param k <i>&kappa;</i> parameter bounds the length of the state sequence to at most
-     *        <i>&kappa;+1</i> states, if <i>&kappa; &ge; 0</i>.
-     * @param t <i>&tau;</i> parameter bounds length of the state sequence to contain only states
-     *        for the past <i>&tau;</i> milliseconds.
+     * @param k
+     *            <i>&kappa;</i> parameter bounds the length of the state sequence
+     *            to at most <i>&kappa;+1</i> states, if <i>&kappa; &ge; 0</i>.
+     * @param t
+     *            <i>&tau;</i> parameter bounds length of the state sequence to
+     *            contain only states for the past <i>&tau;</i> milliseconds.
+     * 
+     * @param m
+     *            parameter bounds length of counter to contain only limited
+     *            candidates, amount m.
      */
-    public MatcherKState(int k, long t) {
-        super(k, t);
+    public MatcherKState(int k, long t, int m) {
+        super(k, t, m);
     }
 
     /**
-     * Gets {@link JSONObject} with GeoJSON format of {@link MatcherKState} matched geometries.
+     * Gets {@link JSONObject} with GeoJSON format of {@link MatcherKState} matched
+     * geometries.
      *
-     * @return {@link JSONObject} with GeoJSON format of {@link MatcherKState} matched geometries.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @return {@link JSONObject} with GeoJSON format of {@link MatcherKState}
+     *         matched geometries.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONObject toGeoJSON() throws JSONException {
         JSONObject json = new JSONObject();
@@ -77,8 +91,8 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
                 if (candidate.transition() == null) {
                     continue;
                 }
-                JSONObject jsoncandidate = new JSONObject(GeometryEngine
-                        .geometryToGeoJson(candidate.transition().route().geometry()));
+                JSONObject jsoncandidate = new JSONObject(
+                        GeometryEngine.geometryToGeoJson(candidate.transition().route().geometry()));
                 jsonsequence.put(jsoncandidate.getJSONArray("coordinates"));
             }
         }
@@ -87,12 +101,14 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
     }
 
     /**
-     * Gets JSON format String of {@link MatcherKState}, includes {@link JSONArray} String of
-     * samples and {@link JSONArray} String of of matching results.
+     * Gets JSON format String of {@link MatcherKState}, includes {@link JSONArray}
+     * String of samples and {@link JSONArray} String of of matching results.
      *
-     * @return JSON format String of {@link MatcherKState}, includes {@link JSONArray} String of
-     *         samples and {@link JSONArray} String of of matching results.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @return JSON format String of {@link MatcherKState}, includes
+     *         {@link JSONArray} String of samples and {@link JSONArray} String of
+     *         of matching results.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public String toDebugJSON() throws JSONException {
         StringBuilder output = new StringBuilder();
@@ -102,8 +118,8 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
             for (int i = 0; i < this.samples().size(); ++i) {
                 JSONObject jsonsample = new JSONObject();
                 jsonsample.put("id", this.samples().get(i).id());
-                jsonsample.put("geom", GeometryEngine.geometryToWkt(this.samples().get(i).point(),
-                        WktExportFlags.wktExportPoint));
+                jsonsample.put("geom",
+                        GeometryEngine.geometryToWkt(this.samples().get(i).point(), WktExportFlags.wktExportPoint));
                 jsonsample.put("time", this.samples().get(i).time() / 1000);
                 jsonsamples.put(jsonsample);
             }
@@ -118,12 +134,11 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
                 JSONObject jsoncandidate = candidate.toJSON();
                 jsoncandidate.put("time", this.samples().get(i).time() / 1000);
                 if (candidate.transition() != null) {
-                    jsoncandidate.put("geom",
-                            GeometryEngine.geometryToWkt(candidate.transition().route().geometry(),
-                                    WktExportFlags.wktExportLineString));
+                    jsoncandidate.put("geom", GeometryEngine.geometryToWkt(candidate.transition().route().geometry(),
+                            WktExportFlags.wktExportLineString));
                 } else {
-                    jsoncandidate.put("geom", GeometryEngine.geometryToWkt(
-                            candidate.point().geometry(), WktExportFlags.wktExportPoint));
+                    jsoncandidate.put("geom",
+                            GeometryEngine.geometryToWkt(candidate.point().geometry(), WktExportFlags.wktExportPoint));
                 }
                 jsonsequence.put(jsoncandidate);
             }
@@ -134,12 +149,14 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
     }
 
     /**
-     * Gets {@link JSONArray} of {@link MatcherKState} with map matched positions, represented by
-     * road id and fraction, and the geometry of the routes.
+     * Gets {@link JSONArray} of {@link MatcherKState} with map matched positions,
+     * represented by road id and fraction, and the geometry of the routes.
      *
-     * @return {@link JSONArray} of {@link MatcherKState} with map matched positions, represented by
-     *         road id and fraction, and the geometry of the routes.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @return {@link JSONArray} of {@link MatcherKState} with map matched
+     *         positions, represented by road id and fraction, and the geometry of
+     *         the routes.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONArray toSlimJSON() throws JSONException {
         JSONArray json = new JSONArray();
@@ -147,9 +164,8 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
             for (MatcherCandidate candidate : this.sequence()) {
                 JSONObject jsoncandidate = candidate.point().toJSON();
                 if (candidate.transition() != null) {
-                    jsoncandidate.put("route",
-                            GeometryEngine.geometryToWkt(candidate.transition().route().geometry(),
-                                    WktExportFlags.wktExportLineString));
+                    jsoncandidate.put("route", GeometryEngine.geometryToWkt(candidate.transition().route().geometry(),
+                            WktExportFlags.wktExportLineString));
                 }
                 json.put(jsoncandidate);
             }
@@ -177,29 +193,26 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
     public JSONObject toMonitorJSON() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("time", sample().time());
-        json.put("point", GeometryEngine.geometryToWkt(estimate().point().geometry(),
-                WktExportFlags.wktExportPoint));
+        json.put("point", GeometryEngine.geometryToWkt(estimate().point().geometry(), WktExportFlags.wktExportPoint));
         Polyline routes = monitorRoute(estimate());
         if (routes.getPathCount() > 0) {
-            json.put("route",
-                    GeometryEngine.geometryToWkt(routes, WktExportFlags.wktExportMultiLineString));
+            json.put("route", GeometryEngine.geometryToWkt(routes, WktExportFlags.wktExportMultiLineString));
         }
 
         JSONArray candidates = new JSONArray();
         for (MatcherCandidate candidate : vector()) {
-        	if (candidate.filtprob() < 0.1)
-        		continue;
-        	
+            if (candidate.filtprob() < 0.1)
+                continue;
+
             JSONObject jsoncandidate = new JSONObject();
-            jsoncandidate.put("point", GeometryEngine.geometryToWkt(candidate.point().geometry(),
-                    WktExportFlags.wktExportPoint));
-            jsoncandidate.put("prob",
-                    Double.isInfinite(candidate.filtprob()) ? "Infinity" : candidate.filtprob());
+            jsoncandidate.put("point",
+                    GeometryEngine.geometryToWkt(candidate.point().geometry(), WktExportFlags.wktExportPoint));
+            jsoncandidate.put("prob", Double.isInfinite(candidate.filtprob()) ? "Infinity" : candidate.filtprob());
 
             routes = monitorRoute(candidate);
             if (routes.getPathCount() > 0) {
-                jsoncandidate.put("route", GeometryEngine.geometryToWkt(routes,
-                        WktExportFlags.wktExportMultiLineString));
+                jsoncandidate.put("route",
+                        GeometryEngine.geometryToWkt(routes, WktExportFlags.wktExportMultiLineString));
             }
             candidates.put(jsoncandidate);
         }
@@ -219,8 +232,7 @@ public class MatcherKState extends KState<MatcherCandidate, MatcherTransition, M
 
             for (int i = 0; i < candidates.length(); ++i) {
                 {
-                    JSONObject point = candidates.getJSONObject(i).getJSONObject("candidate")
-                            .getJSONObject("point");
+                    JSONObject point = candidates.getJSONObject(i).getJSONObject("candidate").getJSONObject("point");
                     Road road = map.get(point.getLong("road"));
                     if (road == null) {
                         throw new JSONException("road not found in map");
