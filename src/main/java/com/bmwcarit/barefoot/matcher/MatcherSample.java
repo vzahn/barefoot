@@ -33,6 +33,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     private final boolean gpsOutage;
     private final double velocity;
     private final double accuracy;
+    private final String traceId;
 
     /**
      * Creates a {@link MatcherSample} object with measured position and time of
@@ -59,7 +60,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      *            Azimuth of measurement sample.
      */
     public MatcherSample(long time, Point point, double azimuth) {
-        this("", time, point, azimuth, false, Double.NaN, Double.NaN);
+        this("", time, point, azimuth, false, Double.NaN, Double.NaN, null);
     }
 
     /**
@@ -74,7 +75,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      *            Point of measured position.
      */
     public MatcherSample(String id, long time, Point point) {
-        this(id, time, point, Double.NaN, false, Double.NaN, Double.NaN);
+        this(id, time, point, Double.NaN, false, Double.NaN, Double.NaN, null);
     }
 
     /**
@@ -91,7 +92,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      *            Azimuth of measurement sample.
      */
     public MatcherSample(String id, long time, Point point, double azimuth) {
-        this(id, time, point, azimuth, false, Double.NaN, Double.NaN);
+        this(id, time, point, azimuth, false, Double.NaN, Double.NaN, null);
     }
 
     /**
@@ -110,7 +111,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      *            GPS regained signal.
      */
     public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage) {
-        this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
+        this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN, null);
     }
 
     /**
@@ -131,7 +132,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      *            speed of vehicle in meter per second
      */
     public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage, double velocity) {
-        this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN);
+        this(id, time, point, azimuth, gpsOutage, Double.NaN, Double.NaN, null);
     }
 
     /**
@@ -154,7 +155,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      *            standard deviation of this sample
      */
     public MatcherSample(String id, long time, Point point, double azimuth, boolean gpsOutage, double velocity,
-            double accuracy) {
+            double accuracy, String traceId) {
         super(time);
         this.id = id;
         this.point = point;
@@ -162,6 +163,7 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
         this.gpsOutage = gpsOutage;
         this.velocity = velocity;
         this.accuracy = accuracy;
+        this.traceId = traceId;
     }
 
     /**
@@ -198,6 +200,11 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
         } else {
             accuracy = Double.NaN;
         }
+        if (json.has("traceId")) {
+            traceId = json.getString("traceId");
+        } else {
+            traceId = null;
+        }
     }
 
     private static double norm(double azimuth) {
@@ -232,23 +239,14 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
         return azimuth;
     }
 
-    /**
-     * @return the gpsOutage
-     */
     public boolean isGpsOutage() {
         return gpsOutage;
     }
 
-    /**
-     * @return the velocity
-     */
     public double getVelocity() {
         return velocity;
     }
 
-    /**
-     * @return the accuracy
-     */
     public double getAccuracy() {
         return accuracy;
     }
@@ -268,6 +266,9 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
         if (!Double.isNaN(accuracy)) {
             json.put("accuracy", accuracy);
         }
+        if (traceId != null && !traceId.isEmpty()) {
+            json.put("traceId", traceId);
+        }
         return json;
     }
 
@@ -275,6 +276,10 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     public String toString() {
         String s = "point: " + this.point().getX() + ", " + this.point().getY() + ", time:" + this.time();
         return s;
+    }
+
+    public String getTraceId() {
+        return traceId;
     }
 
 }
