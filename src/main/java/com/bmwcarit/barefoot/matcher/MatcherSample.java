@@ -274,7 +274,8 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
 
     @Override
     public String toString() {
-        String s = "point: " + this.point().getX() + ", " + this.point().getY() + ", time:" + this.time();
+        String s = "point: " + this.point().getX() + ", " + this.point().getY() + ", time:" + this.time() + ", traceID:"
+                + this.getTraceId();
         return s;
     }
 
