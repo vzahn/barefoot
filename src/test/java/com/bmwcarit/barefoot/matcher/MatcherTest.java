@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -33,9 +32,7 @@ import com.bmwcarit.barefoot.road.RoadReader;
 import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.RoadPoint;
-import com.bmwcarit.barefoot.roadmap.Route;
 import com.bmwcarit.barefoot.roadmap.Time;
-import com.bmwcarit.barefoot.roadmap.TimePriority;
 import com.bmwcarit.barefoot.spatial.Geography;
 import com.bmwcarit.barefoot.spatial.SpatialOperator;
 import com.bmwcarit.barefoot.topology.Cost;
@@ -64,13 +61,13 @@ public class MatcherTest {
             }
         };
 
-        private Set<Entry> entries = new HashSet<>(Arrays.asList(
-                new Entry(0L, 0L, 1L, false, "LINESTRING(11.000 48.000, 11.010 48.000)"),
-                new Entry(1L, 1L, 2L, false, "LINESTRING(11.010 48.000, 11.020 48.000)"),
-                new Entry(2L, 2L, 3L, false, "LINESTRING(11.020 48.000, 11.030 48.000)"),
-                new Entry(3L, 1L, 4L, true, "LINESTRING(11.010 48.000, 11.011 47.999)"),
-                new Entry(4L, 4L, 5L, true, "LINESTRING(11.011 47.999, 11.021 47.999)"),
-                new Entry(5L, 5L, 6L, true, "LINESTRING(11.021 47.999, 11.021 48.010)")));
+        private Set<Entry> entries = new HashSet<>(
+                Arrays.asList(new Entry(0L, 0L, 1L, false, "LINESTRING(11.000 48.000, 11.010 48.000)"),
+                        new Entry(1L, 1L, 2L, false, "LINESTRING(11.010 48.000, 11.020 48.000)"),
+                        new Entry(2L, 2L, 3L, false, "LINESTRING(11.020 48.000, 11.030 48.000)"),
+                        new Entry(3L, 1L, 4L, true, "LINESTRING(11.010 48.000, 11.011 47.999)"),
+                        new Entry(4L, 4L, 5L, true, "LINESTRING(11.011 47.999, 11.021 47.999)"),
+                        new Entry(5L, 5L, 6L, true, "LINESTRING(11.021 47.999, 11.021 48.010)")));
 
         private Iterator<BaseRoad> iterator = null;
 
@@ -87,9 +84,8 @@ public class MatcherTest {
                 for (Entry entry : entries) {
                     Polyline geometry = (Polyline) GeometryEngine.geometryFromWkt(entry.five(),
                             WktImportFlags.wktImportDefaults, Type.Polyline);
-                    roads.add(new BaseRoad(entry.one(), entry.two(), entry.three(), entry.one(),
-                            entry.four(), (short) 0, 1.0f, 100.0f, 100.0f,
-                            (float) spatial.length(geometry), geometry));
+                    roads.add(new BaseRoad(entry.one(), entry.two(), entry.three(), entry.one(), entry.four(),
+                            (short) 0, 1.0f, 100.0f, 100.0f, (float) spatial.length(geometry), geometry));
                 }
             }
 
@@ -129,30 +125,6 @@ public class MatcherTest {
         assertEquals(p, candidate.two(), 10E-6);
     }
 
-    private void assertTransition(Tuple<MatcherTransition, Double> transition,
-            Tuple<MatcherCandidate, MatcherSample> source,
-            Tuple<MatcherCandidate, MatcherSample> target, double lambda) {
-        List<Road> edges = router.route(source.one().point(), target.one().point(), cost);
-
-        if (edges == null) {
-            // fail();
-        }
-
-        Route route = new Route(source.one().point(), target.one().point(), edges);
-
-        assertEquals(route.length(), transition.one().route().length(), 10E-6);
-        assertEquals(route.source().edge().id(), transition.one().route().source().edge().id());
-        assertEquals(route.target().edge().id(), transition.one().route().target().edge().id());
-
-        double beta = lambda == 0 ? (2.0 * (target.two().time() - source.two().time()) / 1000)
-                : 1 / lambda;
-        double base = 1.0 * spatial.distance(source.two().point(), target.two().point()) / 60;
-        double p = (1 / beta)
-                * Math.exp((-1.0) * Math.max(0, route.cost(new TimePriority()) - base) / beta);
-
-        assertEquals(transition.two(), p, 10E-6);
-    }
-
     @SuppressWarnings("unused")
     private Set<Long> refset(Point sample, double radius) {
         Set<Long> refset = new HashSet<>();
@@ -177,8 +149,8 @@ public class MatcherTest {
             filter.setMaxRadius(100);
             Point sample = new Point(11.001, 48.001);
 
-            Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                    .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
+            Set<Tuple<MatcherCandidate, Double>> candidates = filter.candidates(new HashSet<MatcherCandidate>(),
+                    new MatcherSample(0, sample));
 
             assertEquals(0, candidates.size());
         }
@@ -187,8 +159,8 @@ public class MatcherTest {
             filter.setMaxRadius(radius);
             Point sample = new Point(11.001, 48.001);
 
-            Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                    .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
+            Set<Tuple<MatcherCandidate, Double>> candidates = filter.candidates(new HashSet<MatcherCandidate>(),
+                    new MatcherSample(0, sample));
 
             Set<Long> refset = new HashSet<>(Arrays.asList(0L, 1L));
             Set<Long> set = new HashSet<>();
@@ -207,8 +179,8 @@ public class MatcherTest {
             filter.setMaxRadius(radius);
             Point sample = new Point(11.010, 48.000);
 
-            Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                    .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
+            Set<Tuple<MatcherCandidate, Double>> candidates = filter.candidates(new HashSet<MatcherCandidate>(),
+                    new MatcherSample(0, sample));
 
             Set<Long> refset = new HashSet<>(Arrays.asList(0L, 3L));
             Set<Long> set = new HashSet<>();
@@ -228,8 +200,8 @@ public class MatcherTest {
             filter.setMaxRadius(radius);
             Point sample = new Point(11.011, 48.001);
 
-            Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                    .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
+            Set<Tuple<MatcherCandidate, Double>> candidates = filter.candidates(new HashSet<MatcherCandidate>(),
+                    new MatcherSample(0, sample));
 
             Set<Long> refset = new HashSet<>(Arrays.asList(0L, 2L, 3L));
             Set<Long> set = new HashSet<>();
@@ -249,8 +221,8 @@ public class MatcherTest {
             filter.setMaxRadius(radius);
             Point sample = new Point(11.011, 48.001);
 
-            Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                    .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
+            Set<Tuple<MatcherCandidate, Double>> candidates = filter.candidates(new HashSet<MatcherCandidate>(),
+                    new MatcherSample(0, sample));
 
             Set<Long> refset = new HashSet<>(Arrays.asList(0L, 2L, 3L, 8L));
             Set<Long> set = new HashSet<>();
@@ -270,8 +242,8 @@ public class MatcherTest {
             filter.setMaxRadius(radius);
             Point sample = new Point(11.019, 48.001);
 
-            Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                    .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
+            Set<Tuple<MatcherCandidate, Double>> candidates = filter.candidates(new HashSet<MatcherCandidate>(),
+                    new MatcherSample(0, sample));
 
             Set<Long> refset = new HashSet<>(Arrays.asList(2L, 3L, 5L, 10L));
             Set<Long> set = new HashSet<>();
@@ -299,34 +271,27 @@ public class MatcherTest {
             Set<MatcherCandidate> predecessors = new HashSet<>();
             Set<MatcherCandidate> candidates = new HashSet<>();
 
-            for (Tuple<MatcherCandidate, Double> candidate : filter
-                    .candidates(new HashSet<MatcherCandidate>(), sample1)) {
+            for (Tuple<MatcherCandidate, Double> candidate : filter.candidates(new HashSet<MatcherCandidate>(),
+                    sample1)) {
                 predecessors.add(candidate.one());
             }
 
-            for (Tuple<MatcherCandidate, Double> candidate : filter
-                    .candidates(new HashSet<MatcherCandidate>(), sample2)) {
+            for (Tuple<MatcherCandidate, Double> candidate : filter.candidates(new HashSet<MatcherCandidate>(),
+                    sample2)) {
                 candidates.add(candidate.one());
             }
 
             assertEquals(2, predecessors.size());
             assertEquals(4, candidates.size());
 
-            Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions =
-                    filter.transitions(new Tuple<>(sample1, predecessors),
-                            new Tuple<>(sample2, candidates));
+            Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = filter
+                    .transitions(new Tuple<>(sample1, predecessors), new Tuple<>(sample2, candidates));
 
             assertEquals(2, transitions.size());
 
             for (Entry<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> source : transitions
                     .entrySet()) {
                 assertEquals(4, source.getValue().size());
-
-                for (Entry<MatcherCandidate, Tuple<MatcherTransition, Double>> target : source
-                        .getValue().entrySet()) {
-                    assertTransition(target.getValue(), new Tuple<>(source.getKey(), sample1),
-                            new Tuple<>(target.getKey(), sample2), filter.getLambda());
-                }
 
             }
         }
@@ -337,22 +302,21 @@ public class MatcherTest {
             Set<MatcherCandidate> predecessors = new HashSet<>();
             Set<MatcherCandidate> candidates = new HashSet<>();
 
-            for (Tuple<MatcherCandidate, Double> candidate : filter
-                    .candidates(new HashSet<MatcherCandidate>(), sample1)) {
+            for (Tuple<MatcherCandidate, Double> candidate : filter.candidates(new HashSet<MatcherCandidate>(),
+                    sample1)) {
                 predecessors.add(candidate.one());
             }
 
-            for (Tuple<MatcherCandidate, Double> candidate : filter
-                    .candidates(new HashSet<MatcherCandidate>(), sample2)) {
+            for (Tuple<MatcherCandidate, Double> candidate : filter.candidates(new HashSet<MatcherCandidate>(),
+                    sample2)) {
                 candidates.add(candidate.one());
             }
 
             assertEquals(4, predecessors.size());
             assertEquals(2, candidates.size());
 
-            Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions =
-                    filter.transitions(new Tuple<>(sample1, predecessors),
-                            new Tuple<>(sample2, candidates));
+            Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = filter
+                    .transitions(new Tuple<>(sample1, predecessors), new Tuple<>(sample2, candidates));
 
             assertEquals(4, transitions.size());
 
@@ -364,11 +328,6 @@ public class MatcherTest {
                     assertEquals(2, source.getValue().size());
                 }
 
-                for (Entry<MatcherCandidate, Tuple<MatcherTransition, Double>> target : source
-                        .getValue().entrySet()) {
-                    assertTransition(target.getValue(), new Tuple<>(source.getKey(), sample1),
-                            new Tuple<>(target.getKey(), sample2), filter.getLambda());
-                }
             }
         }
     }

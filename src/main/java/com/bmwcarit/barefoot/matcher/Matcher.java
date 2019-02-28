@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +34,9 @@ import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.RoadPoint;
 import com.bmwcarit.barefoot.roadmap.Route;
-import com.bmwcarit.barefoot.scheduler.StaticScheduler;
-import com.bmwcarit.barefoot.scheduler.StaticScheduler.InlineScheduler;
-import com.bmwcarit.barefoot.scheduler.Task;
 import com.bmwcarit.barefoot.spatial.SpatialOperator;
 import com.bmwcarit.barefoot.topology.Cost;
 import com.bmwcarit.barefoot.topology.Router;
-import com.bmwcarit.barefoot.util.Stopwatch;
 import com.bmwcarit.barefoot.util.Tuple;
 import com.esri.core.geometry.GeometryEngine;
 import com.esri.core.geometry.WktExportFlags;
@@ -68,7 +63,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double maxVelocity = 1.85;
     private double transitionFactor = 2;
     private double transitionDistance = 800d;
-    private boolean sync = false;
     private double gpsOutageFactor = 0.0d;
 
     /**
@@ -198,14 +192,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
     public void setMaxVelocity(double maxVelocity) {
         this.maxVelocity = maxVelocity;
-    }
-
-    public boolean isSync() {
-        return sync;
-    }
-
-    public void setSync(boolean sync) {
-        this.sync = sync;
     }
 
     /**
@@ -357,48 +343,17 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             targets.add(candidate.point());
         }
 
-        final AtomicInteger count = new AtomicInteger();
         final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
         final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
         final double bound = distance;
+        final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
+        final double maxOverSpeed = maxVelocity;
 
-        if (sync) {
-            for (final MatcherCandidate predecessor : predecessors.two()) {
-                Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
-                        bound);
+        for (final MatcherCandidate predecessor : predecessors.two()) {
+            Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(), bound,
+                    deltaTime, maxOverSpeed);
 
-                transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
-            }
-
-        } else {
-            Stopwatch sw = new Stopwatch();
-            sw.start();
-            InlineScheduler scheduler = StaticScheduler.scheduler();
-            for (final MatcherCandidate predecessor : predecessors.two()) {
-                scheduler.spawn(new Task() {
-                    @Override
-                    public void run() {
-
-                        Stopwatch sw = new Stopwatch();
-                        sw.start();
-                        Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost,
-                                new Distance(), bound);
-                        sw.stop();
-                        logger.trace("{} routes ({} ms)", routes.size(), sw.ms());
-
-                        transitions.put(predecessor,
-                                addTransitions(candidates, predecessor, base, routes, predecessors.one()));
-                        count.incrementAndGet();
-                    }
-
-                });
-            }
-            if (!scheduler.sync()) {
-                throw new RuntimeException();
-            }
-
-            sw.stop();
-            logger.trace("{} transitions ({} ms)", count.get(), sw.ms());
+            transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
         }
 
         return transitions;

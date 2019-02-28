@@ -20,13 +20,12 @@ import com.bmwcarit.barefoot.topology.Cost;
  */
 public class TimeSpeed extends Cost<Road> {
     private static final Distance distance = new Distance();
-    private final double maxSpeed;
-    private static final float minimum_speed = 20;
-    
+    private final double maxSpeed; // in km/h, e.g. 300
+
     public TimeSpeed(double maxSpeed) {
-		this.maxSpeed = maxSpeed;
-	}
-    
+        this.maxSpeed = maxSpeed;
+    }
+
     /**
      * Gets traveling time for passing the road.
      *
@@ -34,8 +33,7 @@ public class TimeSpeed extends Cost<Road> {
      */
     @Override
     public double cost(Road road) {
-        return (distance.cost(road) * 3.6 / Math.max(road.maxspeed()*maxSpeed, minimum_speed));
+        return (distance.cost(road) * 3.6 / maxSpeed);
     }
-    
-    
+
 }
