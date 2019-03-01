@@ -375,8 +375,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 if (edges.get(0).base().id() == edges.get(1).base().id() && edges.get(0).id() != edges.get(1).id()) {
                     RoadPoint start = predecessor.point(), end = candidate.point();
                     RoadPoint startOrg = predecessor.point(), endOrg = candidate.point();
-                    ;
-
                     // Here, additional cost of 5 meters are added to the route
                     // length in order to penalize and avoid turns, e.g., at the end
                     // of a trace.
@@ -411,7 +409,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                         }
                     }
                     routeForCostFunction = new Route(start, end, edges);
-                    route = new Route(startOrg, endOrg, edges);
+                    route = new Route(start, end, edges);
                 }
             }
 
