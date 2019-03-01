@@ -374,7 +374,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             if (edges.size() >= 2) {
                 if (edges.get(0).base().id() == edges.get(1).base().id() && edges.get(0).id() != edges.get(1).id()) {
                     RoadPoint start = predecessor.point(), end = candidate.point();
-                    RoadPoint startOrg = predecessor.point(), endOrg = candidate.point();
                     // Here, additional cost of 5 meters are added to the route
                     // length in order to penalize and avoid turns, e.g., at the end
                     // of a trace.
@@ -387,11 +386,10 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                         if (start.edge().heading() == Heading.backward) {
                             start = new RoadPoint(edges.get(1),
                                     Math.max(0d, 1 - (start.fraction() + (uTurnPenalty / edges.get(1).length()))));
-                            startOrg = new RoadPoint(edges.get(1), Math.max(0d, 1 - start.fraction()));
+
                         } else {
                             start = new RoadPoint(edges.get(1),
                                     Math.min(1d, 1 - (start.fraction() - (uTurnPenalty / edges.get(1).length()))));
-                            startOrg = new RoadPoint(edges.get(1), Math.min(1d, 1 - start.fraction()));
                         }
                         edges.remove(0);
 
@@ -399,17 +397,15 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                         if (start.fraction() < 1 - end.fraction()) {
                             end = new RoadPoint(edges.get(0),
                                     Math.min(1d, 1 - end.fraction() + (uTurnPenalty / edges.get(0).length())));
-                            endOrg = new RoadPoint(edges.get(0), Math.min(1d, 1 - end.fraction()));
                             edges.remove(1);
                         } else {
                             start = new RoadPoint(edges.get(1),
                                     Math.max(0d, 1 - start.fraction() - (uTurnPenalty / edges.get(1).length())));
-                            startOrg = new RoadPoint(edges.get(1), Math.max(0d, 1 - start.fraction()));
                             edges.remove(0);
                         }
                     }
                     routeForCostFunction = new Route(start, end, edges);
-                    route = new Route(start, end, edges);
+
                 }
             }
 
