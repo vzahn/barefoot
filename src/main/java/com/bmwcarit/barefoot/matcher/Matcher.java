@@ -414,6 +414,44 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 continue;
             }
             Route route = new Route(predecessor.point(), candidate.point(), edges);
+            Route routeForCostFunction = route;
+
+            if (edges.size() >= 2) {
+                if (edges.get(0).base().id() == edges.get(1).base().id() && edges.get(0).id() != edges.get(1).id()) {
+                    RoadPoint start = predecessor.point(), end = candidate.point();
+                    // Here, additional cost of 5 meters are added to the route
+                    // length in order to penalize and avoid turns, e.g., at the end
+                    // of a trace.
+                    double uTurnPenalty = 5d;
+                    if (edges.size() > 2) {
+                        // When start is forward remove 5 m from the driven length, so on the backward
+                        // it has to drive 5m more
+                        // When start is backward add 5m to the driven length so, when driving forward
+                        // is has to drive 5m more.
+                        if (start.edge().heading() == Heading.backward) {
+                            start = new RoadPoint(edges.get(1),
+                                    Math.max(0d, 1 - (start.fraction() + (uTurnPenalty / edges.get(1).length()))));
+                        } else {
+                            start = new RoadPoint(edges.get(1),
+                                    Math.min(1d, 1 - (start.fraction() - (uTurnPenalty / edges.get(1).length()))));
+                        }
+                        edges.remove(0);
+
+                    } else {
+                        if (start.fraction() < 1 - end.fraction()) {
+                            end = new RoadPoint(edges.get(0),
+                                    Math.min(1d, 1 - end.fraction() + (uTurnPenalty / edges.get(0).length())));
+                            edges.remove(1);
+                        } else {
+                            start = new RoadPoint(edges.get(1),
+                                    Math.max(0d, 1 - start.fraction() - (uTurnPenalty / edges.get(1).length())));
+                            edges.remove(0);
+                        }
+                    }
+                    routeForCostFunction = new Route(start, end, edges);
+                }
+            }
+
             // According to Newson and Krumm 2009, transition probability is lambda *
             // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())), however, we
             // experimentally choose lambda * Math.exp((-1.0) * lambda * Math.max(0,
@@ -421,14 +459,15 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
                     : 1 / lambda;
 
-            double routeCost = route.cost(cost);
-            double distanceRoute = spatial.distance(route.source().geometry(), route.target().geometry());
+            double routeCost = routeForCostFunction.cost(cost);
+            double distanceRoute = spatial.distance(routeForCostFunction.source().geometry(),
+                    routeForCostFunction.target().geometry());
 
             double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
 
             // Weighting GPS re-gain
             boolean routeShouldBeTunnel = candidate.getSample().isGpsOutage();
-            boolean routeHasTunnel = route.hasTunnel();
+            boolean routeHasTunnel = routeForCostFunction.hasTunnel();
             if ((routeShouldBeTunnel && !routeHasTunnel) || (!routeShouldBeTunnel && routeHasTunnel)) {
                 // punish mismatch between sample and map information
                 transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost * gpsOutageFactor - base)) / beta);
@@ -442,7 +481,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 transition = 0;
             }
 
-            candidate.setDeltaRoute(Math.abs((route.length() - base)));
+            candidate.setDeltaRoute(Math.abs((routeForCostFunction.length() - base)));
             map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
             if (logger.isTraceEnabled()) {
                 logger.trace("{} -> {} base: {} routeCost: {} transition: {}",
