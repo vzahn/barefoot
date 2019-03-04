@@ -379,18 +379,15 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                     // of a trace.
                     double uTurnPenalty = 5d;
                     if (edges.size() > 2) {
-                        // When start is forward remove 5 m from the driven length, so on the backward
+                        // When start is forward add 5 m from the driven length, so on the backward
                         // it has to drive 5m more
                         // When start is backward add 5m to the driven length so, when driving forward
                         // is has to drive 5m more.
-                        if (start.edge().heading() == Heading.backward) {
-                            start = new RoadPoint(edges.get(1),
-                                    Math.max(0d, 1 - (start.fraction() + (uTurnPenalty / edges.get(1).length()))));
+                        // forward and backward are driving from 0 -> 1 fraction
 
-                        } else {
-                            start = new RoadPoint(edges.get(1),
-                                    Math.min(1d, 1 - (start.fraction() - (uTurnPenalty / edges.get(1).length()))));
-                        }
+                        start = new RoadPoint(edges.get(1),
+                                Math.max(0d, 1 - (start.fraction() + (uTurnPenalty / edges.get(1).length()))));
+
                         edges.remove(0);
 
                     } else {
