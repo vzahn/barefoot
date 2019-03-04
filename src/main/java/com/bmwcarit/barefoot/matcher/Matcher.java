@@ -431,7 +431,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             // includes tunnel
             if ((routeCost > distanceRoute * transitionFactor
                     || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
-                    && !routeHasTunnel) {
+                    && !routeHasTunnel && distanceRoute > 35d) {
                 transition = 0;
             }
 
