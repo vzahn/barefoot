@@ -14,6 +14,7 @@
 package com.bmwcarit.barefoot.matcher;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -64,10 +65,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double transitionFactor = 2;
     private double transitionDistance = 800d;
     private double gpsOutageFactor = 0.0d;
+    private Short classIdWide[] = {303, 302, 301, 300, 203, 202, 201, 200, 103, 102, 101, 100};
+    private Set<Short> classIdWideSet = new HashSet<Short>(Arrays.asList(classIdWide));
+    private double uTurnPenalty = 5d;
 
     /**
-     * Creates a HMM map matching filter for some map, router, cost function, and
-     * spatial operator.
+     * Creates a HMM map matching filter for some map, router, cost function,
+     * and spatial operator.
      *
      * @param map
      *            {@link RoadMap} object of the map to be matched to.
@@ -89,8 +93,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      * Gets standard deviation in meters of gaussian distribution that defines
      * emission probabilities.
      *
-     * @return Standard deviation in meters of gaussian distribution that defines
-     *         emission probabilities.
+     * @return Standard deviation in meters of gaussian distribution that
+     *         defines emission probabilities.
      */
     public double getSigma() {
         return Math.sqrt(this.sig2);
@@ -101,8 +105,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      * emission probabilities (default is 5 meters).
      *
      * @param sigma
-     *            Standard deviation in meters of gaussian distribution for defining
-     *            emission probabilities (default is 5 meters).
+     *            Standard deviation in meters of gaussian distribution for
+     *            defining emission probabilities (default is 5 meters).
      */
     public void setSigma(double sigma) {
         this.sig2 = Math.pow(sigma, 2);
@@ -121,8 +125,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
     /**
      * Sets lambda parameter of negative exponential distribution defining
-     * transition probabilities (default is 0.0). It uses adaptive parameterization,
-     * if lambda is set to 0.0.
+     * transition probabilities (default is 0.0). It uses adaptive
+     * parameterization, if lambda is set to 0.0.
      *
      * @param lambda
      *            Lambda parameter of negative exponential distribution defining
@@ -229,8 +233,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     }
 
     /**
-     * Set GPS-outage factor to multiply transition with, depending on gpsOutage and
-     * tunnel transition.
+     * Set GPS-outage factor to multiply transition with, depending on gpsOutage
+     * and tunnel transition.
      * 
      * @param gpsOutageFactor
      *            the gpsOutageFactor to set
@@ -280,6 +284,16 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         for (RoadPoint point : points) {
             MatcherCandidate candidate = new MatcherCandidate(point, sample);
             double dz = spatial.distance(sample.point(), point.geometry());
+            /**
+             * Special handling of wide roads related to class_id
+             * 
+             * TODO Discuss if this is approproiate
+             */
+            // if
+            // (classIdWideSet.contains(candidate.point().edge().base().type()))
+            // {
+            // dz = Math.max(0, dz - 2);
+            // }
             double sigma2 = sig2;
             double sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             if (!Double.isNaN(sample.getAccuracy())) {
@@ -363,6 +377,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             Tuple<MatcherSample, Set<MatcherCandidate>> candidates, MatcherCandidate predecessor, double base,
             Map<RoadPoint, List<Road>> routes, MatcherSample matcherSample) {
         Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new HashMap<>();
+        double roundingFraction = 0.0001d;
         for (MatcherCandidate candidate : candidates.two()) {
             List<Road> edges = routes.get(candidate.point());
             if (edges == null) {
@@ -370,34 +385,36 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             }
             Route route = new Route(predecessor.point(), candidate.point(), edges);
             Route routeForCostFunction = route;
+            boolean isUTurn = false;
 
             if (edges.size() >= 2) {
                 if (edges.get(0).base().id() == edges.get(1).base().id() && edges.get(0).id() != edges.get(1).id()) {
                     RoadPoint start = predecessor.point(), end = candidate.point();
                     // Here, additional cost of 5 meters are added to the route
-                    // length in order to penalize and avoid turns, e.g., at the end
-                    // of a trace.
-                    double uTurnPenalty = 5d;
+                    // length in order to penalize and avoid turns, e.g., at the
+                    // end of a trace.
+                    isUTurn = true;
                     if (edges.size() > 2) {
-                        // When start is forward add 5 m from the driven length, so on the backward
-                        // it has to drive 5m more
-                        // When start is backward add 5m to the driven length so, when driving forward
-                        // is has to drive 5m more.
+                        // When start is forward add 1mm from the driven length,
+                        // so on the backward it has to drive 1mm more
+                        // When start is backward add 1mm to the driven length
+                        // so, when driving forward is has to drive 1mm more.
                         // forward and backward are driving from 0 -> 1 fraction
+                        // 1mm is added due to rounding issues with double
 
                         start = new RoadPoint(edges.get(1),
-                                Math.max(0d, 1 - (start.fraction() + (uTurnPenalty / edges.get(1).length()))));
+                                Math.max(0d, 1 - (start.fraction() + (roundingFraction / edges.get(1).length()))));
 
                         edges.remove(0);
 
                     } else {
                         if (start.fraction() < 1 - end.fraction()) {
                             end = new RoadPoint(edges.get(0),
-                                    Math.min(1d, 1 - end.fraction() + (uTurnPenalty / edges.get(0).length())));
+                                    Math.min(1d, 1 - end.fraction() + (roundingFraction / edges.get(0).length())));
                             edges.remove(1);
                         } else {
                             start = new RoadPoint(edges.get(1),
-                                    Math.max(0d, 1 - start.fraction() - (uTurnPenalty / edges.get(1).length())));
+                                    Math.max(0d, 1 - start.fraction() - (roundingFraction / edges.get(1).length())));
                             edges.remove(0);
                         }
                     }
@@ -406,10 +423,14 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 }
             }
 
-            // According to Newson and Krumm 2009, transition probability is lambda *
-            // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())), however, we
-            // experimentally choose lambda * Math.exp((-1.0) * lambda * Math.max(0,
-            // route.length() - dt)) to avoid unnecessary routes in case of u-turns.
+            // According to Newson and Krumm 2009, transition probability is
+            // lambda *
+            // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())),
+            // however, we
+            // experimentally choose lambda * Math.exp((-1.0) * lambda *
+            // Math.max(0,
+            // route.length() - dt)) to avoid unnecessary routes in case of
+            // u-turns.
             double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
                     : 1 / lambda;
 
@@ -417,17 +438,29 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double distanceRoute = spatial.distance(routeForCostFunction.source().geometry(),
                     routeForCostFunction.target().geometry());
 
-            double transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
+            double transition = 0;
+            if (isUTurn) {
+                transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base)) + uTurnPenalty) / beta);
+            } else {
+                transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
+            }
 
             // Weighting GPS re-gain
             boolean routeShouldBeTunnel = candidate.getSample().isGpsOutage();
             boolean routeHasTunnel = routeForCostFunction.hasTunnel();
             if ((routeShouldBeTunnel && !routeHasTunnel) || (!routeShouldBeTunnel && routeHasTunnel)) {
                 // punish mismatch between sample and map information
-                transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost * gpsOutageFactor - base)) / beta);
+                if (isUTurn) {
+                    transition = (1 / beta)
+                            * Math.exp((-1.0) * (Math.abs((routeCost * gpsOutageFactor - base)) + uTurnPenalty) / beta);
+                } else {
+                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost * gpsOutageFactor - base)) / beta);
+                }
+
             } // else leave transition as is, without punishing
 
-            // If routeCost is longer than 2 x base then discard transition, except route
+            // If routeCost is longer than 2 x base then discard transition,
+            // except route
             // includes tunnel
             if ((routeCost > distanceRoute * transitionFactor
                     || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
@@ -438,7 +471,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             candidate.setDeltaRoute(Math.abs((routeForCostFunction.length() - base)));
             map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
             if (logger.isTraceEnabled()) {
-                logger.trace("{} -> {} base: {} routeCost: {} transition: {}",
+                String addition = isUTurn ? "with UTurn Penalty " + uTurnPenalty : "";
+                logger.trace("{} -> {} base: {} routeCost: {} " + addition + " transition: {}",
                         ((MatcherCandidate) predecessor).point().edge().base().refid(),
                         ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost, transition);
             }
@@ -448,21 +482,22 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     }
 
     /**
-     * Matches a full sequence of samples, {@link MatcherSample} objects and returns
-     * state representation of the full matching which is a {@link KState} object.
+     * Matches a full sequence of samples, {@link MatcherSample} objects and
+     * returns state representation of the full matching which is a
+     * {@link KState} object.
      *
      * @param samples
      *            Sequence of samples, {@link MatcherSample} objects.
      * @param minDistance
-     *            Minimum distance in meters between subsequent samples as criterion
-     *            to match a sample. (Avoids unnecessary matching where samples are
-     *            more dense than necessary.)
+     *            Minimum distance in meters between subsequent samples as
+     *            criterion to match a sample. (Avoids unnecessary matching
+     *            where samples are more dense than necessary.)
      * @param minInterval
-     *            Minimum time interval in milliseconds between subsequent samples
-     *            as criterion to match a sample. (Avoids unnecessary matching where
-     *            samples are more dense than necessary.)
-     * @return State representation of the full matching which is a {@link KState}
-     *         object.
+     *            Minimum time interval in milliseconds between subsequent
+     *            samples as criterion to match a sample. (Avoids unnecessary
+     *            matching where samples are more dense than necessary.)
+     * @return State representation of the full matching which is a
+     *         {@link KState} object.
      */
     public MatcherKState mmatch(List<MatcherSample> samples, double minDistance, int minInterval) {
         Collections.sort(samples, new Comparator<MatcherSample>() {
