@@ -70,8 +70,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double uTurnPenalty = 5d;
 
     /**
-     * Creates a HMM map matching filter for some map, router, cost function,
-     * and spatial operator.
+     * Creates a HMM map matching filter for some map, router, cost function, and
+     * spatial operator.
      *
      * @param map
      *            {@link RoadMap} object of the map to be matched to.
@@ -93,8 +93,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      * Gets standard deviation in meters of gaussian distribution that defines
      * emission probabilities.
      *
-     * @return Standard deviation in meters of gaussian distribution that
-     *         defines emission probabilities.
+     * @return Standard deviation in meters of gaussian distribution that defines
+     *         emission probabilities.
      */
     public double getSigma() {
         return Math.sqrt(this.sig2);
@@ -105,8 +105,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      * emission probabilities (default is 5 meters).
      *
      * @param sigma
-     *            Standard deviation in meters of gaussian distribution for
-     *            defining emission probabilities (default is 5 meters).
+     *            Standard deviation in meters of gaussian distribution for defining
+     *            emission probabilities (default is 5 meters).
      */
     public void setSigma(double sigma) {
         this.sig2 = Math.pow(sigma, 2);
@@ -125,8 +125,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
     /**
      * Sets lambda parameter of negative exponential distribution defining
-     * transition probabilities (default is 0.0). It uses adaptive
-     * parameterization, if lambda is set to 0.0.
+     * transition probabilities (default is 0.0). It uses adaptive parameterization,
+     * if lambda is set to 0.0.
      *
      * @param lambda
      *            Lambda parameter of negative exponential distribution defining
@@ -233,14 +233,33 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     }
 
     /**
-     * Set GPS-outage factor to multiply transition with, depending on gpsOutage
-     * and tunnel transition.
+     * Set GPS-outage factor to multiply transition with, depending on gpsOutage and
+     * tunnel transition.
      * 
      * @param gpsOutageFactor
      *            the gpsOutageFactor to set
      */
     public void setGpsOutageFactor(double gpsOutageFactor) {
         this.gpsOutageFactor = gpsOutageFactor;
+    }
+
+    /**
+     * Get the UTurnPenalty in m for increasing the route for the transition.
+     * 
+     * @return the uTurnPenalty
+     */
+    public double getuTurnPenalty() {
+        return uTurnPenalty;
+    }
+
+    /**
+     * Set the UTurnPenalty in m for increasing the route for the transition.
+     * 
+     * @param uTurnPenalty
+     *            the uTurnPenalty to set
+     */
+    public void setuTurnPenalty(double uTurnPenalty) {
+        this.uTurnPenalty = uTurnPenalty;
     }
 
     @Override
@@ -386,15 +405,15 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             Route route = new Route(predecessor.point(), candidate.point(), edges);
             Route routeForCostFunction = route;
             boolean isUTurn = false;
-
-            if (edges.size() >= 2) {
+            int edgeSize = edges.size();
+            if (edgeSize >= 2) {
                 if (edges.get(0).base().id() == edges.get(1).base().id() && edges.get(0).id() != edges.get(1).id()) {
                     RoadPoint start = predecessor.point(), end = candidate.point();
                     // Here, additional cost of 5 meters are added to the route
                     // length in order to penalize and avoid turns, e.g., at the
                     // end of a trace.
                     isUTurn = true;
-                    if (edges.size() > 2) {
+                    if (edgeSize > 2) {
                         // When start is forward add 1mm from the driven length,
                         // so on the backward it has to drive 1mm more
                         // When start is backward add 1mm to the driven length
@@ -420,6 +439,10 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                     }
                     routeForCostFunction = new Route(start, end, edges);
 
+                } else if (edgeSize > 2 && edges.get(edgeSize - 1).base().id() == edges.get(edgeSize - 2).base().id()
+                        && edges.get(edgeSize - 1).id() != edges.get(edgeSize - 2).id()) {
+                    // If a UTurn occur at the end of the route
+                    isUTurn = true;
                 }
             }
 
@@ -446,9 +469,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             }
 
             // Weighting GPS re-gain
-            boolean routeShouldBeTunnel = candidate.getSample().isGpsOutage();
+            boolean candidateGpsOutage = candidate.getSample().isGpsOutage();
+            boolean predessorGpsOutage = predecessor.getSample().isGpsOutage();
             boolean routeHasTunnel = routeForCostFunction.hasTunnel();
-            if ((routeShouldBeTunnel && !routeHasTunnel) || (!routeShouldBeTunnel && routeHasTunnel)) {
+            if (((candidateGpsOutage && !routeHasTunnel) || (!candidateGpsOutage && routeHasTunnel))
+                    && !(predessorGpsOutage && !candidateGpsOutage)) {
                 // punish mismatch between sample and map information
                 if (isUTurn) {
                     transition = (1 / beta)
@@ -482,22 +507,21 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     }
 
     /**
-     * Matches a full sequence of samples, {@link MatcherSample} objects and
-     * returns state representation of the full matching which is a
-     * {@link KState} object.
+     * Matches a full sequence of samples, {@link MatcherSample} objects and returns
+     * state representation of the full matching which is a {@link KState} object.
      *
      * @param samples
      *            Sequence of samples, {@link MatcherSample} objects.
      * @param minDistance
-     *            Minimum distance in meters between subsequent samples as
-     *            criterion to match a sample. (Avoids unnecessary matching
-     *            where samples are more dense than necessary.)
+     *            Minimum distance in meters between subsequent samples as criterion
+     *            to match a sample. (Avoids unnecessary matching where samples are
+     *            more dense than necessary.)
      * @param minInterval
-     *            Minimum time interval in milliseconds between subsequent
-     *            samples as criterion to match a sample. (Avoids unnecessary
-     *            matching where samples are more dense than necessary.)
-     * @return State representation of the full matching which is a
-     *         {@link KState} object.
+     *            Minimum time interval in milliseconds between subsequent samples
+     *            as criterion to match a sample. (Avoids unnecessary matching where
+     *            samples are more dense than necessary.)
+     * @return State representation of the full matching which is a {@link KState}
+     *         object.
      */
     public MatcherKState mmatch(List<MatcherSample> samples, double minDistance, int minInterval) {
         Collections.sort(samples, new Comparator<MatcherSample>() {
