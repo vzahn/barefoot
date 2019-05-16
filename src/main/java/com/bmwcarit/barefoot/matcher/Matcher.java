@@ -67,7 +67,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double gpsOutageFactor = 0.0d;
     private Short classIdWide[] = {303, 302, 301, 300, 203, 202, 201, 200, 103, 102, 101, 100};
     private Set<Short> classIdWideSet = new HashSet<Short>(Arrays.asList(classIdWide));
-    private double uTurnPenalty = 5d;
+    private double uTurnPenalty = 20d;
 
     /**
      * Creates a HMM map matching filter for some map, router, cost function, and
