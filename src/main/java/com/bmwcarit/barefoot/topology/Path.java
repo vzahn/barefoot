@@ -146,6 +146,29 @@ public class Path<E extends AbstractEdge<E>> {
     }
 
     /**
+     * Returns if the route includes a tunnel segment.
+     * 
+     * @return boolean
+     */
+    public double tunnelLength() {
+        double length = 0d;
+        if (((Road) source.edge()).base().getTunnel()) {
+            length = +((Road) source.edge()).length();
+        }
+
+        if (((Road) target.edge()).base().getTunnel()) {
+            length = +((Road) target.edge()).length();
+        }
+        for (int i = 1; i < edges.size(); ++i) {
+            if (((Road) edges.get(i)).base().getTunnel()) {
+                length = +((Road) edges.get(i)).length();
+            }
+        }
+
+        return length;
+    }
+
+    /**
      * Gets cost value of the path for an arbitrary {@link Cost} function.
      *
      * @param cost

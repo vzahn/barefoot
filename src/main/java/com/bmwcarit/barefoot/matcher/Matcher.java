@@ -68,6 +68,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private Short classIdWide[] = {303, 302, 301, 300, 203, 202, 201, 200, 103, 102, 101, 100};
     private Set<Short> classIdWideSet = new HashSet<Short>(Arrays.asList(classIdWide));
     private double uTurnPenalty = 20d;
+    private double tunnelPass = 1d;
 
     /**
      * Creates a HMM map matching filter for some map, router, cost function, and
@@ -260,6 +261,26 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
      */
     public void setuTurnPenalty(double uTurnPenalty) {
         this.uTurnPenalty = uTurnPenalty;
+    }
+
+    /**
+     * Get parameter for a "maybeTunnel" , until when a tunnel is a special tunnel.
+     * 
+     * @return the tunnelPass
+     */
+    public double getTunnelPass() {
+        return tunnelPass;
+    }
+
+    /**
+     * 
+     * Set parameter for a "maybeTunnel" , until when a tunnel is a special tunnel.
+     * 
+     * @param tunnelPass
+     *            the tunnelPass to set
+     */
+    public void setTunnelPass(double tunnelPass) {
+        this.tunnelPass = tunnelPass;
     }
 
     @Override
@@ -471,9 +492,11 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             // Weighting GPS re-gain
             boolean candidateGpsOutage = candidate.getSample().isGpsOutage();
             boolean predessorGpsOutage = predecessor.getSample().isGpsOutage();
-            boolean routeHasTunnel = routeForCostFunction.hasTunnel();
-            if (((candidateGpsOutage && !routeHasTunnel) || (!candidateGpsOutage && routeHasTunnel))
-                    && !(predessorGpsOutage && !candidateGpsOutage)) {
+            double length = routeForCostFunction.tunnelLength();
+            boolean routeHasTunnel = 0d < length;
+            if ((0d == length || length > tunnelPass)
+                    && (((candidateGpsOutage && !routeHasTunnel) || (!candidateGpsOutage && routeHasTunnel))
+                            && !(predessorGpsOutage && !candidateGpsOutage))) {
                 // punish mismatch between sample and map information
                 if (isUTurn) {
                     transition = (1 / beta)
