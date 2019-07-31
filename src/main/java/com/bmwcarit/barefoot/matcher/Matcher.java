@@ -500,9 +500,9 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 // punish mismatch between sample and map information
                 if (isUTurn) {
                     transition = (1 / beta)
-                            * Math.exp((-1.0) * (Math.abs((routeCost * gpsOutageFactor - base)) + uTurnPenalty) / beta);
+                            * Math.exp((-1.0) * (Math.abs((routeCost - base) * gpsOutageFactor) + uTurnPenalty) / beta);
                 } else {
-                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost * gpsOutageFactor - base)) / beta);
+                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) * gpsOutageFactor) / beta);
                 }
 
             } // else leave transition as is, without punishing
