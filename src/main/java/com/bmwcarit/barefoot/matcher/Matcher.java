@@ -486,7 +486,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             if (isUTurn) {
                 transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base)) + uTurnPenalty) / beta);
             } else {
-                transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base)) / beta);
+                transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base))) / beta);
             }
 
             // Weighting GPS re-gain
@@ -499,10 +499,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                             && !(predessorGpsOutage && !candidateGpsOutage))) {
                 // punish mismatch between sample and map information
                 if (isUTurn) {
-                    transition = (1 / beta)
-                            * Math.exp((-1.0) * (Math.abs((routeCost - base) * gpsOutageFactor) + uTurnPenalty) / beta);
+                    transition = (1 / beta) * Math.exp((-1.0) * (Math.abs(routeCost - base) + uTurnPenalty //
+                            + Math.min(base * gpsOutageFactor,
+                                    Math.max(0, 2150 - uTurnPenalty - Math.abs(routeCost - base))))
+                            / beta);
                 } else {
-                    transition = (1 / beta) * Math.exp((-1.0) * Math.abs((routeCost - base) * gpsOutageFactor) / beta);
+                    transition = (1 / beta) * Math.exp((-1.0) * (Math.abs(routeCost - base)//
+                            + Math.min(base * gpsOutageFactor, Math.max(0, 2150 - Math.abs(routeCost - base)))) / beta);
                 }
 
             } // else leave transition as is, without punishing
