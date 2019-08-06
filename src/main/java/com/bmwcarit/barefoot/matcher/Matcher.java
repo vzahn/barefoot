@@ -337,13 +337,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double sigma2 = sig2;
             double sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             if (!Double.isNaN(sample.getAccuracy())) {
-                sigma2 = Math.pow((sample.getAccuracy() + sig2) / 2d, 2);
+                sigma2 = Math.pow((sample.getAccuracy() + getSigma()) / 2d, 2);
                 sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             }
 
             double emission = 1 / sqrt2piSig2 * Math.exp((-1) * dz * dz / (2 * sigma2));
 
-            if (!Double.isNaN(sample.azimuth())) {
+            if (!Double.isNaN(sample.azimuth()) && !Double.isNaN(sample.getVelocity()) && sample.getVelocity() >= 7d) {
                 double da = sample.azimuth() > point.azimuth()
                         ? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
                         : Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
@@ -477,7 +477,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             // u-turns.
             double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
                     : 1 / lambda;
-
+            double limitDeltaRoute = beta * Math.log(Double.MAX_VALUE);
             double routeCost = routeForCostFunction.cost(cost);
             double distanceRoute = spatial.distance(routeForCostFunction.source().geometry(),
                     routeForCostFunction.target().geometry());
@@ -499,13 +499,16 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                             && !(predessorGpsOutage && !candidateGpsOutage))) {
                 // punish mismatch between sample and map information
                 if (isUTurn) {
-                    transition = (1 / beta) * Math.exp((-1.0) * (Math.abs(routeCost - base) + uTurnPenalty //
-                            + Math.min(base * gpsOutageFactor,
-                                    Math.max(0, 2150 - uTurnPenalty - Math.abs(routeCost - base))))
-                            / beta);
+                    transition = (1 / beta) //
+                            * Math.exp((-1.0)
+                                    * (Math.abs(routeCost - base) + uTurnPenalty
+                                            + Math.min(base * gpsOutageFactor, Math.max(0,
+                                                    limitDeltaRoute - uTurnPenalty - Math.abs(routeCost - base))))
+                                    / beta);
                 } else {
-                    transition = (1 / beta) * Math.exp((-1.0) * (Math.abs(routeCost - base)//
-                            + Math.min(base * gpsOutageFactor, Math.max(0, 2150 - Math.abs(routeCost - base)))) / beta);
+                    transition = (1 / beta) //
+                            * Math.exp((-1.0) * (Math.abs(routeCost - base) + Math.min(base * gpsOutageFactor,
+                                    Math.max(0, limitDeltaRoute - Math.abs(routeCost - base)))) / beta);
                 }
 
             } // else leave transition as is, without punishing
