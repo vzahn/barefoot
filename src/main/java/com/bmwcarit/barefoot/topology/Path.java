@@ -153,15 +153,15 @@ public class Path<E extends AbstractEdge<E>> {
     public double tunnelLength() {
         double length = 0d;
         if (((Road) source.edge()).base().getTunnel()) {
-            length = +((Road) source.edge()).length();
+            length += ((Road) source.edge()).length();
         }
 
         if (((Road) target.edge()).base().getTunnel()) {
-            length = +((Road) target.edge()).length();
+            length += ((Road) target.edge()).length();
         }
         for (int i = 1; i < edges.size(); ++i) {
             if (((Road) edges.get(i)).base().getTunnel()) {
-                length = +((Road) edges.get(i)).length();
+                length += ((Road) edges.get(i)).length();
             }
         }
 

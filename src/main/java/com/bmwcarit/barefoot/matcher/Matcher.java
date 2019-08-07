@@ -494,21 +494,29 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             boolean predessorGpsOutage = predecessor.getSample().isGpsOutage();
             double length = routeForCostFunction.tunnelLength();
             boolean routeHasTunnel = 0d < length;
-            if ((0d == length || length > tunnelPass)
-                    && (((candidateGpsOutage && !routeHasTunnel) || (!candidateGpsOutage && routeHasTunnel))
+            if ((0d == length || length > tunnelPass && length < routeCost)
+                    && (((candidateGpsOutage) || (!candidateGpsOutage && routeHasTunnel))
                             && !(predessorGpsOutage && !candidateGpsOutage))) {
                 // punish mismatch between sample and map information
+                double tunnelPenaltyRoute = 0d;
+                if (routeHasTunnel) {
+                    tunnelPenaltyRoute = routeCost - length;
+                } else {
+                    tunnelPenaltyRoute = base;
+                }
                 if (isUTurn) {
                     transition = (1 / beta) //
                             * Math.exp((-1.0)
                                     * (Math.abs(routeCost - base) + uTurnPenalty
-                                            + Math.min(base * gpsOutageFactor, Math.max(0,
+                                            + Math.min(tunnelPenaltyRoute * gpsOutageFactor, Math.max(0,
                                                     limitDeltaRoute - uTurnPenalty - Math.abs(routeCost - base))))
                                     / beta);
                 } else {
                     transition = (1 / beta) //
-                            * Math.exp((-1.0) * (Math.abs(routeCost - base) + Math.min(base * gpsOutageFactor,
-                                    Math.max(0, limitDeltaRoute - Math.abs(routeCost - base)))) / beta);
+                            * Math.exp((-1.0)
+                                    * (Math.abs(routeCost - base) + Math.min(tunnelPenaltyRoute * gpsOutageFactor,
+                                            Math.max(0, limitDeltaRoute - Math.abs(routeCost - base))))
+                                    / beta);
                 }
 
             } // else leave transition as is, without punishing
