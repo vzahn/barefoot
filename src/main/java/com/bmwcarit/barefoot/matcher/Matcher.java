@@ -14,7 +14,6 @@
 package com.bmwcarit.barefoot.matcher;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -65,8 +64,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double transitionFactor = 2;
     private double transitionDistance = 800d;
     private double gpsOutageFactor = 0.0d;
-    private Short classIdWide[] = {303, 302, 301, 300, 203, 202, 201, 200, 103, 102, 101, 100};
-    private Set<Short> classIdWideSet = new HashSet<Short>(Arrays.asList(classIdWide));
     private double uTurnPenalty = 20d;
     private double tunnelPass = 1d;
 
@@ -323,17 +320,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         logger.debug("{} candidates", points.size());
         for (RoadPoint point : points) {
             MatcherCandidate candidate = new MatcherCandidate(point, sample);
-            double dz = spatial.distance(sample.point(), point.geometry());
-            /**
-             * Special handling of wide roads related to class_id
-             * 
-             * TODO Discuss if this is approproiate
-             */
-            // if
-            // (classIdWideSet.contains(candidate.point().edge().base().type()))
-            // {
-            // dz = Math.max(0, dz - 2);
-            // }
+            // a lane is ~ 3m, the deviation is 1.5m
+            double dz = Math.max(0d, spatial.distance(sample.point(), point.geometry()) - 1.5);
             double sigma2 = sig2;
             double sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             if (!Double.isNaN(sample.getAccuracy())) {
