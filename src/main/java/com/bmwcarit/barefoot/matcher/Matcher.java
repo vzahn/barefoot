@@ -487,11 +487,17 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                             && !(predessorGpsOutage && !candidateGpsOutage))) {
                 // punish mismatch between sample and map information
                 double tunnelPenaltyRoute = 0d;
+
                 if (routeHasTunnel) {
-                    tunnelPenaltyRoute = routeCost - length;
+                    if (candidateGpsOutage) {
+                        tunnelPenaltyRoute = routeCost - length;
+                    } else {
+                        tunnelPenaltyRoute = length;
+                    }
                 } else {
                     tunnelPenaltyRoute = base;
                 }
+
                 if (isUTurn) {
                     transition = (1 / beta) //
                             * Math.exp((-1.0)
@@ -529,6 +535,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
         }
         return map;
+
     }
 
     /**
