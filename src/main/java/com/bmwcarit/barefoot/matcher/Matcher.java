@@ -69,6 +69,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double maxBaseFactor = 1;
     private double laneWidth = 1;
     private double minHeadingVelocityThreshold = 1;
+    private boolean useAccuracyForSigma = true;
 
     /**
      * Creates a HMM map matching filter for some map, router, cost function, and
@@ -88,6 +89,17 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         this.router = router;
         this.cost = cost;
         this.spatial = spatial;
+    }
+
+    /**
+     * Set wether horizontal accuracy shall be taken into account, when calculation
+     * emission. Default is true.
+     * 
+     * @param useAccuracyForSigma
+     *            true if accuracy shall be taken into account, else false.
+     */
+    public void setUseAccuracyForSigma(boolean useAccuracyForSigma) {
+        this.useAccuracyForSigma = useAccuracyForSigma;
     }
 
     /**
@@ -394,7 +406,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double dz = Math.max(0d, spatial.distance(sample.point(), point.geometry()) - laneWidth / 2);
             double sigma2 = sig2;
             double sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
-            if (!Double.isNaN(sample.getAccuracy())) {
+            if (useAccuracyForSigma && !Double.isNaN(sample.getAccuracy())) {
                 sigma2 = Math.pow((sample.getAccuracy() + getSigma()) / 2d, 2);
                 sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             }
