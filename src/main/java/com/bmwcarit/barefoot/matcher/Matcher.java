@@ -66,6 +66,9 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private double gpsOutageFactor = 0.0d;
     private double uTurnPenalty = 20d;
     private double tunnelPass = 1d;
+    private double maxBaseFactor = 1;
+    private double laneWidth = 1;
+    private double minHeadingVelocityThreshold = 1;
 
     /**
      * Creates a HMM map matching filter for some map, router, cost function, and
@@ -280,6 +283,73 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         this.tunnelPass = tunnelPass;
     }
 
+    /**
+     * 
+     * Get parameter for a the maximum allowed distance based on the spatial
+     * distance between two points.
+     * 
+     * @return the maxBaseFactor
+     */
+    public double getMaxBaseFactor() {
+        return maxBaseFactor;
+    }
+
+    /**
+     * 
+     * Set parameter for a the maximum allowed distance based on the spatial
+     * distance between two points.
+     * 
+     * @param maxBaseFactor
+     *            the maxBaseFactor to set
+     */
+    public void setMaxBaseFactor(double maxBaseFactor) {
+        this.maxBaseFactor = maxBaseFactor;
+    }
+
+    /**
+     * 
+     * Get width of a standardized lane in meter.
+     * 
+     * @return the laneWidth
+     */
+    public double getLaneWidth() {
+        return laneWidth;
+    }
+
+    /**
+     * 
+     * Set parameter with of a standardized lane in meter.
+     * 
+     * @param laneWidth
+     *            the laneWidth to set
+     */
+    public void setLaneWidth(double laneWidth) {
+        this.laneWidth = laneWidth;
+    }
+
+    /**
+     * 
+     * Get threshold for use of heading, as an attribute from velocity of the
+     * position in m/s .
+     * 
+     * @return the minHeadingVelocityThreshold
+     */
+    public double getMinHeadingVelocityThreshold() {
+        return minHeadingVelocityThreshold;
+    }
+
+    /**
+     * 
+     * Set parameter of threshold for heading use, the parameter is the velocity of
+     * the position in m/s.
+     * 
+     * @param minHeadingVelocityThreshold
+     *            the minHeadingVelocityThreshold to set
+     */
+    public void setMinHeadingVelocityThreshold(double minHeadingVelocityThreshold) {
+        this.minHeadingVelocityThreshold = minHeadingVelocityThreshold;
+    }
+
     @Override
     protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
             MatcherSample sample) {
@@ -321,7 +391,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         for (RoadPoint point : points) {
             MatcherCandidate candidate = new MatcherCandidate(point, sample);
             // a lane is ~ 3m, the deviation is 1.5m
-            double dz = Math.max(0d, spatial.distance(sample.point(), point.geometry()) - 1.5);
+            double dz = Math.max(0d, spatial.distance(sample.point(), point.geometry()) - laneWidth / 2);
             double sigma2 = sig2;
             double sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
             if (!Double.isNaN(sample.getAccuracy())) {
@@ -331,7 +401,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
             double emission = 1 / sqrt2piSig2 * Math.exp((-1) * dz * dz / (2 * sigma2));
 
-            if (!Double.isNaN(sample.azimuth()) && !Double.isNaN(sample.getVelocity()) && sample.getVelocity() >= 7d) {
+            if (!Double.isNaN(sample.azimuth()) && !Double.isNaN(sample.getVelocity())
+                    && sample.getVelocity() >= minHeadingVelocityThreshold) {
                 double da = sample.azimuth() > point.azimuth()
                         ? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
                         : Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
@@ -520,7 +591,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             // includes tunnel
             if ((routeCost > distanceRoute * transitionFactor
                     || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
-                    && !routeHasTunnel && distanceRoute > 35d) {
+                    && !routeHasTunnel && (distanceRoute > 35d || routeCost > base * maxBaseFactor)) {
                 transition = 0;
             }
 
