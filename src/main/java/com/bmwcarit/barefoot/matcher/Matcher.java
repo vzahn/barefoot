@@ -539,16 +539,12 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             }
 
             // According to Newson and Krumm 2009, transition probability is
-            // lambda *
-            // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())),
-            // however, we
-            // experimentally choose lambda * Math.exp((-1.0) * lambda *
-            // Math.max(0,
-            // route.length() - dt)) to avoid unnecessary routes in case of
-            // u-turns.
+            // lambda * Math.exp((-1.0) * lambda * Math.abs(dt - route.length())),
+            // however, we experimentally choose
+            // lambda * Math.exp((-1.0) * lambda * Math.max(0, route.length() - dt))
+            // to avoid unnecessary routes in case of u-turns.
             double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
                     : 1 / lambda;
-            double limitDeltaRoute = beta * Math.log(Double.MAX_VALUE);
             double routeCost = routeForCostFunction.cost(cost);
             double distanceRoute = spatial.distance(routeForCostFunction.source().geometry(),
                     routeForCostFunction.target().geometry());
@@ -562,44 +558,40 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
             // Weighting GPS re-gain
             boolean candidateGpsOutage = candidate.getSample().isGpsOutage();
-            boolean predessorGpsOutage = predecessor.getSample().isGpsOutage();
-            double length = routeForCostFunction.tunnelLength();
-            boolean routeHasTunnel = 0d < length;
-            if ((0d == length || length > tunnelPass && length < routeCost)
-                    && (((candidateGpsOutage) || (!candidateGpsOutage && routeHasTunnel))
-                            && !(predessorGpsOutage && !candidateGpsOutage))) {
+            boolean predecessorGpsOutage = predecessor.getSample().isGpsOutage();
+            double tunnelLength = routeForCostFunction.tunnelLength();
+            boolean routeHasTunnel = 0d < tunnelLength;
+            double transitionPenalty = 1;
+            // Route is no tunnel or tunnel length is above "maybe-tunnel" limit
+            if ((!routeHasTunnel || (tunnelLength > tunnelPass))
+                    // Re-gain and partial tunnel
+                    && (candidateGpsOutage && tunnelLength < routeCost
+                            // Or no re-gain and tunnel
+                            || (!candidateGpsOutage && routeHasTunnel))
+                    // If predecessor is no re-gain or predecessor and candidate are re-gain signals
+                    && (!predecessorGpsOutage || predecessorGpsOutage && candidateGpsOutage)) {
                 // punish mismatch between sample and map information
                 double tunnelPenaltyRoute = 0d;
 
                 if (routeHasTunnel) {
                     if (candidateGpsOutage) {
-                        tunnelPenaltyRoute = routeCost - length;
+                        // Punish non-tunnel parts
+                        tunnelPenaltyRoute = routeCost - tunnelLength;
                     } else {
-                        tunnelPenaltyRoute = length;
+                        // Punish tunnel parts
+                        tunnelPenaltyRoute = tunnelLength;
                     }
                 } else {
                     tunnelPenaltyRoute = base;
                 }
 
-                if (isUTurn) {
-                    transition = (1 / beta) //
-                            * Math.exp((-1.0)
-                                    * (Math.abs(routeCost - base) + uTurnPenalty
-                                            + Math.min(tunnelPenaltyRoute * gpsOutageFactor, Math.max(0,
-                                                    limitDeltaRoute - uTurnPenalty - Math.abs(routeCost - base))))
-                                    / beta);
-                } else {
-                    transition = (1 / beta) //
-                            * Math.exp((-1.0)
-                                    * (Math.abs(routeCost - base) + Math.min(tunnelPenaltyRoute * gpsOutageFactor,
-                                            Math.max(0, limitDeltaRoute - Math.abs(routeCost - base))))
-                                    / beta);
-                }
+                transitionPenalty = Math.max((1 / beta) //
+                        * Math.exp((-1.0) * (tunnelPenaltyRoute * gpsOutageFactor) / beta),
+                        Double.MIN_VALUE / transition);
 
             } // else leave transition as is, without punishing
 
-            // If routeCost is longer than 2 x base then discard transition,
-            // except route
+            // If routeCost is longer than 2 x base then discard transition, except route
             // includes tunnel
             if ((routeCost > distanceRoute * transitionFactor
                     || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
@@ -607,14 +599,21 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 transition = 0;
             }
 
-            candidate.setDeltaRoute(Math.abs((routeForCostFunction.length() - base)));
-            map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
+            double orgTransition = transition;
+
+            transition = transition * transitionPenalty;
             if (logger.isTraceEnabled()) {
                 String addition = isUTurn ? "with UTurn Penalty " + uTurnPenalty : "";
-                logger.trace("{} -> {} base: {} routeCost: {} " + addition + " transition: {}",
+                String penalty = transitionPenalty != 1
+                        ? "original transition " + orgTransition + " transition penalty " + transitionPenalty
+                        : "";
+
+                logger.trace("{} -> {} base: {} routeCost: {} " + addition + penalty + " transition: {}",
                         ((MatcherCandidate) predecessor).point().edge().base().refid(),
                         ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost, transition);
             }
+            candidate.setDeltaRoute(Math.abs((routeForCostFunction.length() - base)));
+            map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
         }
         return map;
