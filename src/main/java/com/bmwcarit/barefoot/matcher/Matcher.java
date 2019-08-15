@@ -380,7 +380,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             radius = perimeter;
         }
         Set<RoadPoint> pointsRadius = map.spatial().radius(sample.point(), radius);
-        Set<RoadPoint> points = pointsRadius;
+        Set<RoadPoint> points = new HashSet<>(Minset.minimize(pointsRadius));
 
         Map<Long, RoadPoint> map = new HashMap<>();
         for (RoadPoint point : points) {
@@ -563,7 +563,8 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             boolean routeHasTunnel = 0d < tunnelLength;
             double transitionPenalty = 1;
             // Route is no tunnel or tunnel length is above "maybe-tunnel" limit
-            if ((!routeHasTunnel || (tunnelLength > tunnelPass))
+            boolean isMaybeTunnel = 2.5 * tunnelPass >= routeCost && tunnelLength <= tunnelPass;
+            if ((!routeHasTunnel || !isMaybeTunnel)
                     // Re-gain and partial tunnel
                     && (candidateGpsOutage && tunnelLength < routeCost
                             // Or no re-gain and tunnel
