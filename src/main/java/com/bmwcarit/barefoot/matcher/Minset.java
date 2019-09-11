@@ -97,8 +97,7 @@ public abstract class Minset {
                     misses.put(id, misses.get(id) + 1);
                 }
 
-                if (map.containsKey(successor.id()) && round(map.get(successor.id()).fraction()) == 0
-                        && map.get(successor.id()).edge().heading() != successor.heading()) {
+                if (map.containsKey(successor.id()) && round(map.get(successor.id()).fraction()) == 0) {
                     removes.add(successor.id());
                     misses.put(id, misses.get(id) + 1);
                 }
@@ -111,6 +110,44 @@ public abstract class Minset {
                     && misses.get(id) == 0) {
                 removes.add(id);
             }
+        }
+
+        for (Long id : removes) {
+            map.remove(id);
+        }
+
+        return new HashSet<>(map.values());
+    }
+
+    public static Set<RoadPoint> removeZeroMeter(Set<RoadPoint> candidates) {
+
+        HashMap<Long, RoadPoint> map = new HashMap<>();
+        HashSet<Long> removes = new HashSet<>();
+
+        for (RoadPoint candidate : candidates) {
+            map.put(candidate.edge().id(), candidate);
+
+        }
+
+        for (RoadPoint candidate : candidates) {
+            if (round(candidate.fraction()) != 0) {
+                continue;
+
+            }
+            Iterator<Road> successors = candidate.edge().successors();
+
+            Long id = candidate.edge().id();
+            Long previouseId = 0l;
+            while (successors.hasNext()) {
+                Road successor = successors.next();
+                if (!successors.hasNext() && map.containsKey(previouseId)
+                        && round(map.get(previouseId).fraction()) == 1) {
+                    removes.add(id);
+                }
+                previouseId = successor.id();
+
+            }
+
         }
 
         for (Long id : removes) {
