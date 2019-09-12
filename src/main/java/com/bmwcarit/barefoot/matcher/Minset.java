@@ -119,6 +119,14 @@ public abstract class Minset {
         return new HashSet<>(map.values());
     }
 
+    /**
+     * Remove candidates where the target has zero meters driven on the last
+     * segment.
+     * 
+     * @param candidates
+     *            Set<RoadPoint>.
+     * @return Set<RoadPoint> Set of possible candidates.
+     */
     public static Set<RoadPoint> removeZeroMeter(Set<RoadPoint> candidates) {
 
         HashMap<Long, RoadPoint> map = new HashMap<>();
@@ -137,14 +145,14 @@ public abstract class Minset {
             Iterator<Road> successors = candidate.edge().successors();
 
             Long id = candidate.edge().id();
-            Long previouseId = 0l;
+            Long previousId = -1L;
             while (successors.hasNext()) {
                 Road successor = successors.next();
-                if (!successors.hasNext() && map.containsKey(previouseId)
-                        && round(map.get(previouseId).fraction()) == 1) {
+                if (!successors.hasNext() && map.containsKey(previousId)
+                        && round(map.get(previousId).fraction()) == 1) {
                     removes.add(id);
                 }
-                previouseId = successor.id();
+                previousId = successor.id();
 
             }
 
