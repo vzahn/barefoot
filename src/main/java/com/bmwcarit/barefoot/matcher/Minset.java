@@ -138,21 +138,18 @@ public abstract class Minset {
         }
 
         for (RoadPoint candidate : candidates) {
-            if (round(candidate.fraction()) != 0) {
+            if (round(candidate.fraction()) != 1) {
                 continue;
 
             }
             Iterator<Road> successors = candidate.edge().successors();
 
-            Long id = candidate.edge().id();
-            Long previousId = -1L;
             while (successors.hasNext()) {
                 Road successor = successors.next();
-                if (!successors.hasNext() && map.containsKey(previousId)
-                        && round(map.get(previousId).fraction()) == 1) {
-                    removes.add(id);
+                if (candidate.edge().base().refid() != successor.base().refid() && map.containsKey(successor.id())
+                        && round(map.get(successor.id()).fraction()) == 0) {
+                    removes.add(successor.id());
                 }
-                previousId = successor.id();
 
             }
 
