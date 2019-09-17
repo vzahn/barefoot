@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -230,7 +231,9 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
             throw new RuntimeException("out-of-order state update is prohibited. Last Time: "
                     + sequence.peekLast().two().time() + " , sample time: " + sample.time());
         }
-        for (C candidate : vector) {
+
+        List<C> test = vector.stream().collect(Collectors.toList());
+        for (C candidate : test) {
             counters.put(candidate, 0);
             if (candidate.predecessor() != null) {
                 if (!counters.containsKey(candidate.predecessor())

@@ -380,9 +380,9 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             radius = perimeter;
         }
         Set<RoadPoint> pointsRadius = map.spatial().radius(sample.point(), radius);
-        // Set<RoadPoint> points = pointsRadius;
+        Set<RoadPoint> points = pointsRadius;
         // Minset is not yet suitable for all situations:
-        Set<RoadPoint> points = new HashSet<>(Minset.removeZeroMeter(pointsRadius));
+        // Set<RoadPoint> points = new HashSet<>(Minset.removeZeroMeter(pointsRadius));
 
         Map<Long, RoadPoint> map = new HashMap<>();
         for (RoadPoint point : points) {
@@ -442,7 +442,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                         emission);
             }
         }
-
         return candidates;
     }
 
