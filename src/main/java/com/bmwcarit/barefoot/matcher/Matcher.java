@@ -547,8 +547,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
                     : 1 / lambda;
             double routeCost = routeForCostFunction.cost(cost);
-            double distanceRoute = spatial.distance(routeForCostFunction.source().geometry(),
-                    routeForCostFunction.target().geometry());
+            double distanceRoute = base;
 
             double transition = 0;
             if (isUTurn) {
@@ -595,9 +594,12 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
             // If routeCost is longer than 2 x base then discard transition, except route
             // includes tunnel
+            if (routeHasTunnel) {
+                routeCost = routeCost - tunnelLength;
+            }
             if ((routeCost > distanceRoute * transitionFactor
                     || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
-                    && !routeHasTunnel && (distanceRoute > 35d || routeCost > base * maxBaseFactor)) {
+                    && (distanceRoute > 35d || routeCost > base * maxBaseFactor)) {
                 transition = 0;
             }
 
