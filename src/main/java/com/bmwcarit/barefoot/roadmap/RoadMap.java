@@ -36,12 +36,13 @@ import com.esri.core.geometry.Polygon;
 import com.esri.core.geometry.SpatialReference;
 
 /**
- * Implementation of a road map with (directed) roads, i.e. {@link Road} objects. It provides a road
- * network for routing that is derived from {@link Graph} and spatial search of roads with a
- * {@link SpatialIndex}.
+ * Implementation of a road map with (directed) roads, i.e. {@link Road}
+ * objects. It provides a road network for routing that is derived from
+ * {@link Graph} and spatial search of roads with a {@link SpatialIndex}.
  * <p>
- * <b>Note:</b> Since {@link Road} objects are directed representations of {@link BaseRoad} objects,
- * identifiers have a special mapping, see {@link Road}.
+ * <b>Note:</b> Since {@link Road} objects are directed representations of
+ * {@link BaseRoad} objects, identifiers have a special mapping, see
+ * {@link Road}.
  */
 public class RoadMap extends Graph<Road> implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -50,62 +51,57 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
     static Collection<Road> split(BaseRoad base) {
         ArrayList<Road> roads = new ArrayList<>();
-
-        if(base.getDirection() == 3){
-        	 roads.add(new Road(base, Heading.forward));
-
-             if (!base.oneway()) {
-                 roads.add(new Road(base, Heading.backward));
-             }
-        }else if(base.getDirection() == 2){
-            	
-        	roads.add(new Road(base, Heading.backward));
-        }else if(base.getDirection() == 1){
-        	roads.add(new Road(base, Heading.forward));
-        }else{
+        if (base.getDirection() == 3) {
             roads.add(new Road(base, Heading.forward));
-
+            if (!base.oneway()) {
+                roads.add(new Road(base, Heading.backward));
+            }
+        } else if (base.getDirection() == 2) {
+            roads.add(new Road(base, Heading.backward));
+        } else if (base.getDirection() == 1) {
+            roads.add(new Road(base, Heading.forward));
+        } else {
+            roads.add(new Road(base, Heading.forward));
             if (!base.oneway()) {
                 roads.add(new Road(base, Heading.backward));
             }
         }
-        
-       
-
         return roads;
     }
 
     private class Index implements SpatialIndex<RoadPoint>, Serializable {
         private static final long serialVersionUID = 1L;
         private final QuadTreeIndex index = new QuadTreeIndex();
+        private int intIndex = 0;
 
         public void put(Road road) {
-            int id = (int) road.base().id();
+            int id = intIndex;
+            long geoId = road.base().refid();
 
-            if (index.contains(id)) {
+            if (index.contains(geoId)) {
                 return;
             }
 
-            index.add(id, road.base().wkb());
+            index.add(geoId, road.base().wkb(), id);
+            intIndex++;
         }
 
         public void clear() {
             index.clear();
         }
 
-        private Set<RoadPoint> split(Set<Tuple<Integer, Double>> points) {
+        private Set<RoadPoint> split(Set<Tuple<Long, Double>> set) {
             Set<RoadPoint> neighbors = new HashSet<>();
 
             /*
              * This uses the road
              */
-            for (Tuple<Integer, Double> point : points) {
-        	  if (edges.containsKey((long) point.one() * 2 )) {
-        	      neighbors.add(new RoadPoint(edges.get((long) point.one() * 2), point.two()));
-                  } 
-        	  if (edges.containsKey((long) point.one() * 2 + 1)) {
-                      neighbors.add(new RoadPoint(edges.get((long) point.one() * 2 + 1),
-                            1.0 - point.two()));
+            for (Tuple<Long, Double> point : set) {
+                if (edges.containsKey((long) point.one() * 2)) {
+                    neighbors.add(new RoadPoint(edges.get((long) point.one() * 2), point.two()));
+                }
+                if (edges.containsKey((long) point.one() * 2 + 1)) {
+                    neighbors.add(new RoadPoint(edges.get((long) point.one() * 2 + 1), 1.0 - point.two()));
                 }
             }
 
@@ -129,12 +125,14 @@ public class RoadMap extends Graph<Road> implements Serializable {
     };
 
     /**
-     * Loads and creates a {@link RoadMap} object from {@link BaseRoad} objects loaded with a
-     * {@link RoadReader}.
+     * Loads and creates a {@link RoadMap} object from {@link BaseRoad} objects
+     * loaded with a {@link RoadReader}.
      *
-     * @param reader {@link RoadReader} to load {@link BaseRoad} objects.
+     * @param reader
+     *            {@link RoadReader} to load {@link BaseRoad} objects.
      * @return {@link RoadMap} object.
-     * @throws SourceException thrown if error occurs while loading roads.
+     * @throws SourceException
+     *             thrown if error occurs while loading roads.
      */
     public static RoadMap Load(RoadReader reader) throws SourceException {
 
@@ -172,8 +170,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
         System.gc();
         memory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - memory;
-        logger.info("~{} megabytes used for road data (estimate)",
-                Math.max(0, Math.round(memory / 1E6)));
+        logger.info("~{} megabytes used for road data (estimate)", Math.max(0, Math.round(memory / 1E6)));
 
         return roadmap;
     }
@@ -201,15 +198,15 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
         System.gc();
         memory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - memory;
-        logger.info("~{} megabytes used for spatial index (estimate)",
-                Math.max(0, Math.round(memory / 1E6)));
+        logger.info("~{} megabytes used for spatial index (estimate)", Math.max(0, Math.round(memory / 1E6)));
 
         return this;
     }
 
     /**
-     * Destroys road network topology and spatial index. (Necessary if roads have been added and
-     * road network topology and spatial index must be reconstructed.)
+     * Destroys road network topology and spatial index. (Necessary if roads have
+     * been added and road network topology and spatial index must be
+     * reconstructed.)
      */
     @Override
     public void deconstruct() {
@@ -224,11 +221,12 @@ public class RoadMap extends Graph<Road> implements Serializable {
     }
 
     /**
-     * Returns instance of {@link SpatialIndex} for spatial search of {@link Road} objects.
+     * Returns instance of {@link SpatialIndex} for spatial search of {@link Road}
+     * objects.
      *
-     * @return Instance of {@link SpatialIndex} or <i>null</i>, if the map hasn't been constructed (
-     *         {@link RoadMap#construct()}) or has been deconstructed (
-     *         {@link RoadMap#deconstruct()}).
+     * @return Instance of {@link SpatialIndex} or <i>null</i>, if the map hasn't
+     *         been constructed ( {@link RoadMap#construct()}) or has been
+     *         deconstructed ( {@link RoadMap#deconstruct()}).
      */
     public SpatialIndex<RoadPoint> spatial() {
         if (index == null)
@@ -287,10 +285,8 @@ public class RoadMap extends Graph<Road> implements Serializable {
                     road = _road.base();
                 } while (road == null || exclusions != null && exclusions.contains(road.type())
                         || polygon != null
-                                && !GeometryEngine.contains(polygon, road.geometry(),
-                                        SpatialReference.create(4326))
-                                && !GeometryEngine.overlaps(polygon, road.geometry(),
-                                        SpatialReference.create(4326)));
+                                && !GeometryEngine.contains(polygon, road.geometry(), SpatialReference.create(4326))
+                                && !GeometryEngine.overlaps(polygon, road.geometry(), SpatialReference.create(4326)));
                 return road;
             }
         };
