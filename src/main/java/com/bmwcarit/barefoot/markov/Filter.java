@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.matcher.MatcherCandidate;
 import com.bmwcarit.barefoot.matcher.MatcherSample;
+import com.bmwcarit.barefoot.matcher.MatcherTransition;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
@@ -172,14 +173,12 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
             for (Tuple<C, Double> candidate : candidates) {
                 states.add(candidate.one());
             }
-
             Map<C, Map<C, Tuple<T, Double>>> transitions = transitions(new Tuple<>(previous, predecessors),
                     new Tuple<>(sample, states));
 
             for (Tuple<C, Double> candidate : candidates) {
                 C candidate_ = candidate.one();
                 candidate_.seqprob(Double.NEGATIVE_INFINITY);
-
                 if (logger.isTraceEnabled()) {
                     try {
                         logger.trace("state candidate {} ({}) {}",
@@ -189,19 +188,14 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                         logger.trace("state candidate (not JSON parsable candidate: {})", e.getMessage());
                     }
                 }
-
                 C previousPredecessor = null;
-
                 for (C predecessor : predecessors) {
                     Tuple<T, Double> transition = transitions.get(predecessor).get(candidate_);
                     if (transition == null || transition.two() == 0) {
                         continue;
                     }
-
                     candidate_.filtprob(candidate_.filtprob() + (transition.two() * predecessor.filtprob()));
-
                     double seqprob = predecessor.seqprob() + Math.log10(transition.two()) + Math.log10(candidate.two());
-
                     if (logger.isTraceEnabled()) {
                         try {
                             logger.trace(
@@ -214,24 +208,29 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                             logger.trace("state transition (not JSON parsable transition: {})", e.getMessage());
                         }
                     }
-
                     if (seqprob > candidate_.seqprob()) {
-                        candidate_.predecessor(predecessor);
-                        candidate_.transition(transition.one());
-                        candidate_.seqprob(seqprob);
-                        previousPredecessor = predecessor;
+                        previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(), seqprob);
                     } else if (seqprob == candidate_.seqprob()) {
-                        MatcherCandidate mcPre = (MatcherCandidate) predecessor;
-                        MatcherCandidate mcPrePre = (MatcherCandidate) previousPredecessor;
-                        logger.trace("Candidate has equal seqprob.");
-                        // Make deterministic decision
-                        if (mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
-                            logger.trace("Keeping old: " + mcPrePre.point().edge().id());
+                        MatcherTransition currentBestTransition = (MatcherTransition) candidate_.transition();
+                        MatcherTransition currentTransition = (MatcherTransition) transition.one();
+                        // Make deterministic decision based on shortest number of roads
+                        if (currentBestTransition.route().size() > currentTransition.route().size()) {
+                            logger.trace("Taking new with shorter transition.");
+                            previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(), seqprob);
+                        } else if (currentBestTransition.route().size() < currentTransition.route().size()) {
+                            logger.trace("Keeping old with shorter transition.");
                         } else {
-                            logger.trace("Taking new: " + mcPre.point().edge().id());
-                            candidate_.predecessor(predecessor);
-                            candidate_.transition(transition.one());
-                            candidate_.seqprob(seqprob);
+                            // Make deterministic decision based on arbitrary edge-id
+                            MatcherCandidate mcPre = (MatcherCandidate) predecessor;
+                            MatcherCandidate mcPrePre = (MatcherCandidate) previousPredecessor;
+                            logger.trace("Candidate has equal seqprob.");
+                            if (mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
+                                logger.trace("Keeping old: " + mcPrePre.point().edge().id());
+                            } else {
+                                logger.trace("Taking new: " + mcPre.point().edge().id());
+                                previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
+                                        seqprob);
+                            }
                         }
                     }
                 }
@@ -310,6 +309,22 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
         logger.trace("{} state candidates for state update", result.size());
         return result;
+    }
+
+    /**
+     * Sets all given attributes for candidate and returns predecessor for
+     * convenient calling.
+     * 
+     * @param candidate
+     * @param predecessor
+     * @param transition
+     * @param seqprob
+     */
+    private C modifyCandidate(C candidate, C predecessor, T transition, double seqprob) {
+        candidate.predecessor(predecessor);
+        candidate.transition(transition);
+        candidate.seqprob(seqprob);
+        return predecessor;
     }
 
 }
