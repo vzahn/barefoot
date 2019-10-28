@@ -72,7 +72,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
     /**
      * Gets transition and its transition probability for a pair of
      * {@link StateCandidate}s, which is a candidate <i>s<sub>t</sub></i> and its
-     * predecessor <i>s<sub>t</sub></i>
+     * predecessor <i>s<sub>t</sub></i>.
      *
      * @param predecessor
      *            Tuple of predecessor state candidate <i>s<sub>t-1</sub></i> and
@@ -190,6 +190,8 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                     }
                 }
 
+                C previousPredecessor = null;
+
                 for (C predecessor : predecessors) {
                     Tuple<T, Double> transition = transitions.get(predecessor).get(candidate_);
                     if (transition == null || transition.two() == 0) {
@@ -217,6 +219,20 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                         candidate_.predecessor(predecessor);
                         candidate_.transition(transition.one());
                         candidate_.seqprob(seqprob);
+                        previousPredecessor = predecessor;
+                    } else if (seqprob == candidate_.seqprob()) {
+                        MatcherCandidate mcPre = (MatcherCandidate) predecessor;
+                        MatcherCandidate mcPrePre = (MatcherCandidate) previousPredecessor;
+                        logger.trace("Candidate has equal seqprob.");
+                        // Make deterministic decision
+                        if (mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
+                            logger.trace("Keeping old: " + mcPrePre.point().edge().id());
+                        } else {
+                            logger.trace("Taking new: " + mcPre.point().edge().id());
+                            candidate_.predecessor(predecessor);
+                            candidate_.transition(transition.one());
+                            candidate_.seqprob(seqprob);
+                        }
                     }
                 }
 
