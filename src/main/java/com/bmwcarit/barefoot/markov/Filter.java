@@ -218,24 +218,14 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                         MatcherTransition currentTransition = (MatcherTransition) transition.one();
                         // Make deterministic decision based on shortest number of roads
                         if (currentBestTransition != null && currentTransition != null
-                                && currentBestTransition.route() != null && currentTransition.route() != null) {
+                                && currentBestTransition.route() != null && currentTransition.route() != null
+                                && currentBestTransition.route().size() != currentTransition.route().size()) {
                             if (currentBestTransition.route().size() > currentTransition.route().size()) {
                                 logger.trace("Taking new with shorter transition.");
                                 previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
                                         seqprob);
                             } else if (currentBestTransition.route().size() < currentTransition.route().size()) {
                                 logger.trace("Keeping old with shorter transition.");
-                            } else {
-                                // Make deterministic decision based on arbitrary edge-id
-                                MatcherCandidate mcPre = (MatcherCandidate) predecessor;
-                                MatcherCandidate mcPrePre = (MatcherCandidate) previousPredecessor;
-                                if (mcPrePre != null && mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
-                                    logger.trace("Keeping old: " + mcPrePre.point().edge().id());
-                                } else {
-                                    logger.trace("Taking new: " + mcPre.point().edge().id());
-                                    previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
-                                            seqprob);
-                                }
                             }
                         } else {
                             // Make deterministic decision based on arbitrary edge-id
@@ -343,6 +333,9 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
     private C modifyCandidate(C candidate, C predecessor, T transition, double seqprob) {
         candidate.predecessor(predecessor);
         candidate.transition(transition);
+        if (transition == null) {
+            System.out.println("Tell ME");
+        }
         candidate.seqprob(seqprob);
         return predecessor;
     }
