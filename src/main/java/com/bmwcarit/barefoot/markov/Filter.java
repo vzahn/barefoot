@@ -211,27 +211,45 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                     if (seqprob > candidate_.seqprob()) {
                         previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(), seqprob);
                     } else if (seqprob == candidate_.seqprob()) {
+                        logger.trace("Candidate has equal seqprob.");
                         MatcherTransition currentBestTransition = (MatcherTransition) candidate_.transition();
                         MatcherTransition currentTransition = (MatcherTransition) transition.one();
                         // Make deterministic decision based on shortest number of roads
-                        if (currentBestTransition.route().size() > currentTransition.route().size()) {
-                            logger.trace("Taking new with shorter transition.");
-                            previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(), seqprob);
-                        } else if (currentBestTransition.route().size() < currentTransition.route().size()) {
-                            logger.trace("Keeping old with shorter transition.");
+                        if (currentBestTransition != null && currentTransition != null
+                                && currentBestTransition.route() != null && currentTransition.route() != null) {
+                            if (currentBestTransition.route().size() > currentTransition.route().size()) {
+                                logger.trace("Taking new with shorter transition.");
+                                previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
+                                        seqprob);
+                            } else if (currentBestTransition.route().size() < currentTransition.route().size()) {
+                                logger.trace("Keeping old with shorter transition.");
+                            } else {
+                                // Make deterministic decision based on arbitrary edge-id
+                                MatcherCandidate mcPre = (MatcherCandidate) predecessor;
+                                MatcherCandidate mcPrePre = (MatcherCandidate) previousPredecessor;
+                                if (mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
+                                    logger.trace("Keeping old: " + mcPrePre.point().edge().id());
+                                } else {
+                                    logger.trace("Taking new: " + mcPre.point().edge().id());
+                                    previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
+                                            seqprob);
+                                }
+                            }
                         } else {
                             // Make deterministic decision based on arbitrary edge-id
                             MatcherCandidate mcPre = (MatcherCandidate) predecessor;
                             MatcherCandidate mcPrePre = (MatcherCandidate) previousPredecessor;
-                            logger.trace("Candidate has equal seqprob.");
                             if (mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
-                                logger.trace("Keeping old: " + mcPrePre.point().edge().id());
+                                logger.trace("Keeping old, not preferring transition decision: "
+                                        + mcPrePre.point().edge().id());
                             } else {
-                                logger.trace("Taking new: " + mcPre.point().edge().id());
+                                logger.trace(
+                                        "Taking new, not preferring transition decision: " + mcPre.point().edge().id());
                                 previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
                                         seqprob);
                             }
                         }
+
                     }
                 }
 
