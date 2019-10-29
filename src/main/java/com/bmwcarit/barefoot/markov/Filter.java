@@ -206,6 +206,8 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                                     transition.one().toJSON().toString());
                         } catch (JSONException e) {
                             logger.trace("state transition (not JSON parsable transition: {})", e.getMessage());
+                        } catch (NullPointerException npe) {
+                            logger.trace("can't trace details, as some attributes were null ", npe.getMessage());
                         }
                     }
                     if (seqprob > candidate_.seqprob()) {
