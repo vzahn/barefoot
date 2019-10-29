@@ -241,7 +241,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                             // Make deterministic decision based on arbitrary edge-id
                             MatcherCandidate mcPre = (MatcherCandidate) predecessor;
                             MatcherCandidate mcPrePre = (MatcherCandidate) previousPredecessor;
-                            if (mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
+                            if (mcPrePre != null && mcPrePre.point().edge().id() <= mcPre.point().edge().id()) {
                                 logger.trace("Keeping old, not preferring transition decision: "
                                         + mcPrePre.point().edge().id());
                             } else {
