@@ -17,6 +17,11 @@ import java.util.UUID;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bmwcarit.barefoot.matcher.MatcherCandidate;
+import com.bmwcarit.barefoot.matcher.MatcherTransition;
 
 /**
  * State candidate in Hidden Markov Model (HMM) inference e.g. with a HMM filter
@@ -31,6 +36,7 @@ import org.json.JSONObject;
  *            Sample inherits from {@link Sample}.
  */
 public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample> {
+    private final static Logger logger = LoggerFactory.getLogger(StateCandidate.class);
     private final String id;
     private C predecessor = null;
     private T transition = null;
@@ -253,6 +259,52 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
      */
     public void setDeltaRoute(Double deltaRoute) {
         this.deltaRoute = deltaRoute;
+    }
+
+    /**
+     * Tells if the current candidate is more likely.
+     * 
+     * @param estimate
+     *            StateCandiate.
+     * @return If the Candidate is more likely then the parameter Candidate..
+     */
+    public boolean likelier(C estimate) {
+        if (this.seqprob > estimate.seqprob()) {
+            return true;
+        } else if (this.seqprob == estimate.seqprob()) {
+            logger.trace("Candidate has equal seqprob.");
+            MatcherTransition currentBestTransition = (MatcherTransition) estimate.transition();
+            MatcherTransition currentTransition = (MatcherTransition) this.transition;
+            // Make deterministic decision based on shortest number of roads
+            if (currentBestTransition != null && currentTransition != null && currentBestTransition.route() != null
+                    && currentTransition.route() != null
+                    && currentBestTransition.route().size() != currentTransition.route().size()) {
+                if (currentBestTransition.route().size() > currentTransition.route().size()) {
+                    logger.trace("Taking new with shorter transition.");
+                    return true;
+                } else if (currentBestTransition.route().size() < currentTransition.route().size()) {
+                    logger.trace("Keeping old with shorter transition.");
+                    return false;
+                }
+            } else {
+                // Make deterministic decision based on arbitrary edge-id
+                MatcherCandidate cuurentCandidate = (MatcherCandidate) this;
+                MatcherCandidate bestCandidate = (MatcherCandidate) estimate;
+                if (bestCandidate != null && bestCandidate.point().edge().id() <= cuurentCandidate.point().edge().id()) {
+                    logger.trace("Keeping old, not preferring transition decision: " + bestCandidate.point().edge().id());
+                    return false;
+                } else {
+                    if (cuurentCandidate == null) {
+                        System.out.println("give me 4");
+                    }
+                    logger.trace("Taking new, not preferring transition decision: " + cuurentCandidate.point().edge().id());
+                    return true;
+                }
+            }
+
+        }
+        return false;
+
     }
 
 }

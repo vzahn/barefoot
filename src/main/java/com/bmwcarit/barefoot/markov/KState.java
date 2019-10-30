@@ -247,7 +247,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
             C estimate = null;
 
             for (C candidate : sequence.peekLast().one()) {
-                if (estimate == null || candidate.seqprob() > estimate.seqprob()) {
+                if (estimate == null || candidate.likelier(estimate)) {
                     estimate = candidate;
                 }
                 if (counters.get(candidate) == 0) {
@@ -406,7 +406,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         C kestimate = null;
 
         for (C candidate : sequence.peekLast().one()) {
-            if (kestimate == null || candidate.seqprob() > kestimate.seqprob()) {
+            if (kestimate == null || candidate.likelier(kestimate)) {
                 kestimate = candidate;
             }
         }
