@@ -269,7 +269,7 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
      * @return If the Candidate is more likely then the parameter Candidate..
      */
     public boolean likelier(C estimate) {
-        if (this.seqprob > estimate.seqprob()) {
+        if (estimate == null || this.seqprob > estimate.seqprob()) {
             return true;
         } else if (this.seqprob == estimate.seqprob()) {
             logger.trace("Candidate has equal seqprob.");
@@ -288,16 +288,15 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
                 }
             } else {
                 // Make deterministic decision based on arbitrary edge-id
-                MatcherCandidate cuurentCandidate = (MatcherCandidate) this;
+                MatcherCandidate currentCandidate = (MatcherCandidate) this;
                 MatcherCandidate bestCandidate = (MatcherCandidate) estimate;
-                if (bestCandidate != null && bestCandidate.point().edge().id() <= cuurentCandidate.point().edge().id()) {
-                    logger.trace("Keeping old, not preferring transition decision: " + bestCandidate.point().edge().id());
+                if (bestCandidate.point().edge().id() <= currentCandidate.point().edge().id()) {
+                    logger.trace(
+                            "Keeping old, not preferring transition decision: " + bestCandidate.point().edge().id());
                     return false;
                 } else {
-                    if (cuurentCandidate == null) {
-                        System.out.println("give me 4");
-                    }
-                    logger.trace("Taking new, not preferring transition decision: " + cuurentCandidate.point().edge().id());
+                    logger.trace(
+                            "Taking new, not preferring transition decision: " + currentCandidate.point().edge().id());
                     return true;
                 }
             }
