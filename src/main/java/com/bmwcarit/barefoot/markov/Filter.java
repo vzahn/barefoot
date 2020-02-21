@@ -333,9 +333,6 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
     private C modifyCandidate(C candidate, C predecessor, T transition, double seqprob) {
         candidate.predecessor(predecessor);
         candidate.transition(transition);
-        if (transition == null) {
-            System.out.println("Tell ME");
-        }
         candidate.seqprob(seqprob);
         return predecessor;
     }

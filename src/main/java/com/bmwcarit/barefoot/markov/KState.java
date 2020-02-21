@@ -265,10 +265,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
             }
         }
 
-        if (vector.isEmpty()) {
-            System.out.println("tell me");
-        }
-
         sequence.add(new Tuple<>(vector, sample));
 
         // move stable candidate to the candidate storage, if the storage is set
