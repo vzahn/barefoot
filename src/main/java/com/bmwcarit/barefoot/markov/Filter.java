@@ -194,6 +194,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                     if (transition == null || transition.two() == 0) {
                         continue;
                     }
+
                     candidate_.filtprob(candidate_.filtprob() + (transition.two() * predecessor.filtprob()));
                     double seqprob = predecessor.seqprob() + Math.log10(transition.two()) + Math.log10(candidate.two());
                     if (logger.isTraceEnabled()) {
@@ -261,7 +262,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                             candidate_.seqprob());
                 }
 
-                if (candidate_.filtprob() == 0) {
+                if (Double.isNaN(candidate_.filtprob()) || candidate_.filtprob() == 0) {
                     continue;
                 }
                 candidate_.time(sample.time());

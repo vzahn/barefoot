@@ -46,6 +46,7 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
     private Double distance = 0d;
     private Double deltaHeading = 0d;
     private Double deltaRoute = 0d;
+    private boolean uTurn = false;
 
     /**
      * Creates a {@link StateCandidate} object and generates a random UUID.
@@ -216,49 +217,36 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
         this.time = time;
     }
 
-    /**
-     * @return the distance
-     */
     public Double getDistance() {
         return distance;
     }
 
-    /**
-     * @param distance
-     *            the distance to set
-     */
     public void setDistance(Double distance) {
         this.distance = distance;
     }
 
-    /**
-     * @return the deltaHeading
-     */
     public Double getDeltaHeading() {
         return deltaHeading;
     }
 
-    /**
-     * @param deltaHeading
-     *            the deltaHeading to set
-     */
     public void setDeltaHeading(Double deltaHeading) {
         this.deltaHeading = deltaHeading;
     }
 
-    /**
-     * @return the deltaRoute
-     */
     public Double getDeltaRoute() {
         return deltaRoute;
     }
 
-    /**
-     * @param deltaRoute
-     *            the deltaRoute to set
-     */
     public void setDeltaRoute(Double deltaRoute) {
         this.deltaRoute = deltaRoute;
+    }
+
+    public boolean isuTurn() {
+        return uTurn;
+    }
+
+    public void setuTurn(boolean uTurn) {
+        this.uTurn = uTurn;
     }
 
     /**

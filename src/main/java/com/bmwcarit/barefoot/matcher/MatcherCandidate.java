@@ -92,9 +92,6 @@ public class MatcherCandidate extends StateCandidate<MatcherCandidate, MatcherTr
         return point;
     }
 
-    /**
-     * @return the sample
-     */
     public MatcherSample getSample() {
         return sample;
     }

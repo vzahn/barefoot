@@ -124,6 +124,29 @@ public class Path<E extends AbstractEdge<E>> {
     }
 
     /**
+     * Check if a U-Turn occurred on this route.
+     * 
+     * @return boolean
+     */
+    public boolean isUturn() {
+        long lastRoadID = ((Road) source.edge()).base().id();
+        long lastEdgeID = source.edge().id();
+
+        for (int i = 1; i < edges.size(); ++i) {
+            if (((Road) edges.get(i)).base().id() == lastRoadID && edges.get(i).id() != lastEdgeID) {
+                return true;
+            }
+            lastRoadID = ((Road) edges.get(i)).base().id();
+            lastEdgeID = edges.get(i).id();
+        }
+        if (((Road) target.edge()).base().id() == lastRoadID && target.edge().id() != lastEdgeID) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns if the route includes a tunnel segment.
      * 
      * @return boolean

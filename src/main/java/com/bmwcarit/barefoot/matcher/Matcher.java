@@ -499,44 +499,40 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             Route routeForCostFunction = route;
             boolean isUTurn = false;
             int edgeSize = edges.size();
-            if (edgeSize >= 2) {
-                if (edges.get(0).base().id() == edges.get(1).base().id() && edges.get(0).id() != edges.get(1).id()) {
-                    RoadPoint start = predecessor.point(), end = candidate.point();
-                    // Here, additional cost of 5 meters are added to the route
-                    // length in order to penalize and avoid turns, e.g., at the
-                    // end of a trace.
-                    isUTurn = true;
-                    if (edgeSize > 2) {
-                        // When start is forward add 1mm from the driven length,
-                        // so on the backward it has to drive 1mm more
-                        // When start is backward add 1mm to the driven length
-                        // so, when driving forward is has to drive 1mm more.
-                        // forward and backward are driving from 0 -> 1 fraction
-                        // 1mm is added due to rounding issues with double
 
-                        start = new RoadPoint(edges.get(1),
-                                Math.max(0d, 1 - (start.fraction() + (roundingFraction / edges.get(1).length()))));
+            if (edgeSize >= 2 && route.isUturn()) {
+                RoadPoint start = predecessor.point(), end = candidate.point();
+                // Here, additional cost of 5 meters are added to the route
+                // length in order to penalize and avoid turns, e.g., at the
+                // end of a trace.
+                isUTurn = true;
+                if (edgeSize > 2) {
+                    // When start is forward add 1mm from the driven length,
+                    // so on the backward it has to drive 1mm more
+                    // When start is backward add 1mm to the driven length
+                    // so, when driving forward is has to drive 1mm more.
+                    // forward and backward are driving from 0 -> 1 fraction
+                    // 1mm is added due to rounding issues with double
 
-                        edges.remove(0);
+                    start = new RoadPoint(edges.get(1),
+                            Math.max(0d, 1 - (start.fraction() + (roundingFraction / edges.get(1).length()))));
 
+                    edges.remove(0);
+
+                } else {
+                    if (start.fraction() < 1 - end.fraction()) {
+                        end = new RoadPoint(edges.get(0),
+                                Math.min(1d, 1 - end.fraction() + (roundingFraction / edges.get(0).length())));
+                        edges.remove(1);
                     } else {
-                        if (start.fraction() < 1 - end.fraction()) {
-                            end = new RoadPoint(edges.get(0),
-                                    Math.min(1d, 1 - end.fraction() + (roundingFraction / edges.get(0).length())));
-                            edges.remove(1);
-                        } else {
-                            start = new RoadPoint(edges.get(1),
-                                    Math.max(0d, 1 - start.fraction() - (roundingFraction / edges.get(1).length())));
-                            edges.remove(0);
-                        }
+                        start = new RoadPoint(edges.get(1),
+                                Math.max(0d, 1 - start.fraction() - (roundingFraction / edges.get(1).length())));
+                        edges.remove(0);
                     }
-                    routeForCostFunction = new Route(start, end, edges);
-
-                } else if (edgeSize > 2 && edges.get(edgeSize - 1).base().id() == edges.get(edgeSize - 2).base().id()
-                        && edges.get(edgeSize - 1).id() != edges.get(edgeSize - 2).id()) {
-                    // If a UTurn occur at the end of the route
-                    isUTurn = true;
                 }
+                routeForCostFunction = new Route(start, end, edges);
+                candidate.setuTurn(true);
+
             }
 
             // According to Newson and Krumm 2009, transition probability is
@@ -551,7 +547,13 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
 
             double transition = 0;
             if (isUTurn) {
-                transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base)) + uTurnPenalty) / beta);
+                // the UTurn must be on the same segment as the previous segment other it is no
+                // UTurn and shall not be allowed.
+                if (predecessor.point().edge().base().id() == candidate.point().edge().base().id()) {
+                    transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base)) + uTurnPenalty) / beta);
+                } else {
+                    transition = 0;
+                }
             } else {
                 transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base))) / beta);
             }
@@ -564,7 +566,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
             double transitionPenalty = 1;
             // Route is no tunnel or tunnel length is above "maybe-tunnel" limit
             boolean isMaybeTunnel = 2.5 * tunnelPass >= routeCost && tunnelLength <= tunnelPass;
-            if ((!routeHasTunnel || !isMaybeTunnel)
+            if (((!routeHasTunnel || !isMaybeTunnel) && transition > 0)
                     // Re-gain and partial tunnel
                     && (candidateGpsOutage && tunnelLength < routeCost
                             // Or no re-gain and tunnel
