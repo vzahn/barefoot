@@ -169,10 +169,10 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
     }
 
     /**
-     * Sets the candidate store and activates truncation of the matching sequence
+     * Sets the candidate store and activates truncation of the matching sequence.
      * 
-     * @param List<C>
-     *            ArrayList<C> for the candidate storage
+     * @param candidateStorage
+     *            List<C> ArrayList<C> for the candidate storage
      */
     public void setCandidateStorage(List<C> candidateStorage) {
         this.candidateStorage = candidateStorage;
@@ -322,9 +322,10 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
             for (C removeable : removableCounters) {
                 counters.remove(removeable);
             }
-
-            logger.warn("Size of candidates: " + maxCounters + " reached. Deleted " + deletedCounters
-                    + " counters with time older than " + t + " in ms");
+            if (deletedCounters > 0) {
+                logger.warn("Size of candidates: " + maxCounters + " reached. Deleted " + deletedCounters
+                        + " counters with time older than " + t + " in ms");
+            }
         }
         if (!sequence.isEmpty()) {
             // deletion of candidates,that are to old (t) or sequence is to long
