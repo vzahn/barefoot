@@ -476,10 +476,16 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         final double maxOverSpeed = maxVelocity;
 
         for (final MatcherCandidate predecessor : predecessors.two()) {
-            Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(), bound,
-                    deltaTime, maxOverSpeed);
+            if (base > bound) {
+                Map<RoadPoint, List<Road>> routes = new HashMap<RoadPoint, List<Road>>();
 
-            transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
+                transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
+            } else {
+                Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
+                        bound, deltaTime, maxOverSpeed);
+
+                transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
+            }
         }
 
         return transitions;
