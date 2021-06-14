@@ -475,18 +475,12 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
         final double maxOverSpeed = maxVelocity;
 
-        for (final MatcherCandidate predecessor : predecessors.two()) {
-            if (base > bound) {
-                Map<RoadPoint, List<Road>> routes = new HashMap<RoadPoint, List<Road>>();
+        predecessors.two().forEach(predecessor -> {
+            final Map<RoadPoint, List<Road>> routes = base > bound ? new HashMap<>()
+                    : router.route(predecessor.point(), targets, cost, new Distance(), bound, deltaTime, maxOverSpeed);
 
-                transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
-            } else {
-                Map<RoadPoint, List<Road>> routes = router.route(predecessor.point(), targets, cost, new Distance(),
-                        bound, deltaTime, maxOverSpeed);
-
-                transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
-            }
-        }
+            transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
+        });
 
         return transitions;
     }
