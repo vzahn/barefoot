@@ -13,7 +13,7 @@
 
 package com.bmwcarit.barefoot.topology;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class Path<E extends AbstractEdge<E>> {
     public Path(Point<E> single) {
         this.source = single;
         this.target = single;
-        this.edges = new LinkedList<>(Arrays.asList(single.edge()));
+        this.edges = new LinkedList<>(Collections.singletonList(single.edge()));
         if (!valid()) {
             throw new RuntimeException("unvalid path");
         }
@@ -92,7 +92,7 @@ public class Path<E extends AbstractEdge<E>> {
      *
      * @return True if the path is valid, false otherwise.
      */
-    boolean valid() {
+    private final boolean valid() {
         if (edges.getFirst().id() != source.edge().id()) {
             return false;
         }

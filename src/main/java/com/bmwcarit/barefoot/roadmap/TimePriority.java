@@ -23,14 +23,14 @@ public class TimePriority extends Cost<Road> {
     private static final Distance distance = new Distance();
 
     /**
-     * Gets time-priority cost for passing the road, i.e. traveling time multiplied with priority
-     * cost factor.
+     * Gets time-priority cost for passing the road, i.e. traveling time multiplied
+     * with priority cost factor.
      *
      * @return Time-priority cost for passing the road
      */
     @Override
     public double cost(Road road) {
-    	
+
         return distance.cost(road) * Math.max(heuristic_priority, road.base().getTunnel() ? 1.0 : road.priority());
     }
 }

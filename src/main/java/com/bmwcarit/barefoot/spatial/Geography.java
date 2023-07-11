@@ -79,7 +79,7 @@ public class Geography implements SpatialOperator {
 
     @Override
     public double intercept(Polyline p, Point c) {
-        double d = Double.MAX_VALUE;
+        double currentDistance = Double.MAX_VALUE;
         Point a = p.getPoint(0);
         double s = 0, sf = 0, ds = 0;
 
@@ -88,17 +88,17 @@ public class Geography implements SpatialOperator {
 
             ds = distance(a, b);
 
-            double f_ = intercept(a, b, c);
-            if (Double.isNaN(f_)) {
+            double f = intercept(a, b, c);
+            if (Double.isNaN(f)) {
                 continue;
             }
-            f_ = (f_ > 1) ? 1 : (f_ < 0) ? 0 : f_;
-            Point x = interpolate(a, b, f_);
-            double d_ = distance(c, x);
+            f = (f > 1) ? 1 : (f < 0) ? 0 : f;
+            Point x = interpolate(a, b, f);
+            double d = distance(c, x);
 
-            if (d_ < d) {
-                sf = (f_ * ds) + s;
-                d = d_;
+            if (d < currentDistance) {
+                sf = (f * ds) + s;
+                currentDistance = d;
             }
 
             s = s + ds;

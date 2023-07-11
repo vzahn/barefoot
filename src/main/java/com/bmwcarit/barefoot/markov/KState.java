@@ -45,26 +45,13 @@ import com.bmwcarit.barefoot.util.Tuple;
  */
 public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample>
         extends StateMemory<C, T, S> {
-    private final static Logger logger = LoggerFactory.getLogger(Filter.class);
+    private final static Logger logger = LoggerFactory.getLogger(KState.class);
     private final int k;
     private final long t;
     private final int maxCounters;
     private final LinkedList<Tuple<Set<C>, S>> sequence;
     private final Map<C, Integer> counters;
     private List<C> candidateStorage;
-
-    /**
-     * Creates empty {@link KState} object with default parameters, i.e. capacity is
-     * unbounded.
-     */
-    public KState() {
-        this.maxCounters = Integer.MAX_VALUE;
-        this.k = -1;
-        this.t = -1;
-        this.sequence = new LinkedList<>();
-        this.counters = new HashMap<>();
-        this.candidateStorage = new ArrayList<>();
-    }
 
     /**
      * Creates a {@link KState} object from a JSON representation.
@@ -251,7 +238,9 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
                     estimate = candidate;
                 }
                 if (counters.get(candidate) == 0) {
-                    logger.debug("remove Candidate:" + candidate.toString());
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("remove Candidate:" + candidate.toString());
+                    }
                     deletes.add(candidate);
                 }
             }

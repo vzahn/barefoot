@@ -21,8 +21,9 @@ import com.bmwcarit.barefoot.spatial.SpatialOperator;
 import com.esri.core.geometry.Point;
 
 /**
- * Point on a {@link Road} defined by a reference to the {@link Road} and a fraction <i>f</i>, with
- * <i>0 &le; f &le; 1</i>, which defines an exact position on the {@link Road}.
+ * Point on a {@link Road} defined by a reference to the {@link Road} and a
+ * fraction <i>f</i>, with <i>0 &le; f &le; 1</i>, which defines an exact
+ * position on the {@link Road}.
  */
 public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
     private static final SpatialOperator spatial = new Geography();
@@ -32,9 +33,11 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
     /**
      * Creates a {@link RoadPoint}.
      *
-     * @param road {@link Road} object of the point.
-     * @param fraction Exact position on the {@link Road} defined as fraction <i>f</i>, with <i>0
-     *        &le; f &le; 1</i>.
+     * @param road
+     *            {@link Road} object of the point.
+     * @param fraction
+     *            Exact position on the {@link Road} defined as fraction <i>f</i>,
+     *            with <i>0 &le; f &le; 1</i>.
      */
     public RoadPoint(Road road, double fraction) {
         super(road, fraction);
@@ -59,7 +62,8 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
      * Gets the JSON representation of the {@link RoadPoint}.
      *
      * @return JSON representation of the {@link RoadPoint}.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONObject toJSON() throws JSONException {
         JSONObject json = edge().toJSON();
@@ -70,19 +74,22 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
     /**
      * Creates a {@link RoadPoint} object from its JSON representation.
      *
-     * @param json JSON representation of the {@link RoadPoint} object.
-     * @param map {@link RoadMap} as reference of the {@link RoadPoint}.
+     * @param json
+     *            JSON representation of the {@link RoadPoint} object.
+     * @param map
+     *            {@link RoadMap} as reference of the {@link RoadPoint}.
      * @return {@link RoadPoint} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public static RoadPoint fromJSON(JSONObject json, RoadMap map) throws JSONException {
         Road road = Road.fromJSON(json, map);
         double fraction = json.getDouble("frac");
         return new RoadPoint(road, fraction);
     }
-    
+
     public String toString() {
-    	String s = edge().base().refid() +"";
-    	return s;
+        String s = edge().base().refid() + "";
+        return s;
     }
 }

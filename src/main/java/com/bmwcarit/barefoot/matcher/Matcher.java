@@ -14,8 +14,6 @@
 package com.bmwcarit.barefoot.matcher;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.markov.Filter;
-import com.bmwcarit.barefoot.markov.KState;
 import com.bmwcarit.barefoot.road.Heading;
 import com.bmwcarit.barefoot.roadmap.Distance;
 import com.bmwcarit.barefoot.roadmap.Road;
@@ -624,46 +621,6 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         }
         return map;
 
-    }
-
-    /**
-     * Matches a full sequence of samples, {@link MatcherSample} objects and returns
-     * state representation of the full matching which is a {@link KState} object.
-     *
-     * @param samples
-     *            Sequence of samples, {@link MatcherSample} objects.
-     * @param minDistance
-     *            Minimum distance in meters between subsequent samples as criterion
-     *            to match a sample. (Avoids unnecessary matching where samples are
-     *            more dense than necessary.)
-     * @param minInterval
-     *            Minimum time interval in milliseconds between subsequent samples
-     *            as criterion to match a sample. (Avoids unnecessary matching where
-     *            samples are more dense than necessary.)
-     * @return State representation of the full matching which is a {@link KState}
-     *         object.
-     */
-    public MatcherKState mmatch(List<MatcherSample> samples, double minDistance, int minInterval) {
-        Collections.sort(samples, new Comparator<MatcherSample>() {
-            @Override
-            public int compare(MatcherSample left, MatcherSample right) {
-                return (int) (left.time() - right.time());
-            }
-        });
-
-        MatcherKState state = new MatcherKState();
-
-        for (MatcherSample sample : samples) {
-            if (state.sample() != null
-                    && (spatial.distance(sample.point(), state.sample().point()) < Math.max(0, minDistance)
-                            || (sample.time() - state.sample().time()) < Math.max(0, minInterval))) {
-                continue;
-            }
-            Set<MatcherCandidate> vector = execute(state.vector(), state.sample(), sample);
-            state.update(vector, sample);
-        }
-
-        return state;
     }
 
 }

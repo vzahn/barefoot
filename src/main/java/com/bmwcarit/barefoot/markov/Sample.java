@@ -19,8 +19,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Measurement sample as input for Hidden Markov Model (HMM) inference, e.g. with a HMM filter
- * {@link Filter}.
+ * Measurement sample as input for Hidden Markov Model (HMM) inference, e.g.
+ * with a HMM filter {@link Filter}.
  */
 public class Sample {
     private long time;
@@ -28,7 +28,8 @@ public class Sample {
     /**
      * Creates {@link Sample} object with a timestamp in milliseconds epoch time.
      *
-     * @param time Timestamp of position measurement in milliseconds epoch time.
+     * @param time
+     *            Timestamp of position measurement in milliseconds epoch time.
      */
     public Sample(long time) {
         this.time = time;
@@ -37,8 +38,10 @@ public class Sample {
     /**
      * Creates {@link Sample} object from JSON representation.
      *
-     * @param json JSON representation of a sample.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @param json
+     *            JSON representation of a sample.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public Sample(JSONObject json) throws JSONException {
         time = json.optLong("time", Long.MIN_VALUE);
@@ -46,8 +49,7 @@ public class Sample {
             String string = json.optString("time", "");
             if (!string.isEmpty()) {
                 try {
-                    time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX")
-                            .parse(json.getString("time")).getTime();
+                    time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX").parse(json.getString("time")).getTime();
                 } catch (ParseException e) {
                     throw new JSONException(e);
                 }
@@ -70,7 +72,8 @@ public class Sample {
      * Gets a JSON representation of the {@link Sample} object.
      *
      * @return JSON representation of the {@link Sample} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();

@@ -56,17 +56,6 @@ public class StateCandidate<C extends StateCandidate<C, T, S>, T extends StateTr
     }
 
     /**
-     * Creates {@link StateCandidate} object with a specific identifier.
-     *
-     * @param id
-     *            Object identifier (should be unique in {@link StateMemory}
-     *            context).
-     */
-    public StateCandidate(String id) {
-        this.id = id;
-    }
-
-    /**
      * Creates {@link StateCandidate} object from its JSON representation.
      *
      * @param json

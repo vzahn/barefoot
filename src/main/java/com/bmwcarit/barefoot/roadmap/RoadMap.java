@@ -69,8 +69,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
         return roads;
     }
 
-    private class Index implements SpatialIndex<RoadPoint>, Serializable {
-        private static final long serialVersionUID = 1L;
+    private class Index implements SpatialIndex<RoadPoint> {
         private final QuadTreeIndex index = new QuadTreeIndex();
         private int intIndex = 0;
 
@@ -84,10 +83,6 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
             index.add(geoId, road.base().wkb(), id);
             intIndex++;
-        }
-
-        public void clear() {
-            index.clear();
         }
 
         private Set<RoadPoint> split(Set<Tuple<Long, Double>> set) {
@@ -204,35 +199,18 @@ public class RoadMap extends Graph<Road> implements Serializable {
     }
 
     /**
-     * Destroys road network topology and spatial index. (Necessary if roads have
-     * been added and road network topology and spatial index must be
-     * reconstructed.)
-     */
-    @Override
-    public void deconstruct() {
-        logger.info("destructing ...");
-
-        super.deconstruct();
-
-        index.clear();
-        index = null;
-
-        logger.info("destructed");
-    }
-
-    /**
      * Returns instance of {@link SpatialIndex} for spatial search of {@link Road}
      * objects.
      *
      * @return Instance of {@link SpatialIndex} or <i>null</i>, if the map hasn't
-     *         been constructed ( {@link RoadMap#construct()}) or has been
-     *         deconstructed ( {@link RoadMap#deconstruct()}).
+     *         been constructed ( {@link RoadMap#construct()}).
      */
     public SpatialIndex<RoadPoint> spatial() {
-        if (index == null)
+        if (index == null) {
             throw new RuntimeException("index not constructed");
-        else
+        } else {
             return index;
+        }
     }
 
     /**
@@ -243,7 +221,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
     public RoadReader reader() {
         return new RoadReader() {
             Iterator<Road> iterator = null;
-            HashSet<Short> exclusions = null;
+            Set<Short> exclusions = null;
             Polygon polygon = null;
 
             @Override
@@ -257,7 +235,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
             }
 
             @Override
-            public void open(Polygon polygon, HashSet<Short> exclusions) throws SourceException {
+            public void open(Polygon polygon, Set<Short> exclusions) throws SourceException {
                 iterator = edges.values().iterator();
                 this.exclusions = exclusions;
                 this.polygon = polygon;
@@ -270,24 +248,25 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
             @Override
             public BaseRoad next() throws SourceException {
-                BaseRoad road = null;
+                BaseRoad baseRoad = null;
                 do {
                     if (!iterator.hasNext()) {
                         return null;
                     }
 
-                    Road _road = iterator.next();
+                    Road road = iterator.next();
 
-                    if (_road.id() % 2 == 1 && !_road.base().oneway()) {
+                    if (road.id() % 2 == 1 && !road.base().oneway()) {
                         continue;
                     }
 
-                    road = _road.base();
-                } while (road == null || exclusions != null && exclusions.contains(road.type())
+                    baseRoad = road.base();
+                } while (baseRoad == null || exclusions != null && exclusions.contains(baseRoad.type())
                         || polygon != null
-                                && !GeometryEngine.contains(polygon, road.geometry(), SpatialReference.create(4326))
-                                && !GeometryEngine.overlaps(polygon, road.geometry(), SpatialReference.create(4326)));
-                return road;
+                                && !GeometryEngine.contains(polygon, baseRoad.geometry(), SpatialReference.create(4326))
+                                && !GeometryEngine.overlaps(polygon, baseRoad.geometry(),
+                                        SpatialReference.create(4326)));
+                return baseRoad;
             }
         };
     }

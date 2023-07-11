@@ -13,7 +13,6 @@
 
 package com.bmwcarit.barefoot.topology;
 
-
 /**
  * Simple implementation of {@link AbstractEdge}.
  */
@@ -26,9 +25,12 @@ public class Edge extends AbstractEdge<Edge> {
     /**
      * Creates an {@link Edge} object.
      *
-     * @param id Edge identifier.
-     * @param source Identifier of the edge's source vertex.
-     * @param target Identifier of the edge's target vertex.
+     * @param id
+     *            Edge identifier.
+     * @param source
+     *            Identifier of the edge's source vertex.
+     * @param target
+     *            Identifier of the edge's target vertex.
      */
     public Edge(long id, long source, long target) {
         this.id = id;

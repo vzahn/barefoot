@@ -22,8 +22,8 @@ import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.Route;
 
 /**
- * State transition between matching candidates in Hidden Markov Model (HMM) map matching and
- * contains a route between respective map positions.
+ * State transition between matching candidates in Hidden Markov Model (HMM) map
+ * matching and contains a route between respective map positions.
  */
 public class MatcherTransition extends StateTransition {
     private Route route = null;
@@ -31,7 +31,8 @@ public class MatcherTransition extends StateTransition {
     /**
      * Creates {@link MatcherTransition} object.
      *
-     * @param route {@link Route} object as state transition in map matching.
+     * @param route
+     *            {@link Route} object as state transition in map matching.
      */
     public MatcherTransition(Route route) {
         this.route = route;
@@ -40,12 +41,15 @@ public class MatcherTransition extends StateTransition {
     /**
      * Creates {@link MatcherTransition} object from its JSON representation.
      *
-     * @param json JSON representation of {@link MatcherTransition} object.
-     * @param map {@link RoadMap} object
-     * @throws JSONException thrown on JSON parse error.
+     * @param json
+     *            JSON representation of {@link MatcherTransition} object.
+     * @param map
+     *            {@link RoadMap} object
+     * @throws JSONException
+     *             thrown on JSON parse error.
      */
     public MatcherTransition(JSONObject json, RoadMap map) throws JSONException {
-        super(json);
+        super();
         route = Route.fromJSON(json.getJSONObject("route"), map);
     }
 
@@ -64,12 +68,13 @@ public class MatcherTransition extends StateTransition {
         json.put("route", route.toJSON());
         return json;
     }
+
     @Override
-    public String toString()  {
-    	StringBuffer s = new StringBuffer();
-    	for (Road e : route().path()) {
-    		s.append(e.base().refid() + "->");
-    	}
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        for (Road e : route().path()) {
+            s.append(e.base().refid() + "->");
+        }
         return s.toString();
     }
 

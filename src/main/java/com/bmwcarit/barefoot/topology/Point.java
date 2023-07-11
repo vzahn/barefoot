@@ -14,22 +14,27 @@
 package com.bmwcarit.barefoot.topology;
 
 /**
- * Point in a directed {@link Graph} which is a point on an {@link AbstractEdge} with a fraction in
- * the interval <i>[0,1]</i> that defines the exact position as linear interpolation along the
- * {@link AbstractEdge} from its source to target.
+ * Point in a directed {@link Graph} which is a point on an {@link AbstractEdge}
+ * with a fraction in the interval <i>[0,1]</i> that defines the exact position
+ * as linear interpolation along the {@link AbstractEdge} from its source to
+ * target.
  *
- * @param <E> {@link AbstractEdge} type of the graph.
+ * @param <E>
+ *            {@link AbstractEdge} type of the graph.
  */
 public class Point<E extends AbstractEdge<E>> {
     private final E edge;
     private final double fraction;
 
     /**
-     * Creates a {@link Point} object by reference to an {@link AbstractEdge} and an exact position
-     * defined by a fraction.
+     * Creates a {@link Point} object by reference to an {@link AbstractEdge} and an
+     * exact position defined by a fraction.
      *
-     * @param edge {@link AbstractEdge} of the point in the graph.
-     * @param fraction Fraction that defines the exact position on the {@link AbstractEdge}.
+     * @param edge
+     *            {@link AbstractEdge} of the point in the graph.
+     * @param fraction
+     *            Fraction that defines the exact position on the
+     *            {@link AbstractEdge}.
      */
     public Point(E edge, double fraction) {
         this.edge = edge;

@@ -28,8 +28,7 @@ public class Velocity extends Cost<Road> {
      */
     @Override
     public double cost(Road road) {
-        return (distance.cost(road) / ( road.maxspeed()/3.6));
+        return (distance.cost(road) / (road.maxspeed() / 3.6));
     }
-    
-    
+
 }

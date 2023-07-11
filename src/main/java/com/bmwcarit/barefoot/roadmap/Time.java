@@ -31,6 +31,5 @@ public class Time extends Cost<Road> {
     public double cost(Road road) {
         return (distance.cost(road) * 3.6 / Math.min(road.maxspeed(), heuristic_speed));
     }
-    
-    
+
 }

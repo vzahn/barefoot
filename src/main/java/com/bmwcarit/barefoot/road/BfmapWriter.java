@@ -22,8 +22,8 @@ import java.io.ObjectOutputStream;
 import com.bmwcarit.barefoot.util.SourceException;
 
 /**
- * Barefoot map road writer for writing {@link BaseRoad} to barefoot map files, usually with file
- * extension 'bfmap'.
+ * Barefoot map road writer for writing {@link BaseRoad} to barefoot map files,
+ * usually with file extension 'bfmap'.
  */
 public class BfmapWriter implements RoadWriter {
     private final String path;
@@ -34,7 +34,8 @@ public class BfmapWriter implements RoadWriter {
      * <p>
      * <b>Note:</b> If the file exists, it will be overwritten.
      *
-     * @param path Path to the barefoot map file to be written.
+     * @param path
+     *            Path to the barefoot map file to be written.
      */
     public BfmapWriter(String path) {
         this.path = path;
@@ -44,9 +45,8 @@ public class BfmapWriter implements RoadWriter {
     public boolean isOpen() {
         if (writer != null) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -54,9 +54,9 @@ public class BfmapWriter implements RoadWriter {
         try {
             writer = new ObjectOutputStream(new FileOutputStream(path));
         } catch (FileNotFoundException e) {
-            throw new SourceException("File could not be found.");
+            throw new SourceException("File could not be found.", e);
         } catch (IOException e) {
-            throw new SourceException("Opening writer failed: " + e.getMessage());
+            throw new SourceException("Opening writer failed: " + e.getMessage(), e);
         }
     }
 
@@ -67,7 +67,7 @@ public class BfmapWriter implements RoadWriter {
             writer.close();
             writer = null;
         } catch (IOException e) {
-            throw new SourceException("Closing writer failed: " + e.getMessage());
+            throw new SourceException("Closing writer failed: " + e.getMessage(), e);
         }
     }
 
@@ -80,7 +80,7 @@ public class BfmapWriter implements RoadWriter {
         try {
             writer.writeObject(road);
         } catch (IOException e) {
-            throw new SourceException("Writing failed: " + e.getMessage());
+            throw new SourceException("Writing failed: " + e.getMessage(), e);
         }
     }
 }

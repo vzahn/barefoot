@@ -16,12 +16,9 @@ package com.bmwcarit.barefoot.road;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
-import com.bmwcarit.barefoot.roadmap.Road;
 import com.esri.core.geometry.Geometry.Type;
-import com.esri.core.geometry.OperatorExportToWkb;
 import com.esri.core.geometry.OperatorImportFromWkb;
 import com.esri.core.geometry.Polyline;
-import com.esri.core.geometry.WkbExportFlags;
 import com.esri.core.geometry.WkbImportFlags;
 
 /**
@@ -51,201 +48,7 @@ public class BaseRoad implements Serializable {
     private final Boolean tunnelEntry;
     private final int direction;
     private final String country;
-
-    /**
-     * Constructs {@link BaseRoad} object.
-     *
-     * @param id
-     *            Unique road identifier.
-     * @param source
-     *            Source vertex identifier (in road topology representation).
-     * @param target
-     *            Target vertex identifier (in road topology representation).
-     * @param refid
-     *            Identifier of road referring to some source data.
-     * @param oneway
-     *            Indicator if this road is a one-way road.
-     * @param type
-     *            Identifier of this road's type.
-     * @param priority
-     *            Road priority factor, which is greater or equal than one.
-     * @param maxspeedForward
-     *            Maximum speed limit for passing this road from source to target.
-     * @param maxspeedBackward
-     *            Maximum speed limit for passing this road from target to source.
-     * @param length
-     *            Length of road geometry in meters.
-     * @param geometry
-     *            Road's geometry from source to target as {@link Polyline} object.
-     */
-    public BaseRoad(long id, long source, long target, long refid, boolean oneway, short type, float priority,
-            float maxspeedForward, float maxspeedBackward, float length, Polyline geometry) {
-        this.id = id;
-        this.source = source;
-        this.target = target;
-        this.refid = refid;
-        this.oneway = oneway;
-        this.type = type;
-        this.priority = priority;
-        this.maxspeedForward = maxspeedForward;
-        this.maxspeedBackward = maxspeedBackward;
-        this.length = length;
-        this.geometry = OperatorExportToWkb.local().execute(WkbExportFlags.wkbExportLineString, geometry, null).array();
-        this.tunnel = null;
-        this.tunnelEntry = null;
-        this.direction = 3;
-        this.country = null;
-    }
-
-    /**
-     * Constructs {@link BaseRoad} object.
-     *
-     * @param id
-     *            Unique road identifier.
-     * @param source
-     *            Source vertex identifier (in road topology representation).
-     * @param target
-     *            Target vertex identifier (in road topology representation).
-     * @param osmId
-     *            Identifier of corresponding OpenStreetMap road.
-     * @param oneway
-     *            Indicator if this road is a one-way road.
-     * @param type
-     *            Identifier of this road's type.
-     * @param priority
-     *            Road priority factor, which is greater or equal than one.
-     * @param maxspeedForward
-     *            Maximum speed limit for passing this road from source to target.
-     * @param maxspeedBackward
-     *            Maximum speed limit for passing this road from target to source.
-     * @param length
-     *            Length of road geometry in meters.
-     * @param wkb
-     *            Road's geometry in WKB format from source to target.
-     */
-    public BaseRoad(long id, long source, long target, long osmId, boolean oneway, short type, float priority,
-            float maxspeedForward, float maxspeedBackward, float length, byte[] wkb) {
-        this.id = id;
-        this.source = source;
-        this.target = target;
-        this.refid = osmId;
-        this.oneway = oneway;
-        this.type = type;
-        this.priority = priority;
-        this.maxspeedForward = maxspeedForward;
-        this.maxspeedBackward = maxspeedBackward;
-        this.length = length;
-        this.geometry = wkb;
-        this.tunnel = null;
-        this.tunnelEntry = null;
-        this.direction = 3;
-        this.country = null;
-    }
-
-    /**
-     * Constructs {@link BaseRoad} object.
-     *
-     * @param id
-     *            Unique road identifier.
-     * @param source
-     *            Source vertex identifier (in road topology representation).
-     * @param target
-     *            Target vertex identifier (in road topology representation).
-     * @param osmId
-     *            Identifier of corresponding OpenStreetMap road.
-     * @param oneway
-     *            Indicator if this road is a one-way road.
-     * @param type
-     *            Identifier of this road's type.
-     * @param priority
-     *            Road priority factor, which is greater or equal than one.
-     * @param maxspeedForward
-     *            Maximum speed limit for passing this road from source to target.
-     * @param maxspeedBackward
-     *            Maximum speed limit for passing this road from target to source.
-     * @param length
-     *            Length of road geometry in meters.
-     * @param wkb
-     *            Road's geometry in WKB format from source to target.
-     * @param tunnel
-     *            'true' if segment is a tunnel.
-     * @param tunnelEntry
-     *            'true' if segment is last element before tunnel.
-     */
-    public BaseRoad(long id, long source, long target, long osmId, boolean oneway, short type, float priority,
-            float maxspeedForward, float maxspeedBackward, float length, byte[] wkb, boolean tunnel,
-            boolean tunnelEntry) {
-        this.id = id;
-        this.source = source;
-        this.target = target;
-        this.refid = osmId;
-        this.oneway = oneway;
-        this.type = type;
-        this.priority = priority;
-        this.maxspeedForward = maxspeedForward;
-        this.maxspeedBackward = maxspeedBackward;
-        this.length = length;
-        this.geometry = wkb;
-        this.tunnel = tunnel;
-        this.tunnelEntry = tunnelEntry;
-        this.direction = 3;
-        this.country = null;
-    }
-
-    /**
-     * Constructs {@link BaseRoad} object.
-     *
-     * @param id
-     *            Unique road identifier.
-     * @param source
-     *            Source vertex identifier (in road topology representation).
-     * @param target
-     *            Target vertex identifier (in road topology representation).
-     * @param osmId
-     *            Identifier of corresponding OpenStreetMap road.
-     * @param direction
-     *            Direction of this road segment (traffic restriction).
-     * @param type
-     *            Identifier of this road's type.
-     * @param priority
-     *            Road priority factor, which is greater or equal than one.
-     * @param maxspeedForward
-     *            Maximum speed limit for passing this road from source to target.
-     * @param maxspeedBackward
-     *            Maximum speed limit for passing this road from target to source.
-     * @param length
-     *            Length of road geometry in meters.
-     * @param wkb
-     *            Road's geometry in WKB format from source to target.
-     * @param tunnel
-     *            'true' if segment is a tunnel.
-     * @param tunnelEntry
-     *            'true' if segment is last element before tunnel.
-     */
-    public BaseRoad(long id, long source, long target, long osmId, int direction, short type, float priority,
-            float maxspeedForward, float maxspeedBackward, float length, byte[] wkb, boolean tunnel,
-            boolean tunnelEntry) {
-        this.id = id;
-        this.source = source;
-        this.target = target;
-        this.refid = osmId;
-        this.direction = direction;
-        this.type = type;
-        this.priority = priority;
-        this.maxspeedForward = maxspeedForward;
-        this.maxspeedBackward = maxspeedBackward;
-        this.length = length;
-        this.geometry = wkb;
-        this.tunnel = tunnel;
-        this.tunnelEntry = tunnelEntry;
-        if (direction == 3) {
-            this.oneway = false;
-        } else {
-            this.oneway = true;
-        }
-        this.country = null;
-
-    }
+    private final Short forced;
 
     /**
      * Constructs {@link BaseRoad} object.
@@ -278,10 +81,12 @@ public class BaseRoad implements Serializable {
      *            'true' if segment is last element before tunnel.
      * @param country
      *            Unique identifier of one country (e.g. GERMANY).
+     * @param forced
+     *            Indicates if matching needs to be forced for the segment.
      */
     public BaseRoad(long id, long source, long target, long osmId, int direction, short type, float priority,
             float maxspeedForward, float maxspeedBackward, float length, byte[] wkb, boolean tunnel,
-            boolean tunnelEntry, String country) {
+            boolean tunnelEntry, String country, Short forced) {
         this.id = id;
         this.source = source;
         this.target = target;
@@ -301,40 +106,7 @@ public class BaseRoad implements Serializable {
             this.oneway = true;
         }
         this.country = country;
-
-    }
-
-    /**
-     * Constructs {@link BaseRoad} object from BaseRoad Object.
-     *
-     * @param base
-     *            BaseRoad to construct.
-     * @param heading
-     *            Inverts geometry if driving backwards.
-     * 
-     */
-    public BaseRoad(BaseRoad base, Heading heading) {
-
-        this.id = base.id;
-        this.source = base.source;
-        this.target = base.target;
-        this.refid = base.refid;
-        this.direction = base.direction;
-        this.type = base.type;
-        this.priority = base.priority;
-        this.maxspeedForward = base.maxspeedForward;
-        this.maxspeedBackward = base.maxspeedBackward;
-        this.length = base.length;
-        if (heading == Heading.backward) {
-            this.geometry = OperatorExportToWkb.local()
-                    .execute(WkbExportFlags.wkbExportLineString, Road.invert(base.geometry()), null).array();
-        } else {
-            this.geometry = base.geometry;
-        }
-        this.tunnel = base.tunnel;
-        this.tunnelEntry = base.tunnelEntry;
-        this.oneway = base.oneway;
-        this.country = null;
+        this.forced = forced;
 
     }
 
@@ -468,6 +240,8 @@ public class BaseRoad implements Serializable {
     }
 
     /**
+     * Returns direction.
+     * 
      * @return the direction 1 = Start->End 2 = End -> Start 3 = both
      */
     public int getDirection() {
@@ -481,6 +255,11 @@ public class BaseRoad implements Serializable {
      */
     public String getCountry() {
         return country;
+    }
+
+    public Short getForced() {
+        return forced;
+
     }
 
 }

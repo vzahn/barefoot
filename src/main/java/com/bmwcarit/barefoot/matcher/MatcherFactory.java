@@ -20,7 +20,8 @@ import com.bmwcarit.barefoot.markov.Factory;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 
 /**
- * Matcher factory for creation of matching candidates, transitions, and samples.
+ * Matcher factory for creation of matching candidates, transitions, and
+ * samples.
  */
 public class MatcherFactory extends Factory<MatcherCandidate, MatcherTransition, MatcherSample> {
     private final RoadMap map;
@@ -28,8 +29,9 @@ public class MatcherFactory extends Factory<MatcherCandidate, MatcherTransition,
     /**
      * Creates {@link MatcherFactory} object.
      *
-     * @param map {@link RoadMap} object used for creation of matching candidates, transitions and
-     *        samples.
+     * @param map
+     *            {@link RoadMap} object used for creation of matching candidates,
+     *            transitions and samples.
      */
     public MatcherFactory(RoadMap map) {
         this.map = map;

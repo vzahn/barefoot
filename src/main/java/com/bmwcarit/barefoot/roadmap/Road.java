@@ -22,13 +22,15 @@ import com.bmwcarit.barefoot.topology.AbstractEdge;
 import com.esri.core.geometry.Polyline;
 
 /**
- * Directed road wrapper of {@link BaseRoad} objects in a directed road map ({@link RoadMap}). *
+ * Directed road wrapper of {@link BaseRoad} objects in a directed road map
+ * ({@link RoadMap}). *
  * <p>
- * <b>Note:</b> Since {@link Road} objects are directional representations of {@link BaseRoad}
- * objects, each {@link BaseRoad} is split into two {@link Road} objects. For that purpose, it uses
- * the identifier <i>i</i> of each {@link BaseRoad} to define identifiers of the respective
- * {@link Road} objects, where <i>i * 2</i> is the identifier of the forward directed {@link Road}
- * and <i>i * 2 + 1</i> of the backward directed {@link Road}.
+ * <b>Note:</b> Since {@link Road} objects are directional representations of
+ * {@link BaseRoad} objects, each {@link BaseRoad} is split into two
+ * {@link Road} objects. For that purpose, it uses the identifier <i>i</i> of
+ * each {@link BaseRoad} to define identifiers of the respective {@link Road}
+ * objects, where <i>i * 2</i> is the identifier of the forward directed
+ * {@link Road} and <i>i * 2 + 1</i> of the backward directed {@link Road}.
  */
 public class Road extends AbstractEdge<Road> {
     private static final long serialVersionUID = 1L;
@@ -50,8 +52,10 @@ public class Road extends AbstractEdge<Road> {
     /**
      * Constructs {@link Road} object.
      *
-     * @param base {@link BaseRoad} object to be referred to.
-     * @param heading {@link Heading} of the directed {@link Road}.
+     * @param base
+     *            {@link BaseRoad} object to be referred to.
+     * @param heading
+     *            {@link Heading} of the directed {@link Road}.
      */
     public Road(BaseRoad base, Heading heading) {
         this.base = base;
@@ -83,12 +87,12 @@ public class Road extends AbstractEdge<Road> {
     }
 
     /**
-     * Gets road's priority factor, i.e. an additional cost factor for routing, and must be greater
-     * or equal to one. Higher priority factor means higher costs.
+     * Gets road's priority factor, i.e. an additional cost factor for routing, and
+     * must be greater or equal to one. Higher priority factor means higher costs.
      *
      * @return Road's priority factor.
      */
-    public float priority() {   
+    public float priority() {
         return 1f;
     }
 
@@ -120,7 +124,8 @@ public class Road extends AbstractEdge<Road> {
     }
 
     /**
-     * Gets road's geometry as a {@link Polyline} from the road's source to its target.
+     * Gets road's geometry as a {@link Polyline} from the road's source to its
+     * target.
      *
      * @return Road's geometry as {@link Polyline} from source to target.
      */
@@ -141,7 +146,8 @@ public class Road extends AbstractEdge<Road> {
      * Gets a JSON representation of the {@link Road}.
      *
      * @return {@link JSONObject} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
@@ -153,23 +159,28 @@ public class Road extends AbstractEdge<Road> {
     /**
      * Creates a {@link Route} object from its JSON representation.
      *
-     * @param json JSON representation of the {@link Route}.
-     * @param map {@link RoadMap} object as the reference of {@link RoadPoint}s and {@link Road}s.
+     * @param json
+     *            JSON representation of the {@link Route}.
+     * @param map
+     *            {@link RoadMap} object as the reference of {@link RoadPoint}s and
+     *            {@link Road}s.
      * @return {@link Road} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public static Road fromJSON(JSONObject json, RoadMap map) throws JSONException {
         long baseid = json.getLong("road");
-        Road road = map.get(Heading.valueOf(json.get("heading").toString()) == Heading.forward
-                ? baseid * 2 : baseid * 2 + 1);
+        Road road = map
+                .get(Heading.valueOf(json.get("heading").toString()) == Heading.forward ? baseid * 2 : baseid * 2 + 1);
         if (road == null) {
             throw new JSONException("road id " + json.getLong("road") + " not found");
         }
         return road;
     }
+
     public String toString() {
-    	String s = base().refid() + ", Tunnel:" + base.getTunnel() + ", TunnelEntry:" + base.getTunnelEntry();
-    	return s;
+        String s = base().refid() + ", Tunnel:" + base.getTunnel() + ", TunnelEntry:" + base.getTunnelEntry();
+        return s;
     }
 
 }

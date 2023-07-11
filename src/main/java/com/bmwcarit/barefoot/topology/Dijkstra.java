@@ -13,7 +13,7 @@
 
 package com.bmwcarit.barefoot.topology;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,7 +48,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
     /**
      * Route mark representation for msmt2.
      */
-    class Mark2 extends Quadruple<E, E, Double, Double> implements Comparable<Mark2> {
+    class Mark extends Quadruple<E, E, Double, Double> implements Comparable<Mark> {
         private static final long serialVersionUID = 1L;
         private double drivenTime;
 
@@ -64,41 +64,13 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
          * @param four
          *            Bounding cost value to this route mark.
          */
-        public Mark2(E one, E two, Double three, Double four, Double driven) {
+        public Mark(E one, E two, Double three, Double four, Double driven) {
             super(one, two, three, four);
             this.drivenTime = driven;
         }
 
         @Override
-        public int compareTo(Mark2 other) {
-            return (this.three() < other.three()) ? -1 : (this.three() > other.three()) ? 1 : 0;
-        }
-    }
-
-    /**
-     * Route mark representation for msmt.
-     */
-    class Mark1 extends Quadruple<E, E, Double, Double> implements Comparable<Mark1> {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Constructor of an entry.
-         *
-         * @param one
-         *            {@link AbstractEdge} defining the route mark.
-         * @param two
-         *            Predecessor {@link AbstractEdge}.
-         * @param three
-         *            Cost value to this route mark.
-         * @param four
-         *            Bounding cost value to this route mark.
-         */
-        public Mark1(E one, E two, Double three, Double four) {
-            super(one, two, three, four);
-        }
-
-        @Override
-        public int compareTo(Mark1 other) {
+        public int compareTo(Mark other) {
             return (this.three() < other.three()) ? -1 : (this.three() > other.three()) ? 1 : 0;
         }
     }
@@ -106,13 +78,9 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
     @Override
     public Map<P, List<E>> route(P source, Set<P> targets, Cost<E> cost, Cost<E> bound, Double max, Double deltaTime,
             Double maxVelocity) {
-        return ssmt2(source, targets, cost, bound, max, deltaTime, maxVelocity);
-    }
+        Map<P, Tuple<P, List<E>>> map = msmt(new HashSet<>(Collections.singletonList(source)), targets, cost, bound,
+                max, deltaTime, maxVelocity);
 
-    private Map<P, List<E>> ssmt2(P source, Set<P> targets, Cost<E> cost, Cost<E> bound, Double max, Double deltaTime,
-            Double maxVelocity) {
-        Map<P, Tuple<P, List<E>>> map = msmt2(new HashSet<>(Arrays.asList(source)), targets, cost, bound, max,
-                deltaTime, maxVelocity);
         Map<P, List<E>> result = new HashMap<>();
         for (Entry<P, Tuple<P, List<E>>> entry : map.entrySet()) {
             result.put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().two());
@@ -120,7 +88,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
         return result;
     }
 
-    private Map<P, Tuple<P, List<E>>> msmt2(final Set<P> sources, final Set<P> targets, Cost<E> cost, Cost<E> bound,
+    private Map<P, Tuple<P, List<E>>> msmt(final Set<P> sources, final Set<P> targets, Cost<E> cost, Cost<E> bound,
             Double max, Double deltaTime, Double maxVelocity) {
 
         /*
@@ -132,7 +100,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
                     target.fraction());
             Set<P> targetEdge = targetEdges.get(target.edge());
             if (targetEdge == null) {
-                targetEdges.put(target.edge(), new HashSet<>(Arrays.asList(target)));
+                targetEdges.put(target.edge(), new HashSet<>(Collections.singletonList(target)));
             } else {
                 targetEdge.add(target);
             }
@@ -141,11 +109,11 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
         /*
          * Setup data structures
          */
-        PriorityQueue<Mark2> priorities = new PriorityQueue<>();
-        Map<E, Mark2> entries = new HashMap<>();
-        Map<P, Mark2> finishs = new HashMap<>();
-        Map<Mark2, P> reaches = new HashMap<>();
-        Map<Mark2, P> starts = new HashMap<>();
+        PriorityQueue<Mark> priorities = new PriorityQueue<>();
+        Map<E, Mark> entries = new HashMap<>();
+        Map<P, Mark> finishs = new HashMap<>();
+        Map<Mark, P> reaches = new HashMap<>();
+        Map<Mark, P> starts = new HashMap<>();
         Cost<E> time = (Cost<E>) new TimeSpeed(maxVelocity);
 
         /*
@@ -174,19 +142,19 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
                     logger.trace("reached target {} with start edge {} from {} to {} with {} cost", target,
                             source.edge().id(), source.fraction(), target.fraction(), reachcost);
 
-                    Mark2 reach = new Mark2(source.edge(), null, reachcost, reachbound, reachDrivenTime);
+                    Mark reach = new Mark(source.edge(), null, reachcost, reachbound, reachDrivenTime);
                     reaches.put(reach, target);
                     starts.put(reach, source);
                     priorities.add(reach);
                 }
             }
 
-            Mark2 start = entries.get(source.edge());
+            Mark start = entries.get(source.edge());
             if (start == null) {
                 logger.trace("add source {} with start edge {} and fraction {} with {} cost", source,
                         source.edge().id(), source.fraction(), startcost);
 
-                start = new Mark2(source.edge(), null, startcost, startbound, startDrivenTime);
+                start = new Mark(source.edge(), null, startcost, startbound, startDrivenTime);
                 entries.put(source.edge(), start);
                 starts.put(start, source);
                 priorities.add(start);
@@ -194,7 +162,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
                 logger.trace("update source {} with start edge {} and fraction {} with {} cost", source,
                         source.edge().id(), source.fraction(), startcost);
 
-                start = new Mark2(source.edge(), null, startcost, startbound, startDrivenTime);
+                start = new Mark(source.edge(), null, startcost, startbound, startDrivenTime);
                 entries.put(source.edge(), start);
                 starts.put(start, source);
                 priorities.remove(start);
@@ -206,7 +174,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
          * Dijkstra algorithm.
          */
         while (priorities.size() > 0) {
-            Mark2 current = priorities.poll();
+            Mark current = priorities.poll();
 
             if (targetEdges.isEmpty()) {
                 logger.trace("finshed all targets");
@@ -268,7 +236,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
                         logger.trace("reached target {} with successor edge {} and fraction {} with {} cost", target,
                                 successor.id(), target.fraction(), reachcost);
 
-                        Mark2 reach = new Mark2(successor, current.one(), reachcost, reachbound, reachDrivenTime);
+                        Mark reach = new Mark(successor, current.one(), reachcost, reachbound, reachDrivenTime);
                         reaches.put(reach, target);
                         priorities.add(reach);
                     }
@@ -276,7 +244,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
 
                 if (!entries.containsKey(successor)) {
                     logger.trace("added successor edge {} with {} cost", successor.id(), succcost);
-                    Mark2 mark = new Mark2(successor, current.one(), succcost, succbound, succDrivenTime);
+                    Mark mark = new Mark(successor, current.one(), succcost, succbound, succDrivenTime);
 
                     entries.put(successor, mark);
                     priorities.add(mark);
@@ -287,12 +255,12 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
         Map<P, Tuple<P, List<E>>> paths = new HashMap<>();
 
         for (P target : targets) {
-            Mark2 iterator = finishs.get(target);
+            Mark iterator = finishs.get(target);
             if (iterator == null) {
                 paths.put(target, null);
             } else {
                 LinkedList<E> path = new LinkedList<>();
-                Mark2 start = null;
+                Mark start = null;
                 while (iterator != null) {
                     path.addFirst(iterator.one());
                     start = iterator;

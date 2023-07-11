@@ -18,17 +18,20 @@ import java.util.Iterator;
 /**
  * Abstract edge in a directed {@link Graph}.
  * <p>
- * <b>Note:</b> Connectivity between directed edges is maintained with distributed linked lists
- * where edges with the same source vertex link to each other cyclically. Each edge must provide a
- * reference to a successor edge as well as to a neighbor edge. For example, a vertex has two
- * incoming edges <i>e<sub>1</sub></i> and <i>e<sub>2</sub></i> and three outgoing edges
- * <i>e<sub>3</sub></i>, <i>e<sub>4</sub></i>, and <i>e<sub>5</sub></i>. The outgoing edges,
- * referred to as successor edges, reference each other to form a cyclic linked list, referred to as
- * neighbors, which are <i>e<sub>3</sub></i> &#8594; <i>e<sub>4</sub></i> &#8594;
- * <i>e<sub>5</sub></i> &#8594; <i>e<sub>3</sub></i>. The incoming edges <i>e<sub>1</sub></i> and
- * <i>e<sub>2</sub></i> reference one successor edge which is one edge of the cyclic linked list
- * <i>e<sub>1</sub></i> &#8594; <i>e<sub>4</sub></i> and <i>e<sub>2</sub></i> &#8594;
- * <i>e<sub>3</sub></i>. To iterate over successors edges, one can use the following approach:
+ * <b>Note:</b> Connectivity between directed edges is maintained with
+ * distributed linked lists where edges with the same source vertex link to each
+ * other cyclically. Each edge must provide a reference to a successor edge as
+ * well as to a neighbor edge. For example, a vertex has two incoming edges
+ * <i>e<sub>1</sub></i> and <i>e<sub>2</sub></i> and three outgoing edges
+ * <i>e<sub>3</sub></i>, <i>e<sub>4</sub></i>, and <i>e<sub>5</sub></i>. The
+ * outgoing edges, referred to as successor edges, reference each other to form
+ * a cyclic linked list, referred to as neighbors, which are
+ * <i>e<sub>3</sub></i> &#8594; <i>e<sub>4</sub></i> &#8594;
+ * <i>e<sub>5</sub></i> &#8594; <i>e<sub>3</sub></i>. The incoming edges
+ * <i>e<sub>1</sub></i> and <i>e<sub>2</sub></i> reference one successor edge
+ * which is one edge of the cyclic linked list <i>e<sub>1</sub></i> &#8594;
+ * <i>e<sub>4</sub></i> and <i>e<sub>2</sub></i> &#8594; <i>e<sub>3</sub></i>.
+ * To iterate over successors edges, one can use the following approach:
  *
  * <pre>
  * E successor = edge.successor();
@@ -40,9 +43,10 @@ import java.util.Iterator;
  * }
  * </pre>
  *
- * @param <E> Implementation of {@link AbstractEdge} in a directed {@link Graph}. (Uses the
- *        curiously recurring template pattern (CRTP) for type-safe use of customized
- *        {@link AbstractEdge} type.)
+ * @param <E>
+ *            Implementation of {@link AbstractEdge} in a directed
+ *            {@link Graph}. (Uses the curiously recurring template pattern
+ *            (CRTP) for type-safe use of customized {@link AbstractEdge} type.)
  */
 public abstract class AbstractEdge<E extends AbstractEdge<E>> implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -82,7 +86,8 @@ public abstract class AbstractEdge<E extends AbstractEdge<E>> implements Seriali
     /**
      * Sets the edge's successor.
      *
-     * @param successor An edge's successor edge.
+     * @param successor
+     *            An edge's successor edge.
      */
     protected void successor(E successor) {
         this.successor = successor;
@@ -100,7 +105,8 @@ public abstract class AbstractEdge<E extends AbstractEdge<E>> implements Seriali
     /**
      * Sets the edge's neighbor.
      *
-     * @param neighbor The edge's neighbor edge.
+     * @param neighbor
+     *            The edge's neighbor edge.
      */
     protected void neighbor(E neighbor) {
         this.neighbor = neighbor;
@@ -123,12 +129,11 @@ public abstract class AbstractEdge<E extends AbstractEdge<E>> implements Seriali
 
             @Override
             public E next() {
-                if (iterator == null)
+                if (iterator == null) {
                     return null;
-
+                }
                 E next = iterator;
                 iterator = iterator.neighbor() == successor ? null : iterator.neighbor();
-
                 return next;
             }
 
@@ -139,4 +144,3 @@ public abstract class AbstractEdge<E extends AbstractEdge<E>> implements Seriali
         };
     }
 }
-

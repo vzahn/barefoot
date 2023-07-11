@@ -29,20 +29,11 @@ public class StateTransition {
     }
 
     /**
-     * Creates {@link StateTransition} object from JSON representation.
-     *
-     * @param json JSON representation of a transition.
-     * @throws JSONException thrown on JSON extraction or parsing error.
-     */
-    public StateTransition(JSONObject json) throws JSONException {
-        return;
-    }
-
-    /**
      * Gets a JSON representation of the {@link StateTransition} object.
      *
      * @return JSON representation of the {@link StateTransition} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONObject toJSON() throws JSONException {
         return new JSONObject();

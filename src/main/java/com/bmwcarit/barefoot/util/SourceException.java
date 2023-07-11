@@ -13,7 +13,6 @@
 
 package com.bmwcarit.barefoot.util;
 
-
 /**
  * Exception for handling any sort of data sources.
  */
@@ -24,7 +23,8 @@ public class SourceException extends RuntimeException {
     /**
      * Creates a {@link SourceException} with an error message.
      *
-     * @param message Message of the exception.
+     * @param message
+     *            Message of the exception.
      */
     public SourceException(String message) {
         super(message);
@@ -33,11 +33,12 @@ public class SourceException extends RuntimeException {
     /**
      * Creates a {@link SourceException} with an error message and stack trace.
      *
-     * @param message Message of the exception.
-     * @param stack_trace Stack trace of the exception, e.g. when wrapping another exception.
+     * @param message
+     *            Message of the exception.
+     * @param originalException
+     *            Original exception, that caused this exception.
      */
-    public SourceException(String message, StackTraceElement[] stack_trace) {
-        super(message);
-        super.setStackTrace(stack_trace);
+    public SourceException(String message, Exception originalException) {
+        super(message, originalException);
     }
 }

@@ -31,36 +31,43 @@ public interface SampleReader {
     /**
      * Opens the reader.
      *
-     * @throws SourceException thrown if an error occurs while handling the source.
+     * @throws SourceException
+     *             thrown if an error occurs while handling the source.
      */
     void open() throws SourceException;
 
     /**
-     * Gets next {@link MatcherSample} object from the source. If all samples have been read, it
-     * returns null.
+     * Gets next {@link MatcherSample} object from the source. If all samples have
+     * been read, it returns null.
      *
      * @return {@link MatcherSample} object, null if all samples have been read.
-     * @throws SourceException thrown if an error occurs while reading from source.
+     * @throws SourceException
+     *             thrown if an error occurs while reading from source.
      */
     MatcherSample next() throws SourceException;
 
     /**
-     * Opens the reader and restricts reading of {@link MatcherSample} objects to spatially
-     * contained or overlapping with a {@link Polygon} and to a temporal timeframe starting at a
-     * certain time
+     * Opens the reader and restricts reading of {@link MatcherSample} objects to
+     * spatially contained or overlapping with a {@link Polygon} and to a temporal
+     * timeframe starting at a certain time.
      *
-     * @param polygon Spatial restriction for reading with a certain {@link Polygon}. Must be null
-     *        to disallow spatial restriction.
-     * @param time Temporal restriction for reading {@link MatcherSample} objects measured at some
-     *        {@link Date} or later. Must be null to disallow temporal restriction.
-     * @throws SourceException thrown if an error occurs while handling the source.
+     * @param polygon
+     *            Spatial restriction for reading with a certain {@link Polygon}.
+     *            Must be null to disallow spatial restriction.
+     * @param time
+     *            Temporal restriction for reading {@link MatcherSample} objects
+     *            measured at some {@link Date} or later. Must be null to disallow
+     *            temporal restriction.
+     * @throws SourceException
+     *             thrown if an error occurs while handling the source.
      */
     public void open(Polygon polygon, Date time) throws SourceException;
 
     /**
      * Closes the reader.
      *
-     * @throws SourceException thrown if an error occurs while handling the source.
+     * @throws SourceException
+     *             thrown if an error occurs while handling the source.
      */
     void close() throws SourceException;
 }

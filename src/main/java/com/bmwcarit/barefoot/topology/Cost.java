@@ -14,25 +14,31 @@
 package com.bmwcarit.barefoot.topology;
 
 /**
- * Abstract cost function to be used for routing algorithms implementing {@link Router}.
+ * Abstract cost function to be used for routing algorithms implementing
+ * {@link Router}.
  *
- * @param <E> Implementation of {@link AbstractEdge} in a directed {@link Graph}.
+ * @param <E>
+ *            Implementation of {@link AbstractEdge} in a directed
+ *            {@link Graph}.
  */
 public abstract class Cost<E extends AbstractEdge<E>> {
     /**
      * Abstract function to define a custom cost function for traversing an edge.
      *
-     * @param edge {@link AbstractEdge} for which cost value shall be calculated.
+     * @param edge
+     *            {@link AbstractEdge} for which cost value shall be calculated.
      * @return Cost value for traversing the edge.
      */
     public abstract double cost(E edge);
 
     /**
-     * Calculates cost value for traversing a certain fraction of the edge. It is assumed that costs
-     * increase linearly while traversing an edge.
+     * Calculates cost value for traversing a certain fraction of the edge. It is
+     * assumed that costs increase linearly while traversing an edge.
      *
-     * @param edge {@link AbstractEdge} for which cost value shall be calculated.
-     * @param fraction Fraction of the edge to be traversed.
+     * @param edge
+     *            {@link AbstractEdge} for which cost value shall be calculated.
+     * @param fraction
+     *            Fraction of the edge to be traversed.
      * @return Cost value for traversing a certain fraction of the edge.
      */
     public double cost(E edge, double fraction) {

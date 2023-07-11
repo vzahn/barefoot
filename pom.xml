@@ -3,6 +3,27 @@
 	<groupId>com.bmw-carit</groupId>
 	<artifactId>barefoot</artifactId>
 	<version>3.1.0</version>
+
+    <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.3.1</version>
+			</plugin>
+		</plugins>
+    </build>
+
+<!--
 	<build>
 		<plugins>
 			<plugin>
@@ -104,15 +125,11 @@
 			</testResource>
 		</testResources>
 	</build>
+-->
 	<dependencies>
 		<dependency>
     		<groupId>org.apache.logging.log4j</groupId>
     		<artifactId>log4j-slf4j-impl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.esri.geometry</groupId>
@@ -121,10 +138,6 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.geographiclib</groupId>
@@ -151,11 +164,6 @@
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
 				<version>20090211</version>
-			</dependency>
-			<dependency>
-				<groupId>org.postgresql</groupId>
-				<artifactId>postgresql</artifactId>
-				<version>42.1.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.esri.geometry</groupId>

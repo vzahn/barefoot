@@ -13,14 +13,14 @@
 
 package com.bmwcarit.barefoot.road;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import com.bmwcarit.barefoot.util.SourceException;
 import com.esri.core.geometry.Polygon;
 
 /**
- * Interface for readers of {@link BaseRoad} objects from different sources which depends on
- * implementation.
+ * Interface for readers of {@link BaseRoad} objects from different sources
+ * which depends on implementation.
  */
 public interface RoadReader {
 
@@ -34,35 +34,42 @@ public interface RoadReader {
     /**
      * Opens the reader.
      *
-     * @throws SourceException thrown on error while opening the source.
+     * @throws SourceException
+     *             thrown on error while opening the source.
      */
     void open() throws SourceException;
 
     /**
-     * Opens the reader and restricts reading of {@link BaseRoad} objects to spatially contained or
-     * overlapping with a {@link Polygon} and to only certain road types (see
-     * {@link BaseRoad#type()} ) that are not excluded.
+     * Opens the reader and restricts reading of {@link BaseRoad} objects to
+     * spatially contained or overlapping with a {@link Polygon} and to only certain
+     * road types (see {@link BaseRoad#type()} ) that are not excluded.
      *
-     * @param polygon Spatial restriction for reading with a certain {@link Polygon}. Must be null
-     *        to disallow spatial restriction.
-     * @param exclusion Set of excluded road types. Must be null to disallow type exclusions.
-     * @throws SourceException thrown on error while opening the source.
+     * @param polygon
+     *            Spatial restriction for reading with a certain {@link Polygon}.
+     *            Must be null to disallow spatial restriction.
+     * @param exclusion
+     *            Set of excluded road types. Must be null to disallow type
+     *            exclusions.
+     * @throws SourceException
+     *             thrown on error while opening the source.
      */
-    void open(Polygon polygon, HashSet<Short> exclusion) throws SourceException;
+    void open(Polygon polygon, Set<Short> exclusion) throws SourceException;
 
     /**
      * Closes the reader.
      *
-     * @throws SourceException thrown on error while closing the source.
+     * @throws SourceException
+     *             thrown on error while closing the source.
      */
     void close() throws SourceException;
 
     /**
-     * Gets next {@link BaseRoad} object from the source. If all roads have been read, it returns
-     * null.
+     * Gets next {@link BaseRoad} object from the source. If all roads have been
+     * read, it returns null.
      *
      * @return {@link BaseRoad} object, null if all roads have been read.
-     * @throws SourceException thrown on error while reading from the source.
+     * @throws SourceException
+     *             thrown on error while reading from the source.
      */
     BaseRoad next() throws SourceException;
 }

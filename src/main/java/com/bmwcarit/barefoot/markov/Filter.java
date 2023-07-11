@@ -125,10 +125,6 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
         return map;
     }
 
-    public Set<C> execute(Set<C> predecessors, S previous, S sample) {
-        return execute(predecessors, previous, sample, null);
-    }
-
     /**
      * Executes Hidden Markov Model (HMM) filter iteration that determines for a
      * given measurement sample <i>z<sub>t</sub></i>, which is a {@link Sample}
@@ -153,7 +149,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
     public Set<C> execute(Set<C> predecessors, S previous, S sample, Double radius) {
         if (logger.isTraceEnabled()) {
             try {
-                logger.trace("execute sample {}", sample.toJSON().toString());
+                logger.trace("execute sample {}", sample.toJSON());
             } catch (JSONException e) {
                 logger.trace("execute sample (not JSON parsable sample: {})", e.getMessage());
             }
@@ -177,25 +173,25 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                     new Tuple<>(sample, states));
 
             for (Tuple<C, Double> candidate : candidates) {
-                C candidate_ = candidate.one();
-                candidate_.seqprob(Double.NEGATIVE_INFINITY);
+                C candidateOne = candidate.one();
+                candidateOne.seqprob(Double.NEGATIVE_INFINITY);
                 if (logger.isTraceEnabled()) {
                     try {
                         logger.trace("state candidate {} ({}) {}",
-                                ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate.two(),
-                                candidate_.toJSON().toString());
+                                ((MatcherCandidate) candidateOne).point().edge().base().refid(), candidate.two(),
+                                candidateOne.toJSON().toString());
                     } catch (JSONException e) {
                         logger.trace("state candidate (not JSON parsable candidate: {})", e.getMessage());
                     }
                 }
                 C previousPredecessor = null;
                 for (C predecessor : predecessors) {
-                    Tuple<T, Double> transition = transitions.get(predecessor).get(candidate_);
+                    Tuple<T, Double> transition = transitions.get(predecessor).get(candidateOne);
                     if (transition == null || transition.two() == 0) {
                         continue;
                     }
 
-                    candidate_.filtprob(candidate_.filtprob() + (transition.two() * predecessor.filtprob()));
+                    candidateOne.filtprob(candidateOne.filtprob() + (transition.two() * predecessor.filtprob()));
                     double seqprob = predecessor.seqprob() + Math.log10(transition.two()) + Math.log10(candidate.two());
                     if (logger.isTraceEnabled()) {
                         try {
@@ -208,14 +204,14 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                         } catch (JSONException e) {
                             logger.trace("state transition (not JSON parsable transition: {})", e.getMessage());
                         } catch (NullPointerException npe) {
-                            logger.trace("can't trace details, as some attributes were null ", npe.getMessage());
+                            logger.trace("can't trace details, as some attributes were null {}", npe.getMessage());
                         }
                     }
-                    if (seqprob > candidate_.seqprob()) {
-                        previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(), seqprob);
-                    } else if (seqprob == candidate_.seqprob()) {
+                    if (seqprob > candidateOne.seqprob()) {
+                        previousPredecessor = modifyCandidate(candidateOne, predecessor, transition.one(), seqprob);
+                    } else if (seqprob == candidateOne.seqprob()) {
                         logger.trace("Candidate has equal seqprob.");
-                        MatcherTransition currentBestTransition = (MatcherTransition) candidate_.transition();
+                        MatcherTransition currentBestTransition = (MatcherTransition) candidateOne.transition();
                         MatcherTransition currentTransition = (MatcherTransition) transition.one();
                         // Make deterministic decision based on shortest number of roads
                         if (currentBestTransition != null && currentTransition != null
@@ -223,7 +219,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                                 && currentBestTransition.route().size() != currentTransition.route().size()) {
                             if (currentBestTransition.route().size() > currentTransition.route().size()) {
                                 logger.trace("Taking new with shorter transition.");
-                                previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
+                                previousPredecessor = modifyCandidate(candidateOne, predecessor, transition.one(),
                                         seqprob);
                             } else if (currentBestTransition.route().size() < currentTransition.route().size()) {
                                 logger.trace("Keeping old with shorter transition.");
@@ -238,7 +234,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                             } else {
                                 logger.trace(
                                         "Taking new, not preferring transition decision: " + mcPre.point().edge().id());
-                                previousPredecessor = modifyCandidate(candidate_, predecessor, transition.one(),
+                                previousPredecessor = modifyCandidate(candidateOne, predecessor, transition.one(),
                                         seqprob);
                             }
                         }
@@ -246,30 +242,30 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                     }
                 }
 
-                if (candidate_.predecessor() != null) {
+                if (candidateOne.predecessor() != null) {
                     logger.debug("state candidate {} -> {} ({}, {}, route: {})",
-                            ((MatcherCandidate) candidate_.predecessor()).point().edge().base().refid(),
-                            ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate_.filtprob(),
-                            candidate_.seqprob(), ((MatcherCandidate) candidate_).transition().toString());
+                            ((MatcherCandidate) candidateOne.predecessor()).point().edge().base().refid(),
+                            ((MatcherCandidate) candidateOne).point().edge().base().refid(), candidateOne.filtprob(),
+                            candidateOne.seqprob(), ((MatcherCandidate) candidateOne).transition().toString());
 
                     logger.trace("state candidate {} -> {} ({}, {})",
-                            ((MatcherCandidate) candidate_.predecessor()).point().edge().base().refid(),
-                            ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate_.filtprob(),
-                            candidate_.seqprob());
+                            ((MatcherCandidate) candidateOne.predecessor()).point().edge().base().refid(),
+                            ((MatcherCandidate) candidateOne).point().edge().base().refid(), candidateOne.filtprob(),
+                            candidateOne.seqprob());
                 } else {
                     logger.trace("state candidate - -> {} ({}, {})",
-                            ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate_.filtprob(),
-                            candidate_.seqprob());
+                            ((MatcherCandidate) candidateOne).point().edge().base().refid(), candidateOne.filtprob(),
+                            candidateOne.seqprob());
                 }
 
-                if (Double.isNaN(candidate_.filtprob()) || candidate_.filtprob() == 0) {
+                if (Double.isNaN(candidateOne.filtprob()) || candidateOne.filtprob() == 0) {
                     continue;
                 }
-                candidate_.time(sample.time());
-                candidate_.filtprob(candidate_.filtprob() * candidate.two());
-                result.add(candidate_);
+                candidateOne.time(sample.time());
+                candidateOne.filtprob(candidateOne.filtprob() * candidate.two());
+                result.add(candidateOne);
 
-                normsum += candidate_.filtprob();
+                normsum += candidateOne.filtprob();
             }
         }
 
@@ -282,18 +278,18 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                 if (candidate.two() == 0) {
                     continue;
                 }
-                C candidate_ = candidate.one();
+                C candidateOne = candidate.one();
                 normsum += candidate.two();
-                candidate_.filtprob(candidate.two());
-                candidate_.seqprob(Math.log10(candidate.two()));
-                candidate_.time(sample.time());
-                result.add(candidate_);
+                candidateOne.filtprob(candidate.two());
+                candidateOne.seqprob(Math.log10(candidate.two()));
+                candidateOne.time(sample.time());
+                result.add(candidateOne);
 
                 if (logger.isTraceEnabled()) {
                     try {
                         logger.trace("state candidate {} ({}) {}",
-                                ((MatcherCandidate) candidate_).point().edge().base().refid(), candidate.two(),
-                                candidate_.toJSON().toString());
+                                ((MatcherCandidate) candidateOne).point().edge().base().refid(), candidate.two(),
+                                candidateOne.toJSON().toString());
                     } catch (JSONException e) {
                         logger.trace("state candidate (not JSON parsable candidate: {})", e.getMessage());
                     }

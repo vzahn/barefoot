@@ -20,19 +20,21 @@ import com.bmwcarit.barefoot.matcher.MatcherSample;
 import com.esri.core.geometry.Polygon;
 
 /**
- * Timed reader that wraps other {@link SampleReader} implementations, i.e. it delays output of
- * function {@link SampleReader#next()} to generate a real-time stream. It implements the interface
- * {@link SampleReader#next()} itself where {@link TimedSampleReader#next()} blocks the current
- * thread to apply delays.
+ * Timed reader that wraps other {@link SampleReader} implementations, i.e. it
+ * delays output of function {@link SampleReader#next()} to generate a real-time
+ * stream. It implements the interface {@link SampleReader#next()} itself where
+ * {@link TimedSampleReader#next()} blocks the current thread to apply delays.
  */
 public class TimedSampleReader implements SampleReader {
     private Long start = null, first = null, last = null;
     private final SampleReader reader;
 
     /**
-     * Creates {@link TimedSampleReader} as wrapper of another {@link SampleReader} object.
+     * Creates {@link TimedSampleReader} as wrapper of another {@link SampleReader}
+     * object.
      *
-     * @param reader Reader to be wrapped.
+     * @param reader
+     *            Reader to be wrapped.
      */
     public TimedSampleReader(SampleReader reader) {
         this.reader = reader;

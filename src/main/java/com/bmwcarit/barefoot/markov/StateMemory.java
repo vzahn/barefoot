@@ -21,13 +21,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * State memory in Hidden Markov Model (HMM) inference and organizes state vectors
- * <i>S<sub>t</sub></i>, i.e. a set of state candidates representing possible states for some time
- * <i>t</i> with a probability distribution, over time.
+ * State memory in Hidden Markov Model (HMM) inference and organizes state
+ * vectors <i>S<sub>t</sub></i>, i.e. a set of state candidates representing
+ * possible states for some time <i>t</i> with a probability distribution, over
+ * time.
  *
- * @param <C> Candidate inherits from {@link StateCandidate}.
- * @param <T> Transition inherits from {@link StateTransition}.
- * @param <S> Sample inherits from {@link Sample}.
+ * @param <C>
+ *            Candidate inherits from {@link StateCandidate}.
+ * @param <T>
+ *            Transition inherits from {@link StateTransition}.
+ * @param <S>
+ *            Sample inherits from {@link Sample}.
  */
 public class StateMemory<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample> {
     private Set<C> candidates = new HashSet<>();
@@ -43,9 +47,12 @@ public class StateMemory<C extends StateCandidate<C, T, S>, T extends StateTrans
     /**
      * Creates a {@link StateMemory} object from a JSON representation.
      *
-     * @param json JSON representation of a {@link StateMemory} object.
-     * @param factory Factory for creation of s, transitions, and samples.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @param json
+     *            JSON representation of a {@link StateMemory} object.
+     * @param factory
+     *            Factory for creation of s, transitions, and samples.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public StateMemory(JSONObject json, Factory<C, T, S> factory) throws JSONException {
         JSONArray jsoncandidates = json.optJSONArray("candidates");
@@ -70,8 +77,8 @@ public class StateMemory<C extends StateCandidate<C, T, S>, T extends StateTrans
     }
 
     /**
-     * Gets the size of the state, which is the number of state candidates organized in the data
-     * structure.
+     * Gets the size of the state, which is the number of state candidates organized
+     * in the data structure.
      *
      * @return Size of the state, which is the number of state candidates.
      */
@@ -82,8 +89,8 @@ public class StateMemory<C extends StateCandidate<C, T, S>, T extends StateTrans
     /**
      * Time of the last state update in milliseconds epoch time.
      *
-     * @return Time of last state update in milliseconds epoch time, or null if there hasn't been
-     *         any update yet.
+     * @return Time of last state update in milliseconds epoch time, or null if
+     *         there hasn't been any update yet.
      */
     public Long time() {
         if (sample == null) {
@@ -96,19 +103,22 @@ public class StateMemory<C extends StateCandidate<C, T, S>, T extends StateTrans
     /**
      * {@link Sample} object of the most recent update.
      *
-     * @return {@link Sample} object of the most recent update or null if there hasn't been any
-     *         update yet.
+     * @return {@link Sample} object of the most recent update or null if there
+     *         hasn't been any update yet.
      */
     public S sample() {
         return sample;
     }
 
     /**
-     * Updates the state with a state vector which is a set of {@link StateCandidate} objects with
-     * its respective measurement, which is a {@link Sample} object.
+     * Updates the state with a state vector which is a set of
+     * {@link StateCandidate} objects with its respective measurement, which is a
+     * {@link Sample} object.
      *
-     * @param vector State vector for update of the state.
-     * @param sample Sample measurement of the state vector.
+     * @param vector
+     *            State vector for update of the state.
+     * @param sample
+     *            Sample measurement of the state vector.
      */
     public void update(Set<C> vector, S sample) {
         if (vector.isEmpty()) {
@@ -126,15 +136,17 @@ public class StateMemory<C extends StateCandidate<C, T, S>, T extends StateTrans
     /**
      * Gets state vector of the last update.
      *
-     * @return State vector of the last update, or an empty set if there hasn't been any update yet.
+     * @return State vector of the last update, or an empty set if there hasn't been
+     *         any update yet.
      */
     public Set<C> vector() {
         return candidates;
     }
 
     /**
-     * Gets a state estimate which is the most likely state candidate of the last update, with
-     * respect to state candidate's filter probability (see {@link StateCandidate#filtprob()}).
+     * Gets a state estimate which is the most likely state candidate of the last
+     * update, with respect to state candidate's filter probability (see
+     * {@link StateCandidate#filtprob()}).
      *
      * @return State estimate, which is most likely state candidate.
      */
@@ -156,7 +168,8 @@ public class StateMemory<C extends StateCandidate<C, T, S>, T extends StateTrans
      * Gets a JSON representation of the {@link StateMemory} object.
      *
      * @return JSON representation of the {@link StateMemory} object.
-     * @throws JSONException thrown on JSON extraction or parsing error.
+     * @throws JSONException
+     *             thrown on JSON extraction or parsing error.
      */
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();

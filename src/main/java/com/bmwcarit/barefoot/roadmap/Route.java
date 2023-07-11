@@ -277,7 +277,7 @@ public class Route extends Path<Road> {
     }
 
     public String toString() {
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder();
         for (Road e : path()) {
             s.append(e.base().refid() + "-");
         }

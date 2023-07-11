@@ -18,8 +18,10 @@ import java.io.Serializable;
 /**
  * Generic 2-tuple (tuple).
  *
- * @param <X> Type of first element.
- * @param <Y> Type of second element.
+ * @param <X>
+ *            Type of first element.
+ * @param <Y>
+ *            Type of second element.
  */
 public class Tuple<X, Y> implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -29,8 +31,10 @@ public class Tuple<X, Y> implements Serializable {
     /**
      * Creates a {@link Tuple} object.
      *
-     * @param one First element.
-     * @param two Second element.
+     * @param one
+     *            First element.
+     * @param two
+     *            Second element.
      */
     public Tuple(X one, Y two) {
         this.one = one;
@@ -58,7 +62,8 @@ public class Tuple<X, Y> implements Serializable {
     /**
      * Sets first element.
      *
-     * @param one First element.
+     * @param one
+     *            First element.
      */
     public void one(X one) {
         this.one = one;
@@ -67,14 +72,15 @@ public class Tuple<X, Y> implements Serializable {
     /**
      * Sets second element.
      *
-     * @param two Second element.
+     * @param two
+     *            Second element.
      */
     public void two(Y two) {
         this.two = two;
     }
-    
-    public String toString(){
-    	String s = "RefID: " + this.one + " + flitprob: "  +this.two;
-    	return s;
+
+    public String toString() {
+        String s = "RefID: " + this.one + " + flitprob: " + this.two;
+        return s;
     }
 }
