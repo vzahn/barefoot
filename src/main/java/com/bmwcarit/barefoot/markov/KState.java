@@ -43,8 +43,7 @@ import com.bmwcarit.barefoot.util.Tuple;
  * @param <S>
  *            Sample inherits from {@link Sample}.
  */
-public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample>
-        extends StateMemory<C, T, S> {
+public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample> {
     private final static Logger logger = LoggerFactory.getLogger(KState.class);
     private final int k;
     private final long t;
@@ -165,26 +164,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         this.candidateStorage = candidateStorage;
     }
 
-    @Override
-    public boolean isEmpty() {
-        return counters.isEmpty();
-    }
-
-    @Override
-    public int size() {
-        return counters.size();
-    }
-
-    @Override
-    public Long time() {
-        if (sequence.isEmpty()) {
-            return null;
-        } else {
-            return sequence.peekLast().two().time();
-        }
-    }
-
-    @Override
     public S sample() {
         if (sequence.isEmpty()) {
             return null;
@@ -207,7 +186,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         return samples;
     }
 
-    @Override
     public void update(Set<C> vector, S sample) {
         if (vector.isEmpty()) {
             return;
@@ -344,7 +322,7 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
 
     }
 
-    protected void remove(C candidate, int index) {
+    private void remove(C candidate, int index) {
         Set<C> vector = sequence.get(index).one();
         counters.remove(candidate);
         vector.remove(candidate);
@@ -361,28 +339,12 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         }
     }
 
-    @Override
     public Set<C> vector() {
         if (sequence.isEmpty()) {
             return new HashSet<>();
         } else {
             return sequence.peekLast().one();
         }
-    }
-
-    @Override
-    public C estimate() {
-        if (sequence.isEmpty()) {
-            return null;
-        }
-
-        C estimate = null;
-        for (C candidate : sequence.peekLast().one()) {
-            if (estimate == null || candidate.filtprob() > estimate.filtprob()) {
-                estimate = candidate;
-            }
-        }
-        return estimate;
     }
 
     /**
@@ -420,20 +382,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
     }
 
     /**
-     * Gets the stable candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
-     * s<sub>t</sub></i>.
-     *
-     * @return List of stable candidates.
-     */
-    public Set<C> candidates() {
-        if (counters.isEmpty()) {
-            return null;
-        }
-
-        return counters.keySet();
-    }
-
-    /**
      * Gets the candidateStorage <i>s<sub>0</sub>, s<sub>1</sub>, ...,
      * s<sub>t</sub></i>.
      *
@@ -446,7 +394,6 @@ public class KState<C extends StateCandidate<C, T, S>, T extends StateTransition
         return candidateStorage;
     }
 
-    @Override
     public JSONObject toJSON() throws JSONException {
         JSONObject json = new JSONObject();
         JSONArray jsonsequence = new JSONArray();

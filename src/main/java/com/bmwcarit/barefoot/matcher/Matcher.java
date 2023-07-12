@@ -482,7 +482,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         return transitions;
     }
 
-    protected Map<MatcherCandidate, Tuple<MatcherTransition, Double>> addTransitions(
+    private Map<MatcherCandidate, Tuple<MatcherTransition, Double>> addTransitions(
             Tuple<MatcherSample, Set<MatcherCandidate>> candidates, MatcherCandidate predecessor, double base,
             Map<RoadPoint, List<Road>> routes, MatcherSample matcherSample) {
         Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new HashMap<>();

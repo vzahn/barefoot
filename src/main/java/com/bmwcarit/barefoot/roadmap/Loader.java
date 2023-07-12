@@ -12,26 +12,18 @@
  */
 package com.bmwcarit.barefoot.roadmap;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.road.BfmapReader;
 import com.bmwcarit.barefoot.util.SourceException;
-import com.bmwcarit.barefoot.util.Tuple;
 
 /**
  * Standard map loader that loads road map from database connection or file
@@ -104,58 +96,6 @@ public class Loader {
         }
 
         return map;
-    }
-
-    /**
-     * Reads road type configuration from file.
-     *
-     * @param path
-     *            Path of the road type configuration file.
-     * @return Mapping of road class identifiers to priority factor and default
-     *         maximum speed.
-     * @throws JSONException
-     *             thrown on JSON extraction or parsing error.
-     * @throws IOException
-     *             thrown on file reading error.
-     */
-    public static Map<Short, Tuple<Double, Integer>> read(String path) throws JSONException, IOException {
-        BufferedReader file = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
-
-        String line = null, json = new String();
-        while ((line = file.readLine()) != null) {
-            json += line;
-        }
-        file.close();
-
-        return roadtypes(new JSONObject(json));
-    }
-
-    /**
-     * Reads road type configuration from JSON representation.
-     *
-     * @param jsonconfig
-     *            JSON representation of the road type configuration.
-     * @return Mapping of road class identifiers to priority factor and default
-     *         maximum speed.
-     * @throws JSONException
-     *             thrown on JSON extraction or parsing error.
-     */
-    public static Map<Short, Tuple<Double, Integer>> roadtypes(JSONObject jsonconfig) throws JSONException {
-
-        Map<Short, Tuple<Double, Integer>> config = new HashMap<>();
-
-        JSONArray jsontags = jsonconfig.getJSONArray("tags");
-        for (int i = 0; i < jsontags.length(); ++i) {
-            JSONObject jsontag = jsontags.getJSONObject(i);
-            JSONArray jsonvalues = jsontag.getJSONArray("values");
-            for (int j = 0; j < jsonvalues.length(); ++j) {
-                JSONObject jsonvalue = jsonvalues.getJSONObject(j);
-                config.put((short) jsonvalue.getInt("id"),
-                        new Tuple<>(jsonvalue.getDouble("priority"), jsonvalue.getInt("maxspeed")));
-            }
-        }
-
-        return config;
     }
 
 }

@@ -23,17 +23,8 @@ import org.json.JSONObject;
  * with a HMM filter {@link Filter}.
  */
 public class Sample {
-    private long time;
 
-    /**
-     * Creates {@link Sample} object with a timestamp in milliseconds epoch time.
-     *
-     * @param time
-     *            Timestamp of position measurement in milliseconds epoch time.
-     */
-    public Sample(long time) {
-        this.time = time;
-    }
+    private long time;
 
     /**
      * Creates {@link Sample} object from JSON representation.
