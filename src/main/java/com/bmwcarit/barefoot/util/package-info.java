@@ -12,7 +12,6 @@
  */
 
 /**
- * Utilities including tuples types, time measurement, PostgreSQL database access, TCP/IP server,
- * and others.
+ * Utilities including tuples types and others.
  */
 package com.bmwcarit.barefoot.util;
