@@ -11,10 +11,10 @@
  * language governing permissions and limitations under the License.
  */
 
-package com.bmwcarit.barefoot.markov;
+package com.bmwcarit.barefoot.matcher;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,41 +22,32 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bmwcarit.barefoot.matcher.MatcherCandidate;
-import com.bmwcarit.barefoot.matcher.MatcherSample;
-import com.bmwcarit.barefoot.matcher.MatcherTransition;
 import com.bmwcarit.barefoot.util.Tuple;
 
 /**
- * Hidden Markov Model (HMM) filter for online and offline inference of states
- * in a stochastic process.
- *
- * @param <C>
- *            Candidate inherits from {@link StateCandidate}.
- * @param <T>
- *            Transition inherits from {@link StateTransition}.
- * @param <S>
- *            Sample inherits from {@link Sample}.
+ * Hidden Markov Model (HMM) filter for inference of states in a stochastic
+ * process.
  */
-public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateTransition, S extends Sample> {
+public abstract class Filter {
     private final static Logger logger = LoggerFactory.getLogger(Filter.class);
 
     /**
-     * Gets state vector, which is a set of {@link StateCandidate} objects and with
-     * its emission probability.
+     * Gets state vector, which is a set of {@link MatcherCandidate} objects and
+     * with its emission probability.
      *
      * @param predecessors
      *            Predecessor state candidate <i>s<sub>t-1</sub></i>.
      * @param sample
      *            Measurement sample.
-     * @return Set of tuples consisting of a {@link StateCandidate} and its emission
-     *         probability.
+     * @return Set of tuples consisting of a {@link MatcherCandidate} and its
+     *         emission probability.
      */
-    protected abstract Set<Tuple<C, Double>> candidates(Set<C> predecessors, S sample);
+    protected abstract Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
+            MatcherSample sample);
 
     /**
-     * Gets state vector, which is a set of {@link StateCandidate} objects and with
-     * its emission probability.
+     * Gets state vector, which is a set of {@link MatcherCandidate} objects and
+     * with its emission probability.
      *
      * @param predecessors
      *            Predecessor state candidate <i>s<sub>t-1</sub></i>.
@@ -65,14 +56,15 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
      * 
      * @param radius
      *            SearchRadius for candidates.
-     * @return Set of tuples consisting of a {@link StateCandidate} and its emission
-     *         probability.
+     * @return Set of tuples consisting of a {@link MatcherCandidate} and its
+     *         emission probability.
      */
-    protected abstract Set<Tuple<C, Double>> candidates(Set<C> predecessors, S sample, Double radius);
+    protected abstract Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
+            MatcherSample sample, Double radius);
 
     /**
      * Gets transition and its transition probability for a pair of
-     * {@link StateCandidate}s, which is a candidate <i>s<sub>t</sub></i> and its
+     * {@link MatcherCandidate}s, which is a candidate <i>s<sub>t</sub></i> and its
      * predecessor <i>s<sub>t</sub></i>.
      *
      * @param predecessor
@@ -85,7 +77,8 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
      *         <i>s<sub>t</sub></i> and its transition probability, or null if there
      *         is no transition.
      */
-    protected abstract Tuple<T, Double> transition(Tuple<S, C> predecessor, Tuple<S, C> candidate);
+    protected abstract Tuple<MatcherTransition, Double> transition(Tuple<MatcherSample, MatcherCandidate> predecessor,
+            Tuple<MatcherSample, MatcherCandidate> candidate);
 
     /**
      * Gets transitions and its transition probabilities for each pair of state
@@ -107,16 +100,18 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
      *         <i>s<sub>t-1</sub></i> to <i>s<sub>t</sub></i> and its transition
      *         probability, or null if there no transition.
      */
-    protected Map<C, Map<C, Tuple<T, Double>>> transitions(Tuple<S, Set<C>> predecessors, Tuple<S, Set<C>> candidates) {
-        S sample = candidates.one();
-        S previous = predecessors.one();
+    protected Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions(
+            Tuple<MatcherSample, Set<MatcherCandidate>> predecessors,
+            Tuple<MatcherSample, Set<MatcherCandidate>> candidates) {
+        MatcherSample sample = candidates.one();
+        MatcherSample previous = predecessors.one();
 
-        Map<C, Map<C, Tuple<T, Double>>> map = new HashMap<>();
+        Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> map = new LinkedHashMap<>();
 
-        for (C predecessor : predecessors.two()) {
-            map.put(predecessor, new HashMap<C, Tuple<T, Double>>());
+        for (MatcherCandidate predecessor : predecessors.two()) {
+            map.put(predecessor, new LinkedHashMap<MatcherCandidate, Tuple<MatcherTransition, Double>>());
 
-            for (C candidate : candidates.two()) {
+            for (MatcherCandidate candidate : candidates.two()) {
                 map.get(predecessor).put(candidate,
                         transition(new Tuple<>(previous, predecessor), new Tuple<>(sample, candidate)));
             }
@@ -127,10 +122,10 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
 
     /**
      * Executes Hidden Markov Model (HMM) filter iteration that determines for a
-     * given measurement sample <i>z<sub>t</sub></i>, which is a {@link Sample}
-     * object, and of a predecessor state vector <i>S<sub>t-1</sub></i>, which is a
-     * set of {@link StateCandidate} objects, a state vector <i>S<sub>t</sub></i>
-     * with filter and sequence probabilities set.
+     * given measurement sample <i>z<sub>t</sub></i>, which is a
+     * {@link MatcherSample} object, and of a predecessor state vector
+     * <i>S<sub>t-1</sub></i>, which is a set of {@link MatcherCandidate} objects, a
+     * state vector <i>S<sub>t</sub></i> with filter and sequence probabilities set.
      * <p>
      * <b>Note:</b> The set of state candidates <i>S<sub>t-1</sub></i> is allowed to
      * be empty. This is either the initial case or an HMM break occured, which is
@@ -146,7 +141,8 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
      * @return State vector <i>S<sub>t</sub></i>, which may be empty if an HMM break
      *         occured.
      */
-    public Set<C> execute(Set<C> predecessors, S previous, S sample, Double radius) {
+    public Set<MatcherCandidate> execute(Set<MatcherCandidate> predecessors, MatcherSample previous,
+            MatcherSample sample, Double radius) {
         if (logger.isTraceEnabled()) {
             try {
                 logger.trace("execute sample {}", sample.toJSON());
@@ -158,22 +154,22 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
         assert (predecessors != null);
         assert (sample != null);
 
-        Set<C> result = new HashSet<>();
-        Set<Tuple<C, Double>> candidates = candidates(predecessors, sample, radius);
+        Set<MatcherCandidate> result = new LinkedHashSet<>();
+        Set<Tuple<MatcherCandidate, Double>> candidates = candidates(predecessors, sample, radius);
         logger.trace("{} state candidates", candidates.size());
 
         double normsum = 0;
 
         if (!predecessors.isEmpty()) {
-            Set<C> states = new HashSet<>();
-            for (Tuple<C, Double> candidate : candidates) {
+            Set<MatcherCandidate> states = new LinkedHashSet<>();
+            for (Tuple<MatcherCandidate, Double> candidate : candidates) {
                 states.add(candidate.one());
             }
-            Map<C, Map<C, Tuple<T, Double>>> transitions = transitions(new Tuple<>(previous, predecessors),
-                    new Tuple<>(sample, states));
+            Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = transitions(
+                    new Tuple<>(previous, predecessors), new Tuple<>(sample, states));
 
-            for (Tuple<C, Double> candidate : candidates) {
-                C candidateOne = candidate.one();
+            for (Tuple<MatcherCandidate, Double> candidate : candidates) {
+                MatcherCandidate candidateOne = candidate.one();
                 candidateOne.seqprob(Double.NEGATIVE_INFINITY);
                 if (logger.isTraceEnabled()) {
                     try {
@@ -184,9 +180,9 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
                         logger.trace("state candidate (not JSON parsable candidate: {})", e.getMessage());
                     }
                 }
-                C previousPredecessor = null;
-                for (C predecessor : predecessors) {
-                    Tuple<T, Double> transition = transitions.get(predecessor).get(candidateOne);
+                MatcherCandidate previousPredecessor = null;
+                for (MatcherCandidate predecessor : predecessors) {
+                    Tuple<MatcherTransition, Double> transition = transitions.get(predecessor).get(candidateOne);
                     if (transition == null || transition.two() == 0) {
                         continue;
                     }
@@ -274,11 +270,11 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
         }
 
         if (result.isEmpty() || predecessors.isEmpty()) {
-            for (Tuple<C, Double> candidate : candidates) {
+            for (Tuple<MatcherCandidate, Double> candidate : candidates) {
                 if (candidate.two() == 0) {
                     continue;
                 }
-                C candidateOne = candidate.one();
+                MatcherCandidate candidateOne = candidate.one();
                 normsum += candidate.two();
                 candidateOne.filtprob(candidate.two());
                 candidateOne.seqprob(Math.log10(candidate.two()));
@@ -301,7 +297,7 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
             logger.info("HMM break - no state emissions" + ((MatcherSample) sample).toString());
         }
 
-        for (C candidate : result) {
+        for (MatcherCandidate candidate : result) {
             /*
              * Change candidate to prob to 0, if normsum of all candidates is 0, NaN cannot
              * be transfered to json
@@ -327,7 +323,8 @@ public abstract class Filter<C extends StateCandidate<C, T, S>, T extends StateT
      * @param transition
      * @param seqprob
      */
-    private C modifyCandidate(C candidate, C predecessor, T transition, double seqprob) {
+    private MatcherCandidate modifyCandidate(MatcherCandidate candidate, MatcherCandidate predecessor,
+            MatcherTransition transition, double seqprob) {
         candidate.predecessor(predecessor);
         candidate.transition(transition);
         candidate.seqprob(seqprob);

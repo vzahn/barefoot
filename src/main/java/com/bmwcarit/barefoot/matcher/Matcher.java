@@ -14,17 +14,15 @@
 package com.bmwcarit.barefoot.matcher;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bmwcarit.barefoot.markov.Filter;
 import com.bmwcarit.barefoot.road.Heading;
 import com.bmwcarit.barefoot.roadmap.Distance;
 import com.bmwcarit.barefoot.roadmap.Road;
@@ -43,7 +41,7 @@ import com.esri.core.geometry.WktExportFlags;
  * (@{link Filter}) and determines emission and transition probabilities for map
  * matching with HMM.
  */
-public class Matcher extends Filter<MatcherCandidate, MatcherTransition, MatcherSample> {
+public class Matcher extends Filter {
     private static final Logger logger = LoggerFactory.getLogger(Matcher.class);
 
     private final RoadMap map;
@@ -381,7 +379,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
         // Minset is not yet suitable for all situations:
         // Set<RoadPoint> points = new HashSet<>(Minset.removeZeroMeter(pointsRadius));
 
-        Map<Long, RoadPoint> map = new HashMap<>();
+        Map<Long, RoadPoint> map = new LinkedHashMap<>();
         for (RoadPoint point : points) {
             map.put(point.edge().id(), point);
         }
@@ -397,7 +395,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                 points.add(predecessor.point());
             }
         }
-        Set<Tuple<MatcherCandidate, Double>> candidates = new HashSet<>();
+        Set<Tuple<MatcherCandidate, Double>> candidates = new LinkedHashSet<>();
         logger.debug("{} candidates", points.size());
         for (RoadPoint point : points) {
             MatcherCandidate candidate = new MatcherCandidate(point, sample);
@@ -461,19 +459,19 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
                     predecessors.two().size(), candidates.two().size());
         }
 
-        final Set<RoadPoint> targets = new HashSet<>();
+        final Set<RoadPoint> targets = new LinkedHashSet<>();
         for (MatcherCandidate candidate : candidates.two()) {
             targets.add(candidate.point());
         }
 
-        final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new ConcurrentHashMap<>();
+        final Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions = new LinkedHashMap<>();
         final double base = 1.0 * spatial.distance(predecessors.one().point(), candidates.one().point());
         final double bound = distance;
         final double deltaTime = (candidates.one().time() - predecessors.one().time()) / 1000;
         final double maxOverSpeed = maxVelocity;
 
         predecessors.two().forEach(predecessor -> {
-            final Map<RoadPoint, List<Road>> routes = base > bound ? new HashMap<>()
+            final Map<RoadPoint, List<Road>> routes = base > bound ? new LinkedHashMap<>()
                     : router.route(predecessor.point(), targets, cost, new Distance(), bound, deltaTime, maxOverSpeed);
 
             transitions.put(predecessor, addTransitions(candidates, predecessor, base, routes, predecessors.one()));
@@ -485,7 +483,7 @@ public class Matcher extends Filter<MatcherCandidate, MatcherTransition, Matcher
     private Map<MatcherCandidate, Tuple<MatcherTransition, Double>> addTransitions(
             Tuple<MatcherSample, Set<MatcherCandidate>> candidates, MatcherCandidate predecessor, double base,
             Map<RoadPoint, List<Road>> routes, MatcherSample matcherSample) {
-        Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new HashMap<>();
+        Map<MatcherCandidate, Tuple<MatcherTransition, Double>> map = new LinkedHashMap<>();
         double roundingFraction = 0.0001d;
         for (MatcherCandidate candidate : candidates.two()) {
             List<Road> edges = routes.get(candidate.point());

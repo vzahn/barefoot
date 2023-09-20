@@ -52,4 +52,9 @@ public class Edge extends AbstractEdge<Edge> {
     public long target() {
         return target;
     }
+
+    @Override
+    public int compareTo(AbstractEdge<Edge> o) {
+        return (int) (this.id() - o.id());
+    }
 }

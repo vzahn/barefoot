@@ -15,11 +15,11 @@ package com.bmwcarit.barefoot.spatial;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import com.bmwcarit.barefoot.util.Triple;
 import com.bmwcarit.barefoot.util.Tuple;
@@ -57,8 +57,8 @@ public class QuadTreeIndex implements SpatialIndex<Tuple<Long, Double>> {
         envelope = new Envelope2D();
         envelope.setCoords(-180, -90, 180, 90);
         index = new QuadTree(envelope, height);
-        geometries = new HashMap<>();
-        indexToGimId = new HashMap<>();
+        geometries = new LinkedHashMap<>();
+        indexToGimId = new LinkedHashMap<>();
     }
 
     /**
@@ -73,8 +73,8 @@ public class QuadTreeIndex implements SpatialIndex<Tuple<Long, Double>> {
         this.spatial = spatial;
         this.envelope = envelope;
         index = new QuadTree(envelope, height);
-        geometries = new HashMap<>();
-        indexToGimId = new HashMap<>();
+        geometries = new LinkedHashMap<>();
+        indexToGimId = new LinkedHashMap<>();
     }
 
     /**
@@ -150,7 +150,7 @@ public class QuadTreeIndex implements SpatialIndex<Tuple<Long, Double>> {
             return null;
         }
 
-        Set<Tuple<Long, Double>> nearests = new HashSet<>();
+        Set<Tuple<Long, Double>> nearests = new LinkedHashSet<>();
         double radius = 100, min = Double.MAX_VALUE;
 
         do {
@@ -190,7 +190,7 @@ public class QuadTreeIndex implements SpatialIndex<Tuple<Long, Double>> {
 
     @Override
     public Set<Tuple<Long, Double>> radius(Point c, double radius) {
-        Set<Tuple<Long, Double>> neighbors = new HashSet<>();
+        Set<Tuple<Long, Double>> neighbors = new LinkedHashSet<>();
 
         Envelope2D env = spatial.envelope(c, radius);
 
@@ -221,7 +221,7 @@ public class QuadTreeIndex implements SpatialIndex<Tuple<Long, Double>> {
             return null;
         }
 
-        Set<Long> visited = new HashSet<>();
+        Set<Long> visited = new LinkedHashSet<>();
 
         PriorityQueue<Triple<Long, Double, Double>> queue = new PriorityQueue<>(k,
                 new Comparator<Triple<Long, Double, Double>>() {
@@ -265,7 +265,7 @@ public class QuadTreeIndex implements SpatialIndex<Tuple<Long, Double>> {
 
         } while (queue.size() < k);
 
-        Set<Tuple<Long, Double>> result = new HashSet<>();
+        Set<Tuple<Long, Double>> result = new LinkedHashSet<>();
 
         while (result.size() < k) {
             Triple<Long, Double, Double> e = queue.poll();

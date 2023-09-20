@@ -23,7 +23,7 @@ import java.io.Serializable;
  * @param <Y>
  *            Type of second element.
  */
-public class Tuple<X, Y> implements Serializable {
+public class Tuple<X, Y> implements Serializable, Comparable<Object> {
     private static final long serialVersionUID = 1L;
     private X one = null;
     private Y two = null;
@@ -82,5 +82,10 @@ public class Tuple<X, Y> implements Serializable {
     public String toString() {
         String s = "RefID: " + this.one + " + flitprob: " + this.two;
         return s;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return (int) (this.hashCode() - o.hashCode());
     }
 }

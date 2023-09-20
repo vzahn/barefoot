@@ -14,15 +14,15 @@
 package com.bmwcarit.barefoot.topology;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
     /**
      * Route mark representation for msmt2.
      */
-    class Mark extends Quadruple<E, E, Double, Double> implements Comparable<Mark> {
+    class Mark extends Quadruple<E, E, Double, Double> {
         private static final long serialVersionUID = 1L;
         private double drivenTime;
 
@@ -70,18 +70,18 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
         }
 
         @Override
-        public int compareTo(Mark other) {
-            return (this.three() < other.three()) ? -1 : (this.three() > other.three()) ? 1 : 0;
+        public int compareTo(Object other) {
+            return (this.three() < ((Mark) other).three()) ? -1 : (this.three() > ((Mark) other).three()) ? 1 : 0;
         }
     }
 
     @Override
     public Map<P, List<E>> route(P source, Set<P> targets, Cost<E> cost, Cost<E> bound, Double max, Double deltaTime,
             Double maxVelocity) {
-        Map<P, Tuple<P, List<E>>> map = msmt(new HashSet<>(Collections.singletonList(source)), targets, cost, bound,
+        Map<P, Tuple<P, List<E>>> map = msmt(new LinkedHashSet<>(Collections.singletonList(source)), targets, cost, bound,
                 max, deltaTime, maxVelocity);
 
-        Map<P, List<E>> result = new HashMap<>();
+        Map<P, List<E>> result = new LinkedHashMap<>();
         for (Entry<P, Tuple<P, List<E>>> entry : map.entrySet()) {
             result.put(entry.getKey(), entry.getValue() == null ? null : entry.getValue().two());
         }
@@ -94,13 +94,13 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
         /*
          * Initialize map of edges to target points.
          */
-        Map<E, Set<P>> targetEdges = new HashMap<>();
+        Map<E, Set<P>> targetEdges = new LinkedHashMap<>();
         for (P target : targets) {
             logger.trace("initialize target {} with edge {} and fraction {}", target, target.edge().id(),
                     target.fraction());
             Set<P> targetEdge = targetEdges.get(target.edge());
             if (targetEdge == null) {
-                targetEdges.put(target.edge(), new HashSet<>(Collections.singletonList(target)));
+                targetEdges.put(target.edge(), new LinkedHashSet<>(Collections.singletonList(target)));
             } else {
                 targetEdge.add(target);
             }
@@ -110,10 +110,10 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
          * Setup data structures
          */
         PriorityQueue<Mark> priorities = new PriorityQueue<>();
-        Map<E, Mark> entries = new HashMap<>();
-        Map<P, Mark> finishs = new HashMap<>();
-        Map<Mark, P> reaches = new HashMap<>();
-        Map<Mark, P> starts = new HashMap<>();
+        Map<E, Mark> entries = new LinkedHashMap<>();
+        Map<P, Mark> finishs = new LinkedHashMap<>();
+        Map<Mark, P> reaches = new LinkedHashMap<>();
+        Map<Mark, P> starts = new LinkedHashMap<>();
         Cost<E> time = (Cost<E>) new TimeSpeed(maxVelocity);
 
         /*
@@ -252,7 +252,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
             }
         }
 
-        Map<P, Tuple<P, List<E>>> paths = new HashMap<>();
+        Map<P, Tuple<P, List<E>>> paths = new LinkedHashMap<>();
 
         for (P target : targets) {
             Mark iterator = finishs.get(target);
@@ -272,6 +272,7 @@ public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements 
 
         entries.clear();
         finishs.clear();
+        logger.debug(reaches.toString());
         reaches.clear();
         priorities.clear();
 

@@ -153,6 +153,10 @@ public class Road extends AbstractEdge<Road> {
         JSONObject json = new JSONObject();
         json.put("road", base().id());
         json.put("heading", heading());
+        Short forced = base.getForced();
+        if (forced != null) {
+            json.put("f", forced);
+        }
         return json;
     }
 
@@ -181,6 +185,11 @@ public class Road extends AbstractEdge<Road> {
     public String toString() {
         String s = base().refid() + ", Tunnel:" + base.getTunnel() + ", TunnelEntry:" + base.getTunnelEntry();
         return s;
+    }
+
+    @Override
+    public int compareTo(AbstractEdge<Road> o) {
+        return (int) (this.id() - o.id());
     }
 
 }

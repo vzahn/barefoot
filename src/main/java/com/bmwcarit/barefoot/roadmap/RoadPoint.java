@@ -25,10 +25,11 @@ import com.esri.core.geometry.Point;
  * fraction <i>f</i>, with <i>0 &le; f &le; 1</i>, which defines an exact
  * position on the {@link Road}.
  */
-public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
+public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> implements Comparable<RoadPoint> {
     private static final SpatialOperator spatial = new Geography();
     private final Point geometry;
     private final double azimuth;
+    private final Short forced;
 
     /**
      * Creates a {@link RoadPoint}.
@@ -43,6 +44,7 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
         super(road, fraction);
         this.geometry = spatial.interpolate(road.geometry(), fraction);
         this.azimuth = spatial.azimuth(road.geometry(), fraction);
+        this.forced = road.base().getForced();
     }
 
     /**
@@ -56,6 +58,10 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
 
     public double azimuth() {
         return azimuth;
+    }
+
+    public Short forced() {
+        return forced;
     }
 
     /**
@@ -91,5 +97,15 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> {
     public String toString() {
         String s = edge().base().refid() + "";
         return s;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(RoadPoint o) {
+        return (int) (this.hashCode() - o.hashCode());
     }
 }

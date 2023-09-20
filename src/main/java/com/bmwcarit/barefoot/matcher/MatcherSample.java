@@ -13,6 +13,9 @@
 
 package com.bmwcarit.barefoot.matcher;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,7 +29,7 @@ import com.esri.core.geometry.WktImportFlags;
  * Measurement sample for Hidden Markov Model (HMM) map matching which is a
  * position measurement, e.g. measured with a GPS device.
  */
-public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
+public class MatcherSample {
     private final String id;
     private final Point point;
     private final double azimuth;
@@ -34,6 +37,8 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
     private final double velocity;
     private final double accuracy;
     private final String traceId;
+
+    private long time;
 
     /**
      * Creates a {@link MatcherSample} object from its JSON representation.
@@ -45,7 +50,19 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
      *             thrown on JSON parse error.
      */
     public MatcherSample(JSONObject json) throws JSONException {
-        super(json);
+        time = json.optLong("time", Long.MIN_VALUE);
+        if (time == Long.MIN_VALUE) {
+            String string = json.optString("time", "");
+            if (!string.isEmpty()) {
+                try {
+                    time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssX").parse(json.getString("time")).getTime();
+                } catch (ParseException e) {
+                    throw new JSONException(e);
+                }
+            } else {
+                throw new JSONException("time key not found");
+            }
+        }
         id = json.getString("id");
         String wkt = json.getString("point");
         point = (Point) GeometryEngine.geometryFromWkt(wkt, WktImportFlags.wktImportDefaults, Type.Point);
@@ -120,9 +137,9 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
         return accuracy;
     }
 
-    @Override
     public JSONObject toJSON() throws JSONException {
-        JSONObject json = super.toJSON();
+        JSONObject json = new JSONObject();
+        json.put("time", time);
         json.put("id", id);
         json.put("point", GeometryEngine.geometryToWkt(point, WktExportFlags.wktExportPoint));
         if (!Double.isNaN(azimuth)) {
@@ -139,6 +156,15 @@ public class MatcherSample extends com.bmwcarit.barefoot.markov.Sample {
             json.put("traceId", traceId);
         }
         return json;
+    }
+
+    /**
+     * Gets the timestamp of the measurement sample in milliseconds epoch time.
+     *
+     * @return Timestamp of the measurement in milliseconds epoch time.
+     */
+    public long time() {
+        return time;
     }
 
     @Override

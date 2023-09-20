@@ -15,9 +15,9 @@ package com.bmwcarit.barefoot.roadmap;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
         }
 
         private Set<RoadPoint> split(Set<Tuple<Long, Double>> set) {
-            Set<RoadPoint> neighbors = new HashSet<>();
+            Set<RoadPoint> neighbors = new LinkedHashSet<>();
 
             /*
              * This uses the road

@@ -16,14 +16,13 @@ package com.bmwcarit.barefoot.matcher;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bmwcarit.barefoot.markov.Factory;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 
 /**
  * Matcher factory for creation of matching candidates, transitions, and
  * samples.
  */
-public class MatcherFactory extends Factory<MatcherCandidate, MatcherTransition, MatcherSample> {
+public class MatcherFactory {
     private final RoadMap map;
 
     /**
@@ -37,17 +36,14 @@ public class MatcherFactory extends Factory<MatcherCandidate, MatcherTransition,
         this.map = map;
     }
 
-    @Override
     public MatcherCandidate candidate(JSONObject json) throws JSONException {
         return new MatcherCandidate(json, this, map);
     }
 
-    @Override
     public MatcherTransition transition(JSONObject json) throws JSONException {
         return new MatcherTransition(json, map);
     }
 
-    @Override
     public MatcherSample sample(JSONObject json) throws JSONException {
         return new MatcherSample(json);
     }

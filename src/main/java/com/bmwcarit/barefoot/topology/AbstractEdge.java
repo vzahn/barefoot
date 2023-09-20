@@ -48,7 +48,7 @@ import java.util.Iterator;
  *            {@link Graph}. (Uses the curiously recurring template pattern
  *            (CRTP) for type-safe use of customized {@link AbstractEdge} type.)
  */
-public abstract class AbstractEdge<E extends AbstractEdge<E>> implements Serializable {
+public abstract class AbstractEdge<E extends AbstractEdge<E>> implements Serializable, Comparable<AbstractEdge<E>> {
     private static final long serialVersionUID = 1L;
     private transient E successor = null;
     private transient E neighbor = null;

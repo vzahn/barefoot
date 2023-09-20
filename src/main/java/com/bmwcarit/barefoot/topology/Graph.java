@@ -16,7 +16,7 @@ package com.bmwcarit.barefoot.topology;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class Graph<E extends AbstractEdge<E>> implements Serializable {
     private static final long serialVersionUID = 1L;
-    protected final Map<Long, E> edges = new HashMap<>();
+    protected final Map<Long, E> edges = new LinkedHashMap<>();
 
     /**
      * Adds an {@link AbstractEdge} to the graph. (Requires construction.)
@@ -61,7 +61,7 @@ public class Graph<E extends AbstractEdge<E>> implements Serializable {
      * @return Returns a self reference to this graph.
      */
     public Graph<E> construct() {
-        Map<Long, ArrayList<E>> map = new HashMap<>();
+        Map<Long, ArrayList<E>> map = new LinkedHashMap<>();
 
         for (E edge : edges.values()) {
             if (!map.containsKey(edge.source())) {

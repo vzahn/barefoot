@@ -16,7 +16,6 @@ package com.bmwcarit.barefoot.matcher;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bmwcarit.barefoot.markov.StateTransition;
 import com.bmwcarit.barefoot.roadmap.Road;
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.Route;
@@ -25,7 +24,7 @@ import com.bmwcarit.barefoot.roadmap.Route;
  * State transition between matching candidates in Hidden Markov Model (HMM) map
  * matching and contains a route between respective map positions.
  */
-public class MatcherTransition extends StateTransition {
+public class MatcherTransition {
     private Route route = null;
 
     /**
@@ -62,14 +61,12 @@ public class MatcherTransition extends StateTransition {
         return route;
     }
 
-    @Override
     public JSONObject toJSON() throws JSONException {
-        JSONObject json = super.toJSON();
+        JSONObject json = new JSONObject();
         json.put("route", route.toJSON());
         return json;
     }
 
-    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         for (Road e : route().path()) {
