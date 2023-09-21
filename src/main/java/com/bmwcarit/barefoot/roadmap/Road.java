@@ -36,6 +36,11 @@ public class Road extends AbstractEdge<Road> {
     private static final long serialVersionUID = 1L;
     private final BaseRoad base;
     private final Heading heading;
+    private final boolean forced;
+
+    public boolean isForced() {
+        return forced;
+    }
 
     public static Polyline invert(Polyline geometry) {
         Polyline reverse = new Polyline();
@@ -60,6 +65,27 @@ public class Road extends AbstractEdge<Road> {
     public Road(BaseRoad base, Heading heading) {
         this.base = base;
         this.heading = heading;
+        if (base.getForced() != null) {
+            switch (heading) {
+            case forward:
+                if (base.getForced() == 1 || base.getForced() == 3) {
+                    forced = true;
+                } else {
+                    forced = false;
+                }
+                break;
+
+            default:
+                if (base.getForced() == 2 || base.getForced() == 3) {
+                    forced = true;
+                } else {
+                    forced = false;
+                }
+                break;
+            }
+        } else {
+            forced = false;
+        }
     }
 
     @Override
@@ -153,8 +179,8 @@ public class Road extends AbstractEdge<Road> {
         JSONObject json = new JSONObject();
         json.put("road", base().id());
         json.put("heading", heading());
-        Short forced = base.getForced();
-        if (forced != null) {
+        boolean forced = isForced();
+        if (forced) {
             json.put("f", forced);
         }
         return json;

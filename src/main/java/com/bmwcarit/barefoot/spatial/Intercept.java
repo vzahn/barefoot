@@ -129,14 +129,14 @@ public class Intercept {
             Vector va1 = new Vector(xa1.x, xa1.y, 1);
             Vector va2 = new Vector(xa2.x, xa2.y, 1);
             Vector la = va1.cross(va2);
-            Vector lb = new Vector(la.y, -(la.x), la.x * xb1.y - la.y * xb1.x);
+            Vector lb = new Vector(la.getY(), -(la.getX()), la.getX() * xb1.y - la.getY() * xb1.x);
             Vector p0 = la.cross(lb);
-            p0 = p0.multiply(1d / p0.z);
+            p0 = p0.multiply(1d / p0.getZ());
 
             latb2Copy = latb2;
             lonb2Copy = lonb2;
 
-            GnomonicData rev = gnom.Reverse(latb2, lonb2, p0.x, p0.y);
+            GnomonicData rev = gnom.Reverse(latb2, lonb2, p0.getX(), p0.getY());
             latb2 = rev.lat;
             lonb2 = rev.lon;
 

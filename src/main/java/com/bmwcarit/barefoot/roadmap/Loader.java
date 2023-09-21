@@ -92,7 +92,7 @@ public class Loader {
             logger.info("File does not exist: " + file);
         } else {
             logger.info("load map from file {}", file.getAbsolutePath());
-            map = RoadMap.Load(new BfmapReader(file.getAbsolutePath()));
+            map = RoadMap.load(new BfmapReader(file.getAbsolutePath()));
         }
 
         return map;

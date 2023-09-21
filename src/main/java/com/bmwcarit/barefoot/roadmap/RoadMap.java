@@ -16,8 +16,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +129,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
      * @throws SourceException
      *             thrown if error occurs while loading roads.
      */
-    public static RoadMap Load(RoadReader reader) throws SourceException {
+    public static RoadMap load(RoadReader reader) throws SourceException {
 
         long memory = 0;
 

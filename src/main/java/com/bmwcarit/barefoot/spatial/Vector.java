@@ -20,18 +20,19 @@ package com.bmwcarit.barefoot.spatial;
  * Vector in three-dimensional space.
  */
 public class Vector {
+
     /**
      * Component in x dimension.
      */
-    public double x = Double.NaN;
+    private double x = Double.NaN;
     /**
      * Component in y dimension.
      */
-    public double y = Double.NaN;
+    private double y = Double.NaN;
     /**
      * Component in z dimension.
      */
-    public double z = Double.NaN;
+    private double z = Double.NaN;
 
     /**
      * Vector constructor.
@@ -96,5 +97,32 @@ public class Vector {
      */
     public double dot(Vector other) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
+    }
+
+    /**
+     * Get x.
+     * 
+     * @return the x
+     */
+    public double getX() {
+        return x;
+    }
+
+    /**
+     * Get y.
+     * 
+     * @return the y
+     */
+    public double getY() {
+        return y;
+    }
+
+    /**
+     * Get z.
+     * 
+     * @return the z
+     */
+    public double getZ() {
+        return z;
     }
 }
