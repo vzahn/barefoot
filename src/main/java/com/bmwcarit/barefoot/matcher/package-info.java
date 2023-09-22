@@ -12,7 +12,7 @@
  */
 
 /**
- * Hidden Markov Model (HMM) map matching to determine an object's path (online or offline) and an
- * object's current position (online) on the map.
+ * Hidden Markov Model (HMM) map matching to determine an object's path and an
+ * object's current position on the map.
  */
 package com.bmwcarit.barefoot.matcher;

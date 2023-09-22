@@ -13,7 +13,6 @@
 
 package com.bmwcarit.barefoot.matcher;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -39,20 +38,6 @@ public abstract class Filter {
      *            Predecessor state candidate <i>s<sub>t-1</sub></i>.
      * @param sample
      *            Measurement sample.
-     * @return Set of tuples consisting of a {@link MatcherCandidate} and its
-     *         emission probability.
-     */
-    protected abstract Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
-            MatcherSample sample);
-
-    /**
-     * Gets state vector, which is a set of {@link MatcherCandidate} objects and
-     * with its emission probability.
-     *
-     * @param predecessors
-     *            Predecessor state candidate <i>s<sub>t-1</sub></i>.
-     * @param sample
-     *            Measurement sample.
      * 
      * @param radius
      *            SearchRadius for candidates.
@@ -63,30 +48,8 @@ public abstract class Filter {
             MatcherSample sample, Double radius);
 
     /**
-     * Gets transition and its transition probability for a pair of
-     * {@link MatcherCandidate}s, which is a candidate <i>s<sub>t</sub></i> and its
-     * predecessor <i>s<sub>t</sub></i>.
-     *
-     * @param predecessor
-     *            Tuple of predecessor state candidate <i>s<sub>t-1</sub></i> and
-     *            its respective measurement sample.
-     * @param candidate
-     *            Tuple of state candidate <i>s<sub>t</sub></i> and its respective
-     *            measurement sample.
-     * @return Tuple consisting of the transition from <i>s<sub>t-1</sub></i> to
-     *         <i>s<sub>t</sub></i> and its transition probability, or null if there
-     *         is no transition.
-     */
-    protected abstract Tuple<MatcherTransition, Double> transition(Tuple<MatcherSample, MatcherCandidate> predecessor,
-            Tuple<MatcherSample, MatcherCandidate> candidate);
-
-    /**
      * Gets transitions and its transition probabilities for each pair of state
      * candidates <i>s<sub>t</sub></i> and <i>s<sub>t-1</sub></i>.
-     * <p>
-     * <b>Note:</b> This method may be overridden for better performance, otherwise
-     * it defaults to the method {@link Filter#transition} for each single pair of
-     * state candidate and its possible predecessor.
      *
      * @param predecessors
      *            Tuple of a set of predecessor state candidate
@@ -100,25 +63,9 @@ public abstract class Filter {
      *         <i>s<sub>t-1</sub></i> to <i>s<sub>t</sub></i> and its transition
      *         probability, or null if there no transition.
      */
-    protected Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions(
+    protected abstract Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> transitions(
             Tuple<MatcherSample, Set<MatcherCandidate>> predecessors,
-            Tuple<MatcherSample, Set<MatcherCandidate>> candidates) {
-        MatcherSample sample = candidates.one();
-        MatcherSample previous = predecessors.one();
-
-        Map<MatcherCandidate, Map<MatcherCandidate, Tuple<MatcherTransition, Double>>> map = new LinkedHashMap<>();
-
-        for (MatcherCandidate predecessor : predecessors.two()) {
-            map.put(predecessor, new LinkedHashMap<MatcherCandidate, Tuple<MatcherTransition, Double>>());
-
-            for (MatcherCandidate candidate : candidates.two()) {
-                map.get(predecessor).put(candidate,
-                        transition(new Tuple<>(previous, predecessor), new Tuple<>(sample, candidate)));
-            }
-        }
-
-        return map;
-    }
+            Tuple<MatcherSample, Set<MatcherCandidate>> candidates);
 
     /**
      * Executes Hidden Markov Model (HMM) filter iteration that determines for a

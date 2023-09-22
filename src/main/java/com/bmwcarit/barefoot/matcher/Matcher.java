@@ -358,12 +358,6 @@ public class Matcher extends Filter {
     }
 
     @Override
-    protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors,
-            MatcherSample sample) {
-        return candidates(predecessors, sample, null);
-    }
-
-    @Override
     protected Set<Tuple<MatcherCandidate, Double>> candidates(Set<MatcherCandidate> predecessors, MatcherSample sample,
             Double perimeter) {
         if (logger.isTraceEnabled()) {
@@ -438,13 +432,6 @@ public class Matcher extends Filter {
             }
         }
         return candidates;
-    }
-
-    @Override
-    protected Tuple<MatcherTransition, Double> transition(Tuple<MatcherSample, MatcherCandidate> predecessor,
-            Tuple<MatcherSample, MatcherCandidate> candidate) {
-
-        return null;
     }
 
     @Override
