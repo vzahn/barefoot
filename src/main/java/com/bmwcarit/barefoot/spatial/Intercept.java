@@ -16,7 +16,6 @@
  */
 package com.bmwcarit.barefoot.spatial;
 
-import net.sf.geographiclib.GeoMath;
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
 import net.sf.geographiclib.Gnomonic;
@@ -61,7 +60,7 @@ import net.sf.geographiclib.GnomonicData;
 
 public class Intercept {
 
-    private static final double eps = 0.01 * Math.sqrt(GeoMath.epsilon);
+    private static final double eps = 0.01 * Math.sqrt(Math.ulp(1.0));
     /**
      * Maximum number of iterations for calculation of interception point. (The
      * solution should usually converge before reaching the maximum number of
