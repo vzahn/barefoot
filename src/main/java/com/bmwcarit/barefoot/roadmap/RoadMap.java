@@ -69,6 +69,56 @@ public class RoadMap extends Graph<Road> implements Serializable {
         return roads;
     }
 
+    private class RoadReaderImpl implements RoadReader {
+        Iterator<Road> iterator = null;
+        Set<Short> exclusions = null;
+        Polygon polygon = null;
+
+        @Override
+        public boolean isOpen() {
+            return (iterator != null);
+        }
+
+        @Override
+        public void open() throws SourceException {
+            open(null, null);
+        }
+
+        @Override
+        public void open(Polygon polygon, Set<Short> exclusions) throws SourceException {
+            iterator = edges.values().iterator();
+            this.exclusions = exclusions;
+            this.polygon = polygon;
+        }
+
+        @Override
+        public void close() throws SourceException {
+            iterator = null;
+        }
+
+        @Override
+        public BaseRoad next() throws SourceException {
+            BaseRoad baseRoad = null;
+            do {
+                if (!iterator.hasNext()) {
+                    return null;
+                }
+
+                Road road = iterator.next();
+
+                if (road.id() % 2 == 1 && !road.base().oneway()) {
+                    continue;
+                }
+
+                baseRoad = road.base();
+            } while (baseRoad == null || exclusions != null && exclusions.contains(baseRoad.type())
+                    || polygon != null
+                            && !GeometryEngine.contains(polygon, baseRoad.geometry(), SpatialReference.create(4326))
+                            && !GeometryEngine.overlaps(polygon, baseRoad.geometry(), SpatialReference.create(4326)));
+            return baseRoad;
+        }
+    }
+
     private class Index implements SpatialIndex<RoadPoint> {
         private final QuadTreeIndex index = new QuadTreeIndex();
         private int intIndex = 0;
@@ -219,55 +269,6 @@ public class RoadMap extends Graph<Road> implements Serializable {
      * @return {@link RoadReader} object.
      */
     public RoadReader reader() {
-        return new RoadReader() {
-            Iterator<Road> iterator = null;
-            Set<Short> exclusions = null;
-            Polygon polygon = null;
-
-            @Override
-            public boolean isOpen() {
-                return (iterator != null);
-            }
-
-            @Override
-            public void open() throws SourceException {
-                open(null, null);
-            }
-
-            @Override
-            public void open(Polygon polygon, Set<Short> exclusions) throws SourceException {
-                iterator = edges.values().iterator();
-                this.exclusions = exclusions;
-                this.polygon = polygon;
-            }
-
-            @Override
-            public void close() throws SourceException {
-                iterator = null;
-            }
-
-            @Override
-            public BaseRoad next() throws SourceException {
-                BaseRoad baseRoad = null;
-                do {
-                    if (!iterator.hasNext()) {
-                        return null;
-                    }
-
-                    Road road = iterator.next();
-
-                    if (road.id() % 2 == 1 && !road.base().oneway()) {
-                        continue;
-                    }
-
-                    baseRoad = road.base();
-                } while (baseRoad == null || exclusions != null && exclusions.contains(baseRoad.type())
-                        || polygon != null
-                                && !GeometryEngine.contains(polygon, baseRoad.geometry(), SpatialReference.create(4326))
-                                && !GeometryEngine.overlaps(polygon, baseRoad.geometry(),
-                                        SpatialReference.create(4326)));
-                return baseRoad;
-            }
-        };
+        return new RoadReaderImpl();
     }
 }
