@@ -29,7 +29,7 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> implem
     private static final SpatialOperator spatial = new Geography();
     private final Point geometry;
     private final double azimuth;
-    private final Short forced;
+    private final boolean forced;
 
     /**
      * Creates a {@link RoadPoint}.
@@ -44,7 +44,7 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> implem
         super(road, fraction);
         this.geometry = spatial.interpolate(road.geometry(), fraction);
         this.azimuth = spatial.azimuth(road.geometry(), fraction);
-        this.forced = road.base().getForced();
+        this.forced = road.isForced();
     }
 
     /**
@@ -60,7 +60,7 @@ public class RoadPoint extends com.bmwcarit.barefoot.topology.Point<Road> implem
         return azimuth;
     }
 
-    public Short forced() {
+    public boolean forced() {
         return forced;
     }
 
