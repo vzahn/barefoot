@@ -41,7 +41,7 @@ public class Geography implements SpatialOperator {
         GeodesicData ai = Geodesic.WGS84.Inverse(a.getY(), a.getX(), ci.lat2, ci.lon2);
         GeodesicData ab = Geodesic.WGS84.Inverse(a.getY(), a.getX(), b.getY(), b.getX());
 
-        return (Math.abs(ai.azi1 - ab.azi1) < 1) ? ai.s12 / ab.s12 : (-1) * ai.s12 / ab.s12;
+        return (StrictMath.abs(ai.azi1 - ab.azi1) < 1) ? ai.s12 / ab.s12 : (-1) * ai.s12 / ab.s12;
     }
 
     @Override

@@ -49,9 +49,9 @@ public class Matcher extends Filter {
     private final Cost<Road> cost;
     private final SpatialOperator spatial;
 
-    private double sig2 = Math.pow(5d, 2);
-    private double sigA = Math.pow(10d, 2);
-    private double sqrt2piSigA = Math.sqrt(2d * Math.PI * sigA);
+    private double sig2 = StrictMath.pow(5d, 2);
+    private double sigA = StrictMath.pow(10d, 2);
+    private double sqrt2piSigA = StrictMath.sqrt(2d * Math.PI * sigA);
     private double lambda = 0d;
     private double radius = 200;
     private double distance = 15000;
@@ -105,7 +105,7 @@ public class Matcher extends Filter {
      *         emission probabilities.
      */
     public double getSigma() {
-        return Math.sqrt(this.sig2);
+        return StrictMath.sqrt(this.sig2);
     }
 
     /**
@@ -117,7 +117,7 @@ public class Matcher extends Filter {
      *            emission probabilities (default is 5 meters).
      */
     public void setSigma(double sigma) {
-        this.sig2 = Math.pow(sigma, 2);
+        this.sig2 = StrictMath.pow(sigma, 2);
     }
 
     /**
@@ -184,7 +184,7 @@ public class Matcher extends Filter {
     }
 
     public double getSigmaA() {
-        return Math.sqrt(this.sigA);
+        return StrictMath.sqrt(this.sigA);
     }
 
     /**
@@ -194,8 +194,8 @@ public class Matcher extends Filter {
      *            sigA
      */
     public void setSigmaA(double sigA) {
-        this.sigA = Math.pow(sigA, 2);
-        this.sqrt2piSigA = Math.sqrt(2d * Math.PI * sigA);
+        this.sigA = StrictMath.pow(sigA, 2);
+        this.sqrt2piSigA = StrictMath.sqrt(2d * StrictMath.PI * sigA);
     }
 
     public double getMaxVelocity() {
@@ -394,30 +394,31 @@ public class Matcher extends Filter {
         for (RoadPoint point : points) {
             MatcherCandidate candidate = new MatcherCandidate(point, sample);
             // a lane is ~ 3m, the deviation is 1.5m
-            double dz = Math.max(0d, spatial.distance(sample.point(), point.geometry()) - laneWidth / 2);
+            double dz = StrictMath.max(0d, spatial.distance(sample.point(), point.geometry()) - laneWidth / 2);
             double sigma2 = sig2;
-            double sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
+            double sqrt2piSig2 = StrictMath.sqrt(2d * StrictMath.PI * sigma2);
             if (useAccuracyForSigma && !Double.isNaN(sample.getAccuracy())) {
-                sigma2 = Math.pow((sample.getAccuracy() + getSigma()) / 2d, 2);
-                sqrt2piSig2 = Math.sqrt(2d * Math.PI * sigma2);
+                sigma2 = StrictMath.pow((sample.getAccuracy() + getSigma()) / 2d, 2);
+                sqrt2piSig2 = StrictMath.sqrt(2d * StrictMath.PI * sigma2);
             }
 
-            double emission = 1 / sqrt2piSig2 * Math.exp((-1) * dz * dz / (2 * sigma2));
+            double emission = 1 / sqrt2piSig2 * StrictMath.exp((-1) * dz * dz / (2 * sigma2));
 
             if (!Double.isNaN(sample.azimuth()) && !Double.isNaN(sample.getVelocity())
                     && sample.getVelocity() >= minHeadingVelocityThreshold) {
                 double da = sample.azimuth() > point.azimuth()
-                        ? Math.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
-                        : Math.min(point.azimuth() - sample.azimuth(), 360 - (point.azimuth() - sample.azimuth()));
+                        ? StrictMath.min(sample.azimuth() - point.azimuth(), 360 - (sample.azimuth() - point.azimuth()))
+                        : StrictMath.min(point.azimuth() - sample.azimuth(),
+                                360 - (point.azimuth() - sample.azimuth()));
 
                 emission = (1 / sqrt2piSig2 * 1 / sqrt2piSigA)
-                        * Math.exp((-1) * dz * dz / (2 * sigma2) + (-1) * da * da / (2 * sigA));
+                        * StrictMath.exp((-1) * dz * dz / (2 * sigma2) + (-1) * da * da / (2 * sigA));
                 candidate.setDeltaHeading(da);
                 candidate.setDistance(dz);
                 if (logger.isTraceEnabled()) {
                     logger.trace("{} diffHeading: {} emission: {}",
                             ((MatcherCandidate) candidate).point().edge().base().refid(), da,
-                            1 / sqrt2piSigA * Math.exp((-1) * da * da / (2 * sigA)));
+                            1 / sqrt2piSigA * StrictMath.exp((-1) * da * da / (2 * sigA)));
                 }
 
             }
@@ -426,7 +427,7 @@ public class Matcher extends Filter {
             if (logger.isTraceEnabled()) {
                 logger.trace("{} diffDistance: {} emission: {}",
                         ((MatcherCandidate) candidate).point().edge().base().refid(), dz,
-                        1 / sqrt2piSig2 * Math.exp((-1) * dz * dz / (2 * sigma2)));
+                        1 / sqrt2piSig2 * StrictMath.exp((-1) * dz * dz / (2 * sigma2)));
                 logger.trace("{} -> total emission: {}", ((MatcherCandidate) candidate).point().edge().base().refid(),
                         emission);
             }
@@ -497,18 +498,18 @@ public class Matcher extends Filter {
                     // 1mm is added due to rounding issues with double
 
                     start = new RoadPoint(edges.get(1),
-                            Math.max(0d, 1 - (start.fraction() + (roundingFraction / edges.get(1).length()))));
+                            StrictMath.max(0d, 1 - (start.fraction() + (roundingFraction / edges.get(1).length()))));
 
                     edges.remove(0);
 
                 } else {
                     if (start.fraction() < 1 - end.fraction()) {
                         end = new RoadPoint(edges.get(0),
-                                Math.min(1d, 1 - end.fraction() + (roundingFraction / edges.get(0).length())));
+                                StrictMath.min(1d, 1 - end.fraction() + (roundingFraction / edges.get(0).length())));
                         edges.remove(1);
                     } else {
                         start = new RoadPoint(edges.get(1),
-                                Math.max(0d, 1 - start.fraction() - (roundingFraction / edges.get(1).length())));
+                                StrictMath.max(0d, 1 - start.fraction() - (roundingFraction / edges.get(1).length())));
                         edges.remove(0);
                     }
                 }
@@ -522,7 +523,7 @@ public class Matcher extends Filter {
             // however, we experimentally choose
             // lambda * Math.exp((-1.0) * lambda * Math.max(0, route.length() - dt))
             // to avoid unnecessary routes in case of u-turns.
-            double beta = lambda == 0 ? (Math.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
+            double beta = lambda == 0 ? (StrictMath.max(1d, candidates.one().time() - matcherSample.time()) / 1000)
                     : 1 / lambda;
             double routeCost = routeForCostFunction.cost(cost);
             double distanceRoute = base;
@@ -532,12 +533,13 @@ public class Matcher extends Filter {
                 // the UTurn must be on the same segment as the previous segment other it is no
                 // UTurn and shall not be allowed.
                 if (predecessor.point().edge().base().id() == candidate.point().edge().base().id()) {
-                    transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base)) + uTurnPenalty) / beta);
+                    transition = (1 / beta)
+                            * StrictMath.exp((-1.0) * (StrictMath.abs((routeCost - base)) + uTurnPenalty) / beta);
                 } else {
                     transition = 0;
                 }
             } else {
-                transition = (1 / beta) * Math.exp((-1.0) * (Math.abs((routeCost - base))) / beta);
+                transition = (1 / beta) * StrictMath.exp((-1.0) * (StrictMath.abs((routeCost - base))) / beta);
             }
 
             // Weighting GPS re-gain
@@ -570,8 +572,8 @@ public class Matcher extends Filter {
                     tunnelPenaltyRoute = base;
                 }
 
-                transitionPenalty = Math.max((1 / beta) //
-                        * Math.exp((-1.0) * (tunnelPenaltyRoute * gpsOutageFactor) / beta),
+                transitionPenalty = StrictMath.max((1 / beta) //
+                        * StrictMath.exp((-1.0) * (tunnelPenaltyRoute * gpsOutageFactor) / beta),
                         Double.MIN_VALUE / transition);
 
             } // else leave transition as is, without punishing
@@ -582,7 +584,7 @@ public class Matcher extends Filter {
                 routeCost = routeCost - tunnelLength;
             }
             if ((routeCost > distanceRoute * transitionFactor
-                    || (distanceRoute > transitionDistance && routeCost > distanceRoute * Math.sqrt(2)))
+                    || (distanceRoute > transitionDistance && routeCost > distanceRoute * StrictMath.sqrt(2)))
                     && (distanceRoute > 35d || routeCost > base * maxBaseFactor)) {
                 transition = 0;
             }
@@ -600,7 +602,7 @@ public class Matcher extends Filter {
                         ((MatcherCandidate) predecessor).point().edge().base().refid(),
                         ((MatcherCandidate) candidate).point().edge().base().refid(), base, routeCost, transition);
             }
-            candidate.setDeltaRoute(Math.abs((routeForCostFunction.length() - base)));
+            candidate.setDeltaRoute(StrictMath.abs((routeForCostFunction.length() - base)));
             map.put(candidate, new Tuple<>(new MatcherTransition(route), transition));
 
         }

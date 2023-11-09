@@ -28,17 +28,19 @@
     		<groupId>org.apache.logging.log4j</groupId>
     		<artifactId>log4j-slf4j-impl</artifactId>
 		</dependency>
+		<!-- https://github.com/dschrade/geometry-api-java -->
 		<dependency>
 			<groupId>com.esri.geometry</groupId>
-			<artifactId>esri-geometry-api</artifactId>
+			<artifactId>esri-geometry-api-strict</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 		</dependency>
+		<!-- https://github.com/dschrade/geographiclib-java -->
 		<dependency>
 			<groupId>net.sf.geographiclib</groupId>
-			<artifactId>GeographicLib-Java</artifactId>
+			<artifactId>GeographicLib-Java-strict</artifactId>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
@@ -60,13 +62,13 @@
 			</dependency>
 			<dependency>
 				<groupId>com.esri.geometry</groupId>
-				<artifactId>esri-geometry-api</artifactId>
-				<version>2.2.4</version>
+				<artifactId>esri-geometry-api-strict</artifactId>
+				<version>2.2.5</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.geographiclib</groupId>
-				<artifactId>GeographicLib-Java</artifactId>
-				<version>2.0</version>
+				<artifactId>GeographicLib-Java-strict</artifactId>
+				<version>2.0.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -15,11 +15,11 @@ package com.bmwcarit.barefoot.spatial;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 
 import com.bmwcarit.barefoot.util.Triple;
 import com.bmwcarit.barefoot.util.Tuple;

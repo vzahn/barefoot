@@ -60,7 +60,7 @@ import net.sf.geographiclib.GnomonicData;
 
 public class Intercept {
 
-    private static final double eps = 0.01 * Math.sqrt(Math.ulp(1.0));
+    private static final double eps = 0.01 * StrictMath.sqrt(StrictMath.ulp(1.0));
     /**
      * Maximum number of iterations for calculation of interception point. (The
      * solution should usually converge before reaching the maximum number of
@@ -139,7 +139,7 @@ public class Intercept {
             latb2 = rev.lat;
             lonb2 = rev.lon;
 
-            if (Math.abs(lonb2Copy - lonb2) < eps && Math.abs(latb2Copy - latb2) < eps) {
+            if (StrictMath.abs(lonb2Copy - lonb2) < eps && StrictMath.abs(latb2Copy - latb2) < eps) {
                 break;
             }
         }

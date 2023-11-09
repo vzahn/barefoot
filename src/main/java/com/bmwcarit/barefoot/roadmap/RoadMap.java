@@ -215,7 +215,7 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
         System.gc();
         memory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - memory;
-        logger.info("~{} megabytes used for road data (estimate)", Math.max(0, Math.round(memory / 1E6)));
+        logger.info("~{} megabytes used for road data (estimate)", StrictMath.max(0, StrictMath.round(memory / 1E6)));
 
         return roadmap;
     }
@@ -243,7 +243,8 @@ public class RoadMap extends Graph<Road> implements Serializable {
 
         System.gc();
         memory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) - memory;
-        logger.info("~{} megabytes used for spatial index (estimate)", Math.max(0, Math.round(memory / 1E6)));
+        logger.info("~{} megabytes used for spatial index (estimate)",
+                StrictMath.max(0, StrictMath.round(memory / 1E6)));
 
         return this;
     }

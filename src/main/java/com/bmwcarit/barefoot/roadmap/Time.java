@@ -29,7 +29,7 @@ public class Time extends Cost<Road> {
      */
     @Override
     public double cost(Road road) {
-        return (distance.cost(road) * 3.6 / Math.min(road.maxspeed(), heuristic_speed));
+        return (distance.cost(road) * 3.6 / StrictMath.min(road.maxspeed(), heuristic_speed));
     }
 
 }

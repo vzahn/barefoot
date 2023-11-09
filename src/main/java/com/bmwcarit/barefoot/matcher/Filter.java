@@ -135,15 +135,16 @@ public abstract class Filter {
                     }
 
                     candidateOne.filtprob(candidateOne.filtprob() + (transition.two() * predecessor.filtprob()));
-                    double seqprob = predecessor.seqprob() + Math.log10(transition.two()) + Math.log10(candidate.two());
+                    double seqprob = predecessor.seqprob() + StrictMath.log10(transition.two())
+                            + StrictMath.log10(candidate.two());
                     if (logger.isTraceEnabled()) {
                         try {
                             logger.trace(
                                     "state transition {} -> {} (seqprob: {}, transitionlog10: {}, emissionlog10: {}) {}",
                                     ((MatcherCandidate) predecessor).point().edge().base().refid(),
                                     ((MatcherCandidate) candidate.one()).point().edge().base().refid(),
-                                    predecessor.seqprob(), Math.log10(transition.two()), Math.log10(candidate.two()),
-                                    transition.one().toJSON().toString());
+                                    predecessor.seqprob(), StrictMath.log10(transition.two()),
+                                    StrictMath.log10(candidate.two()), transition.one().toJSON().toString());
                         } catch (JSONException e) {
                             logger.trace("state transition (not JSON parsable transition: {})", e.getMessage());
                         } catch (NullPointerException npe) {
@@ -224,7 +225,7 @@ public abstract class Filter {
                 MatcherCandidate candidateOne = candidate.one();
                 normsum += candidate.two();
                 candidateOne.filtprob(candidate.two());
-                candidateOne.seqprob(Math.log10(candidate.two()));
+                candidateOne.seqprob(StrictMath.log10(candidate.two()));
                 candidateOne.time(sample.time());
                 result.add(candidateOne);
 
