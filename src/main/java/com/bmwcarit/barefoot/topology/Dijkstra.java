@@ -24,8 +24,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.LinkedHashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bmwcarit.barefoot.roadmap.TimeSpeed;
 import com.bmwcarit.barefoot.util.Quadruple;
@@ -43,7 +43,7 @@ import com.bmwcarit.barefoot.util.Tuple;
  *            {@link Point} type of positions in the network.
  */
 public class Dijkstra<E extends AbstractEdge<E>, P extends Point<E>> implements Router<E, P> {
-    private static Logger logger = LoggerFactory.getLogger(Dijkstra.class);
+    private static final Logger logger = LogManager.getLogger(Dijkstra.class);
 
     /**
      * Route mark representation for msmt2.

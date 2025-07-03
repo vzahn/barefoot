@@ -17,9 +17,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.util.Tuple;
 
@@ -28,7 +28,7 @@ import com.bmwcarit.barefoot.util.Tuple;
  * process.
  */
 public abstract class Filter {
-    private final static Logger logger = LoggerFactory.getLogger(Filter.class);
+    private final static Logger logger = LogManager.getLogger(Filter.class);
 
     /**
      * Gets state vector, which is a set of {@link MatcherCandidate} objects and

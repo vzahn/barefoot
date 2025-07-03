@@ -19,8 +19,8 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bmwcarit.barefoot.road.BfmapReader;
 import com.bmwcarit.barefoot.util.SourceException;
@@ -30,7 +30,7 @@ import com.bmwcarit.barefoot.util.SourceException;
  * buffer.
  */
 public class Loader {
-    private static Logger logger = LoggerFactory.getLogger(Loader.class);
+    private static final Logger logger = LogManager.getLogger(Loader.class);
 
     /**
      * Loads {@link RoadMap} object from database (or file buffer, if set to true)

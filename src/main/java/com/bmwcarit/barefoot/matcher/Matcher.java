@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bmwcarit.barefoot.road.Heading;
 import com.bmwcarit.barefoot.roadmap.Distance;
@@ -42,7 +42,7 @@ import com.esri.core.geometry.WktExportFlags;
  * matching with HMM.
  */
 public class Matcher extends Filter {
-    private static final Logger logger = LoggerFactory.getLogger(Matcher.class);
+    private static final Logger logger = LogManager.getLogger(Matcher.class);
 
     private final RoadMap map;
     private final Router<Road, RoadPoint> router;

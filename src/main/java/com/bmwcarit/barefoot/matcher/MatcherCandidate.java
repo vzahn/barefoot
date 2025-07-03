@@ -15,10 +15,10 @@ package com.bmwcarit.barefoot.matcher;
 
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.roadmap.RoadMap;
 import com.bmwcarit.barefoot.roadmap.RoadPoint;
@@ -30,7 +30,7 @@ import com.bmwcarit.barefoot.roadmap.RoadPoint;
 public class MatcherCandidate implements Comparable<MatcherCandidate> {
     private final RoadPoint point;
     private final MatcherSample sample;
-    private final static Logger logger = LoggerFactory.getLogger(MatcherCandidate.class);
+    private final static Logger logger = LogManager.getLogger(MatcherCandidate.class);
 
     private final String id;
     private MatcherCandidate predecessor = null;

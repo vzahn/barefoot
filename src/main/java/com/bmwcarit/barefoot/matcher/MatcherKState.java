@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bmwcarit.barefoot.util.Tuple;
 
@@ -37,7 +37,7 @@ import com.bmwcarit.barefoot.util.Tuple;
  */
 public class MatcherKState {
 
-    private final static Logger logger = LoggerFactory.getLogger(MatcherKState.class);
+    private final static Logger logger = LogManager.getLogger(MatcherKState.class);
     private final int k;
     private final long t;
     private final int maxCounters;

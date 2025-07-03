@@ -2,17 +2,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bmw-carit</groupId>
 	<artifactId>barefoot</artifactId>
-	<version>3.2.0</version>
+	<version>3.3.0</version>
 
     <build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
+				<version>3.14.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>21</source>
+					<target>21</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -25,8 +25,8 @@
 
 	<dependencies>
 		<dependency>
-    		<groupId>org.apache.logging.log4j</groupId>
-    		<artifactId>log4j-slf4j-impl</artifactId>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j2-impl</artifactId>
 		</dependency>
 		<!-- https://github.com/dschrade/geometry-api-java -->
 		<dependency>
@@ -46,29 +46,29 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-	    		<groupId>org.apache.logging.log4j</groupId>
-	    		<artifactId>log4j-slf4j-impl</artifactId>
-	    		<version>2.17.0</version>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j2-impl</artifactId>
+				<version>2.25.0</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
-				<version>4.11</version>
+				<version>4.13.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
-				<version>20230618</version>
+				<version>20250517</version>
 			</dependency>
 			<dependency>
 				<groupId>com.esri.geometry</groupId>
 				<artifactId>esri-geometry-api-strict</artifactId>
-				<version>2.2.5</version>
+				<version>2.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.geographiclib</groupId>
 				<artifactId>GeographicLib-Java-strict</artifactId>
-				<version>2.0.1</version>
+				<version>2.1.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
