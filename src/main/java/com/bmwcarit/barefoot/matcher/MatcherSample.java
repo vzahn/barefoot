@@ -37,6 +37,7 @@ public class MatcherSample {
     private final double velocity;
     private final double accuracy;
     private final String traceId;
+    private final Long refId;
 
     private long time;
 
@@ -91,6 +92,12 @@ public class MatcherSample {
         } else {
             traceId = null;
         }
+        if (json.has("refId")) {
+            refId = json.getLong("refId");
+        } else {
+            refId = null;
+        }
+
     }
 
     private static double norm(double azimuth) {
@@ -155,6 +162,9 @@ public class MatcherSample {
         if (traceId != null && !traceId.isEmpty()) {
             json.put("traceId", traceId);
         }
+        if (refId != null) {
+            json.put("refId", refId);
+        }
         return json;
     }
 
@@ -176,6 +186,10 @@ public class MatcherSample {
 
     public String getTraceId() {
         return traceId;
+    }
+
+    public Long getRefId() {
+        return refId;
     }
 
 }
